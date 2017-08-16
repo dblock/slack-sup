@@ -2,6 +2,7 @@ source 'http://rubygems.org'
 
 ruby '2.4.1'
 
+gem 'ambit'
 gem 'mongoid'
 gem 'mongoid-scroll'
 gem 'newrelic_rpm'

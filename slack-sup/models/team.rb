@@ -7,6 +7,8 @@ class Team
 
   scope :api, -> { where(api: true) }
 
+  has_many :users
+
   after_update :inform_subscribed_changed!
 
   def asleep?(dt = 2.weeks)
@@ -35,6 +37,37 @@ class Team
 
   def update_cc_text
     "Update your credit card info at #{SlackSup::Service.url}/update_cc?team_id=#{team_id}."
+  end
+
+  # synchronize users with slack
+  def sync!
+    client = Slack::Web::Client.new(token: token)
+    members = client.paginate(:users_list, presence: false).map(&:members).flatten
+    humans = members.select do |member|
+      !member.is_bot && !member.deleted && member.id != 'USLACKBOT'
+    end.map do |member|
+      existing_user = User.where(user_id: member.id).first
+      existing_user ||= User.new(user_id: member.id, team: self)
+      existing_user.user_name = member.name
+      existing_user.real_name = member.real_name
+      existing_user
+    end
+    humans.each do |human|
+      state = if human.persisted?
+                human.enabled? ? 'active' : 'back'
+              else
+                'new'
+      end
+      logger.info "Team #{self}: #{human} is #{state}."
+      human.enabled = true
+      human.save!
+    end
+    (users - humans).each do |dead_user|
+      next unless dead_user.enabled?
+      logger.info "Team #{self}: #{dead_user} was disabled."
+      dead_user.enabled = false
+      dead_user.save!
+    end
   end
 
   private

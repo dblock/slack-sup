@@ -4,12 +4,26 @@ class User
 
   field :user_id, type: String
   field :user_name, type: String
+  field :real_name, type: String
+
+  field :enabled, type: Boolean, default: true
+  scope :enabled, -> { where(enabled: true) }
 
   belongs_to :team, index: true
   validates_presence_of :team
 
+  has_many :meetings
+
   index({ user_id: 1, team_id: 1 }, unique: true)
   index(user_name: 1, team_id: 1)
+
+  def met_recently_with?(user, tt = 3.months)
+    Meeting.where(
+      user: self,
+      other: user,
+      :created_at.gt => tt.ago
+    ).exists?
+  end
 
   def slack_mention
     "<@#{user_id}>"
@@ -33,6 +47,6 @@ class User
   end
 
   def to_s
-    user_name
+    "user_name=#{user_name}, user_id=#{user_id}, real_name=#{real_name}"
   end
 end

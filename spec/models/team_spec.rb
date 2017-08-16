@@ -72,4 +72,9 @@ describe Team do
       end
     end
   end
+  context '#sync!' do
+    pending 'adds new users'
+    pending 'disables dead users'
+    pending 'reactivates users that are back'
+  end
 end

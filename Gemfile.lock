@@ -10,6 +10,7 @@ GEM
       tzinfo (~> 1.1)
     addressable (2.5.1)
       public_suffix (~> 2.0, >= 2.0.2)
+    ambit (0.13)
     ast (2.3.0)
     axiom-types (0.1.1)
       descendants_tracker (~> 0.0.4)
@@ -266,6 +267,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  ambit
   capybara
   database_cleaner
   fabrication
