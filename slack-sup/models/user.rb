@@ -6,6 +6,8 @@ class User
   field :user_name, type: String
   field :real_name, type: String
 
+  field :introduced_sup_at, type: DateTime
+
   field :enabled, type: Boolean, default: true
   scope :enabled, -> { where(enabled: true) }
 
@@ -27,6 +29,22 @@ class User
 
   def slack_mention
     "<@#{user_id}>"
+  end
+
+  INTRODUCING_SUP_MESSAGE = <<~EOS.freeze
+    Hi there! I'm your team's S'Up bot.
+
+    Every Tuesday I will ask you to setup an informal meeting, or S'Up, short for standup, with a couple randomly chosen colleagues at the company.
+    It's a great opportunity for you to share and learn about the many projects we've been working on across organizational boundaries!
+  EOS
+
+  def introduce_sup!
+    return if introduced_sup_at
+    client = Slack::Web::Client.new(token: team.token)
+    logger.info "Introducing SUP in a DM channel with #{self}."
+    channel = client.im_open(user: user_id)
+    client.chat_postMessage(text: User::INTRODUCING_SUP_MESSAGE, channel: channel.channel.id, as_user: true)
+    update_attributes!(introduced_sup_at: Time.now.utc)
   end
 
   def self.find_by_slack_mention!(team, user_name)
