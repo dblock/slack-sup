@@ -26,8 +26,45 @@ describe Round do
       end
     end
   end
-  context '#meeting_already' do
-    pending 'is false for meetings in a different round'
-    pending 'is true for meetings in the same round'
+  context 'a sup round' do
+    let!(:user1) { Fabricate(:user, team: team) }
+    let!(:user2) { Fabricate(:user, team: team) }
+    let!(:user3) { Fabricate(:user, team: team) }
+    let(:sup) { Fabricate(:sup, team: team, round: round, users: [user1, user2]) }
+    let!(:round) { Round.for(team) }
+    context '#meeting_already' do
+      context 'in the same round' do
+        it 'is true for multiple users' do
+          expect(round.send(:meeting_already?, [user1, user2])).to be true
+        end
+        it 'is true for one user' do
+          expect(round.send(:meeting_already?, [user1])).to be true
+        end
+        it 'is false for another user' do
+          expect(round.send(:meeting_already?, [Fabricate(:user, team: team)])).to be false
+        end
+      end
+      context 'in a new round immediate after a previous one' do
+        let!(:round2) { Round.for(team) }
+        it 'is false for multiple users' do
+          expect(round2.send(:meeting_already?, [user1, user2])).to be false
+        end
+        it 'is false for one user' do
+          expect(round2.send(:meeting_already?, [user1])).to be false
+        end
+        it 'is false for another user' do
+          expect(round2.send(:meeting_already?, [Fabricate(:user, team: team)])).to be false
+        end
+      end
+    end
+    context '#met_recently' do
+      it 'is true when users just met' do
+        expect(round.send(:met_recently?, [user1, user2])).to be true
+      end
+      it 'is false in some distant future' do
+        Timecop.travel(Time.now + 4.months)
+        expect(round.send(:met_recently?, [user1, user2])).to be false
+      end
+    end
   end
 end

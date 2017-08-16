@@ -234,6 +234,7 @@ GEM
       stripe (>= 1.31.0, <= 1.58.0)
     thor (0.19.4)
     thread_safe (0.3.6)
+    timecop (0.9.1)
     timers (4.1.2)
       hitimes
     tzinfo (1.2.3)
@@ -289,6 +290,7 @@ DEPENDENCIES
   slack-ruby-client
   stripe (~> 1.58.0)
   stripe-ruby-mock (~> 2.4.1)
+  timecop
   vcr
   webmock
 
