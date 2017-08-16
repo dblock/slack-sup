@@ -15,11 +15,20 @@ class Round
     Round.create!(team: team)
   end
 
-  after_create :run
+  after_create :run!
+
+  def to_s
+    "id=#{id}, #{team}"
+  end
 
   private
 
-  def run
+  def run!
+    group!
+    dm!
+  end
+
+  def group!
     return if @started_at
     @started_at = Time.now.utc
     logger.info "Generating sups for #{team} of #{team.users.enabled.count} users."
@@ -30,6 +39,16 @@ class Round
     rescue Ambit::ChoicesExhausted
       @started_at = nil
       logger.info "Finished round for #{team}."
+    end
+  end
+
+  def dm!
+    sups.each do |sup|
+      begin
+        sup.dm!
+      rescue StandardError => e
+        logger.warn "Error DMing sup #{self} #{sup} #{e.message}."
+      end
     end
   end
 

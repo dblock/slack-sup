@@ -7,7 +7,7 @@ class Team
 
   scope :api, -> { where(api: true) }
 
-  has_many :users
+  has_many :users, dependent: :destroy
 
   after_update :inform_subscribed_changed!
 

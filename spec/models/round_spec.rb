@@ -2,6 +2,9 @@ require 'spec_helper'
 
 describe Round do
   let(:team) { Fabricate(:team) }
+  before do
+    allow_any_instance_of(Sup).to receive(:dm!)
+  end
   context '#for' do
     it 'creates a round for a team' do
       expect(Round).to receive(:create!).with(team: team)
@@ -66,5 +69,9 @@ describe Round do
         expect(round.send(:met_recently?, [user1, user2])).to be false
       end
     end
+  end
+  context '#dm!' do
+    pending 'opens a DM channel with users'
+    pending 'sends users a sup message'
   end
 end
