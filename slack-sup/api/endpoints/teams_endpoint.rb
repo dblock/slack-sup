@@ -59,6 +59,8 @@ module Api
             )
           end
 
+          team.inform! Team::INSTALLED_TEXT
+
           SlackSup::Service.instance.start!(team)
           present team, with: Api::Presenters::TeamPresenter
         end

@@ -12,7 +12,7 @@ class Team
 
   after_update :inform_subscribed_changed!
 
-  def asleep?(dt = 2.weeks)
+  def asleep?(dt = 3.weeks)
     return false unless subscription_expired?
     time_limit = Time.now.utc - dt
     created_at <= time_limit
@@ -51,7 +51,7 @@ class Team
 
   def subscription_expired?
     return false if subscribed?
-    (created_at + 1.week) < Time.now
+    (created_at + 2.weeks) < Time.now
   end
 
   def subscribe_text
@@ -103,6 +103,11 @@ class Team
   def subscribe_team_text
     "Subscribe your team for $39.99 a year at #{SlackSup::Service.url}/subscribe?team_id=#{team_id}."
   end
+
+  INSTALLED_TEXT =
+    "Hi there! I'm your team's S'Up bot. " \
+    'Thanks for trying me out. Type `help` for instructions. ' \
+    "I'm going to setup some S'Ups via Slack DM shortly.".freeze
 
   SUBSCRIBED_TEXT =
     "Hi there! I'm your team's S'Up bot. " \

@@ -11,6 +11,7 @@ describe 'Teams', js: true, type: :feature do
   end
   context 'oauth', vcr: { cassette_name: 'auth_test' } do
     it 'registers a team' do
+      allow_any_instance_of(Team).to receive(:inform!).with(Team::INSTALLED_TEXT)
       allow_any_instance_of(Team).to receive(:ping!).and_return(ok: true)
       expect(SlackSup::Service.instance).to receive(:start!)
       oauth_access = { 'bot' => { 'bot_access_token' => 'token' }, 'team_id' => 'team_id', 'team_name' => 'team_name' }

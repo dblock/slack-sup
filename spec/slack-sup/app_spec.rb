@@ -19,16 +19,16 @@ describe SlackSup::App do
   context '#deactivate_asleep_teams!' do
     let!(:active_team) { Fabricate(:team, created_at: Time.now.utc) }
     let!(:active_team_one_week_ago) { Fabricate(:team, created_at: 1.week.ago) }
-    let!(:active_team_two_weeks_ago) { Fabricate(:team, created_at: 2.weeks.ago) }
+    let!(:active_team_three_weeks_ago) { Fabricate(:team, created_at: 3.weeks.ago) }
     let!(:subscribed_team_a_month_ago) { Fabricate(:team, created_at: 1.month.ago, subscribed: true) }
     it 'destroys teams inactive for two weeks' do
       expect_any_instance_of(Team).to receive(:inform!).with(
-        "The S'Up bot hasn't been used for 2 weeks, deactivating. Reactivate at #{SlackSup::Service.url}. Your data will be purged in another 2 weeks."
+        "The S'Up bot hasn't been used for 3 weeks, deactivating. Reactivate at #{SlackSup::Service.url}. Your data will be purged in another 2 weeks."
       ).once
       subject.send(:deactivate_asleep_teams!)
       expect(active_team.reload.active).to be true
       expect(active_team_one_week_ago.reload.active).to be true
-      expect(active_team_two_weeks_ago.reload.active).to be false
+      expect(active_team_three_weeks_ago.reload.active).to be false
       expect(subscribed_team_a_month_ago.reload.active).to be true
     end
   end

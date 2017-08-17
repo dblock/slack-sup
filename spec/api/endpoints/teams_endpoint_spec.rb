@@ -17,6 +17,7 @@ describe Api::Endpoints::TeamsEndpoint do
         oauth_access = { 'bot' => { 'bot_access_token' => 'token' }, 'team_id' => 'team_id', 'team_name' => 'team_name' }
         ENV['SLACK_CLIENT_ID'] = 'client_id'
         ENV['SLACK_CLIENT_SECRET'] = 'client_secret'
+        allow_any_instance_of(Team).to receive(:inform!).with(Team::INSTALLED_TEXT)
         allow_any_instance_of(Slack::Web::Client).to receive(:oauth_access).with(
           hash_including(
             code: 'code',

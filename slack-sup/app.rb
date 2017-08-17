@@ -54,7 +54,7 @@ module SlackSup
         next unless team.asleep?
         begin
           team.deactivate!
-          team.inform! "The S'Up bot hasn't been used for 2 weeks, deactivating. Reactivate at #{SlackSup::Service.url}. Your data will be purged in another 2 weeks."
+          team.inform! "The S'Up bot hasn't been used for 3 weeks, deactivating. Reactivate at #{SlackSup::Service.url}. Your data will be purged in another 2 weeks."
         rescue StandardError => e
           logger.warn "Error informing team #{team}, #{e.message}."
         end
