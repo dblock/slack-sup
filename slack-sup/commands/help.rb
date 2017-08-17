@@ -3,7 +3,8 @@ module SlackSup
     class Help < SlackRubyBot::Commands::Base
       HELP = <<~EOS.freeze
         ```
-        I am your friendly Team Sup bot.
+        Hi there! I'm your team's S'Up bot.
+        The most valuable relationships are not made of two people, they’re made of three.
 
         User
         ----
@@ -11,7 +12,6 @@ module SlackSup
 
         General
         -------
-
         help                - get this helpful message
         subscription        - show team ubscription info
         ```
