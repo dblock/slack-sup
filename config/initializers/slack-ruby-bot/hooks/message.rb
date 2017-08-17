@@ -5,7 +5,8 @@ module SlackRubyBot
       def command_classes
         [
           SlackSup::Commands::Help,
-          SlackSup::Commands::Subscription
+          SlackSup::Commands::Subscription,
+          SlackSup::Commands::Opt
         ]
       end
     end

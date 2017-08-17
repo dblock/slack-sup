@@ -26,8 +26,8 @@ class Round
   def group!
     return if @started_at
     @started_at = Time.now.utc
-    logger.info "Generating sups for #{team} of #{team.users.enabled.count} users."
-    remaining_users = team.users.enabled.to_a.shuffle
+    logger.info "Generating sups for #{team} of #{team.users.suppable.count} users."
+    remaining_users = team.users.suppable.to_a.shuffle
     begin
       solve(remaining_users)
       Ambit.fail!
@@ -53,8 +53,8 @@ class Round
     Ambit.fail! if met_recently?(combination)
     Ambit.fail! if meeting_already?(combination)
     Sup.create!(round: self, users: combination)
-    logger.info "   Creating sup for #{combination.map(&:user_name)}, #{sups.count * Round::SIZE} out of #{team.users.count}."
-    Ambit.clear! if sups.count * Round::SIZE == team.users.count
+    logger.info "   Creating sup for #{combination.map(&:user_name)}, #{sups.count * Round::SIZE} out of #{team.users.suppable.count}."
+    Ambit.clear! if sups.count * Round::SIZE == team.users.suppable.count
     solve(remaining_users - combination)
   end
 

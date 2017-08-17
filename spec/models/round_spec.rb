@@ -20,6 +20,32 @@ describe Round do
         sup = Sup.first
         expect(sup.users).to eq([user1, user2, user3])
       end
+      context 'opted out' do
+        let!(:user4) { Fabricate(:user, team: team) }
+        before do
+          user3.update_attributes!(opted_in: false)
+        end
+        it 'excludes opted out users' do
+          expect do
+            team.sup!
+          end.to change(Sup, :count).by(1)
+          sup = Sup.first
+          expect(sup.users).to eq([user1, user2, user4])
+        end
+      end
+      context 'disabled' do
+        let!(:user4) { Fabricate(:user, team: team) }
+        before do
+          user3.update_attributes!(enabled: false)
+        end
+        it 'excludes opted out users' do
+          expect do
+            team.sup!
+          end.to change(Sup, :count).by(1)
+          sup = Sup.first
+          expect(sup.users).to eq([user1, user2, user4])
+        end
+      end
     end
   end
   context 'a sup round' do

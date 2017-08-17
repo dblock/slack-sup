@@ -8,8 +8,14 @@ class User
 
   field :introduced_sup_at, type: DateTime
 
+  field :opted_in, type: Boolean, default: true
+  scope :opted_in, -> { where(opted_in: true) }
+
   field :enabled, type: Boolean, default: true
   scope :enabled, -> { where(enabled: true) }
+
+  scope :suppable, -> { where(enabled: true, opted_in: true) }
+  index(team_id: 1, enabled: 1, opted_in: 1)
 
   belongs_to :team, index: true
   validates_presence_of :team

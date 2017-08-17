@@ -5,11 +5,15 @@ module SlackSup
         ```
         I am your friendly Team Sup bot.
 
+        User
+        ----
+        opt in|out          - opt in/out of S'Up
+
         General
         -------
 
         help                - get this helpful message
-        subscription        - show subscription info
+        subscription        - show team ubscription info
         ```
 EOS
       def self.call(client, data, _match)
