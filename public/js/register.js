@@ -11,7 +11,7 @@ $(document).ready(function() {
         code: code
       },
       success: function(data) {
-        SlackSup.message('Team successfully registered!.');
+        SlackSup.message('Team successfully registered! Check your DMs.');
       },
       error: SlackSup.error
     });
