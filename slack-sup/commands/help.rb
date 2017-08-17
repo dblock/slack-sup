@@ -13,7 +13,11 @@ module SlackSup
         General
         -------
         help                - get this helpful message
+
+        Team Admins
+        -----------
         subscription        - show team ubscription info
+        set api on|off      - enable/disable API access to your team data
         ```
 EOS
       def self.call(client, data, _match)

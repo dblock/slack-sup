@@ -27,7 +27,7 @@ describe 'Update cc', js: true, type: :feature do
           page.find_field('CVC').set '345'
           find('button[type="submit"]').click
         end
-        sleep 7
+        sleep 5
         expect(find('#messages')).to have_text("Successfully updated team #{team.name} credit card. Thank you for your support!")
       end
     end
@@ -46,7 +46,7 @@ describe 'Update cc', js: true, type: :feature do
           page.find_field('CVC').set '345'
           find('button[type="submit"]').click
         end
-        sleep 7
+        sleep 5
         expect(find('#messages')).to have_text('Not a Subscriber')
       end
     end

@@ -255,6 +255,7 @@ GEM
       coercible (~> 1.0)
       descendants_tracker (~> 0.0, >= 0.0.3)
       equalizer (~> 0.0, >= 0.0.9)
+    wannabe_bool (0.6.0)
     webmock (3.0.1)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
@@ -294,6 +295,7 @@ DEPENDENCIES
   time_ago_in_words
   timecop
   vcr
+  wannabe_bool
   webmock
 
 RUBY VERSION

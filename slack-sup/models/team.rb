@@ -12,6 +12,11 @@ class Team
 
   after_update :inform_subscribed_changed!
 
+  def api_url
+    return unless api?
+    "#{SlackSup::Service.api_url}/teams/#{id}"
+  end
+
   def asleep?(dt = 3.weeks)
     return false unless subscription_expired?
     time_limit = Time.now.utc - dt

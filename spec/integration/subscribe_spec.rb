@@ -51,7 +51,7 @@ describe 'Subscribe', js: true, type: :feature do
         find('button[type="submit"]').click
       end
 
-      sleep 7
+      sleep 5
 
       find('#subscribe', visible: false)
       expect(find('#messages')).to have_text("Team #{team.name} successfully subscribed. Thank you for your support!")

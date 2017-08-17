@@ -4,6 +4,7 @@ class User
 
   field :user_id, type: String
   field :user_name, type: String
+  field :is_admin, type: Boolean, default: false
   field :real_name, type: String
 
   field :introduced_sup_at, type: DateTime
@@ -63,6 +64,7 @@ class User
   def self.find_create_or_update_by_slack_id!(client, slack_id)
     instance = User.where(team: client.owner, user_id: slack_id).first
     instance_info = Hashie::Mash.new(client.web_client.users_info(user: slack_id)).user
+    instance.update_attributes!(is_admin: instance_info.is_admin) if instance && instance.is_admin != instance_info.is_admin
     instance.update_attributes!(user_name: instance_info.name) if instance && instance.user_name != instance_info.name
     instance ||= User.create!(team: client.owner, user_id: slack_id, user_name: instance_info.name)
     instance

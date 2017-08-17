@@ -12,6 +12,7 @@ gem 'slack-ruby-bot-server'
 gem 'slack-ruby-client'
 gem 'stripe', '~> 1.58.0'
 gem 'time_ago_in_words'
+gem 'wannabe_bool'
 
 group :development, :test do
   gem 'foreman'
