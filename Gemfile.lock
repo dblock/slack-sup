@@ -276,6 +276,7 @@ DEPENDENCIES
   fabrication
   faker
   foreman
+  grape
   hyperclient
   mongoid
   mongoid-scroll
