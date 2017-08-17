@@ -72,9 +72,63 @@ describe Team do
       end
     end
   end
-  context '#sync!' do
-    pending 'adds new users'
-    pending 'disables dead users'
-    pending 'reactivates users that are back'
+  context 'team' do
+    let(:team) { Fabricate(:team) }
+    before do
+      allow(team).to receive(:sync!)
+    end
+    context '#sync!' do
+      pending 'adds new users'
+      pending 'disables dead users'
+      pending 'reactivates users that are back'
+    end
+    context '#sup!' do
+      it 'creates a round for a team' do
+        expect do
+          team.sup!
+        end.to change(Round, :count).by(1)
+        round = Round.first
+        expect(round.team).to eq(team)
+      end
+    end
+    context '#sup?' do
+      context 'without rounds' do
+        it 'is true' do
+          expect(team.sup?).to be true
+        end
+      end
+      context 'with a round' do
+        before do
+          team.sup!
+        end
+        it 'is false' do
+          expect(team.sup?).to be false
+        end
+        context 'after less than a week' do
+          before do
+            Timecop.travel(Time.now + 6.days)
+          end
+          it 'is false' do
+            expect(team.sup?).to be false
+          end
+        end
+        context 'after more than a week' do
+          before do
+            Timecop.travel(Time.now + 8.days)
+          end
+          it 'is true' do
+            expect(team.sup?).to be true
+          end
+          context 'and another round' do
+            before do
+              team.sup!
+            end
+            it 'is false' do
+              expect(team.sup?).to be false
+            end
+          end
+        end
+      end
+    end
   end
 end

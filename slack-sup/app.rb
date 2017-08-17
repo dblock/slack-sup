@@ -1,5 +1,7 @@
 module SlackSup
   class App < SlackRubyBotServer::App
+    include Celluloid
+
     def prepare!
       super
       deactivate_asleep_teams!
@@ -7,9 +9,28 @@ module SlackSup
 
     def after_start!
       check_subscribed_teams!
+      sup!
+      logger.info 'Starting sup cron.'
+      every 5 * 60 do
+        sup!
+      end
     end
 
     private
+
+    def sup!
+      Team.active.each do |team|
+        begin
+          last_sup_at = team.last_sup_at
+          logger.info "Checking #{team}, #{last_sup_at ? 'last sup ' + last_sup_at.ago_in_words : ' first time sup'}."
+          next unless team.sup?
+          round = team.sup!
+          logger.info "Created sup round #{round}."
+        rescue StandardError => e
+          logger.warn "Error in cron for team #{team}, #{e.message}."
+        end
+      end
+    end
 
     def deactivate_asleep_teams!
       Team.active.each do |team|

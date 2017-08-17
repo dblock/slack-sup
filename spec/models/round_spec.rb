@@ -3,18 +3,11 @@ require 'spec_helper'
 describe Round do
   let(:team) { Fabricate(:team) }
   before do
+    allow(team).to receive(:sync!)
+    allow_any_instance_of(User).to receive(:introduce_sup!)
     allow_any_instance_of(Sup).to receive(:dm!)
   end
-  context '#for' do
-    it 'creates a round for a team' do
-      expect(Round).to receive(:create!).with(team: team)
-      Round.for(team)
-    end
-  end
   context '#run' do
-    it 'runs clean without users' do
-      expect { Round.for(team) }.to_not raise_error
-    end
     pending 'times out after Round::TIMEOUT'
     context 'with users' do
       let!(:user1) { Fabricate(:user, team: team) }
@@ -22,7 +15,7 @@ describe Round do
       let!(:user3) { Fabricate(:user, team: team) }
       it 'generates groups of Round::SIZE size' do
         expect do
-          Round.for(team)
+          team.sup!
         end.to change(Sup, :count).by(1)
         sup = Sup.first
         expect(sup.users).to eq([user1, user2, user3])
@@ -33,8 +26,7 @@ describe Round do
     let!(:user1) { Fabricate(:user, team: team) }
     let!(:user2) { Fabricate(:user, team: team) }
     let!(:user3) { Fabricate(:user, team: team) }
-    let(:sup) { Fabricate(:sup, team: team, round: round, users: [user1, user2]) }
-    let!(:round) { Round.for(team) }
+    let!(:round) { team.sup! }
     context '#meeting_already' do
       context 'in the same round' do
         it 'is true for multiple users' do
@@ -48,7 +40,7 @@ describe Round do
         end
       end
       context 'in a new round immediate after a previous one' do
-        let!(:round2) { Round.for(team) }
+        let!(:round2) { team.sup! }
         it 'is false for multiple users' do
           expect(round2.send(:meeting_already?, [user1, user2])).to be false
         end

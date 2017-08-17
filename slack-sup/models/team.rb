@@ -8,13 +8,35 @@ class Team
   scope :api, -> { where(api: true) }
 
   has_many :users, dependent: :destroy
+  has_many :rounds, dependent: :destroy
 
   after_update :inform_subscribed_changed!
 
   def asleep?(dt = 2.weeks)
     return false unless subscription_expired?
-    time_limit = Time.now - dt
+    time_limit = Time.now.utc - dt
     created_at <= time_limit
+  end
+
+  def sup!
+    sync!
+    users.each(&:introduce_sup!)
+    rounds.create!
+  end
+
+  def last_sup
+    rounds.desc(:created_at).first
+  end
+
+  def last_sup_at
+    sup = last_sup
+    sup ? sup.created_at : nil
+  end
+
+  # is it time to sup?
+  def sup?(dt = 1.week)
+    time_limit = Time.now.utc - dt
+    (last_sup_at || time_limit) <= time_limit
   end
 
   def inform!(message)

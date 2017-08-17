@@ -10,11 +10,6 @@ class Round
   validates_presence_of :team
   has_many :sups, dependent: :destroy
 
-  # generate a new sup round for a team
-  def self.for(team)
-    Round.create!(team: team)
-  end
-
   after_create :run!
 
   def to_s
