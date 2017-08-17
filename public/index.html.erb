@@ -1,26 +1,146 @@
-<html>
- <head>
-  <title>Sup for Slack</title>
-  <%= partial 'public/partials/_head.html.erb' %>
-  <script src="/scripts/register.js"></script>
-</head>
- <body style="text-align: center">
-  <p style="margin: 50px;">
-    <a href="/"><img src='img/icon.png' width="120px"></a>
-  </p>
-  <p>
-    <h3>Sup for Slack</h3>
-  </p>
-  <p id='messages' />
-  <p id='register'>
-    <a href="https://slack.com/oauth/authorize?scope=bot&client_id=<%= ENV['SLACK_CLIENT_ID'] %>"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"></a>
-  </p>
-  <p>
-    <small>
-      Free 7 day trial, no credit card required. Subscribe for 39.99$/yr after that.
-    </small>
-  </p>
-  <%= partial 'public/partials/_footer.html.erb' %>
- </body>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="description" content="S'Up for Slack teams. Facilitate informal standups accross a company.">
+        <meta name="og:description" content="S'Up for Slack teams. Facilitate informal standups accross a company.">
+        <meta name="keywords" content="slack,scrum,standup,triads,teams,organizations">
+        <title>S'Up for Slack Teams</title>
+        <%= partial 'public/partials/_head.html' %>
+    </head>
+    <body id="page-top" class="index">
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header page-scroll">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand page-scroll" href="#page-top">S'Up for Slack Teams</a>
+                </div>
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="hidden">
+                            <a href="#page-top"></a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="#oss">Open-Source</a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="#api">API</a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="#contact">Help</a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" target="_blank" href="https://twitter.com/playplayio">Follow Us</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- /.navbar-collapse -->
+            </div>
+            <!-- /.container-fluid -->
+        </nav>
+        <!-- Header -->
+        <header>
+            <div class="container">
+                <div class="intro-text">
+                    <div class="intro-lead-in">Welcome to S'Up for Slack Teams</div>
+                    <div class="intro-subheading">
+                        Meet two colleagues once a week with the help of this bot.
+                        S'Ups help form connections between colleagues that normally aren't nearby or working with each other, creating a lattice of connections throughout a whole un-fragmented company.
+                    </div>
+                    <a id="uptime" href="https://twitter.com/playplayio">
+                        <h6 id="value" class="section-subheading text-center">&nbsp;</h6>
+                    </a>
+                    <div>
+                        Bot offline?
+                        <a href="https://twitter.com/messages/compose?recipient_id=4528918701&text=Help! My bot is offline. My team name is " class="twitter-dm-button" data-screen-name="@playplayio">
+                        I'm having trouble, DM @playplayio</a>
+                    </div>
+                    <div class="row spacer"></div>
+                    <div class="row text-center services-text-color">
+                      <a class="add-to-slack" href="https://slack.com/oauth/authorize?scope=bot&amp;client_id=<%= ENV['SLACK_CLIENT_ID'] %>"><img alt="Add S'Up to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"></a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <section id="oss">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <h3 class="section-heading">Open-Source</h3>
+                        <h3 class="section-subheading text-muted">The bot service is open-source under the MIT license.</h3>
+                        <h3 class="section-subheading text-muted"><a href="https://github.com/dblock/slack-sup" target="_blank">Fork us on Github</a></h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="api" class="bg-light-gray">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <h3 class="setion-heading">Hypermedia API</h3>
+                        <h3 class="section-subheading text-muted">Opt-in data is available via a Hypermedia HAL API.</h3>
+                        <h3 class="section-subheading text-muted">Try <a href="<%= SlackSup::Service.api_url %>" target="_blank">sup.playplay.io/api</a>.</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="contact">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <h2 class="section-heading">About Us and Help</h2>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <h3 class="section-subheading text-muted">
+                        Having trouble? Like what you see?
+                        <br>
+                        <a href='https://github.com/dblock/slack-sup'>Fork me on Github</a>,
+                        <a href='https://github.com/dblock/slack-sup/issues/new'>open an issue</a>,
+                        <a href='https://twitter.com/playplayio'>tweet at @playplayio</a>,
+                        or <a href='mailto:dblock[at]dblock[dot]org'>e-mail dblock[at]dblock[dot]org</a>.
+                        <br><br>
+                        <a href="https://twitter.com/share" class="twitter-share-button" data-url="<%= SlackSup::Service.url %>" data-text="Check out S'Up for @SlackHQ Teams @SlackAPI." data-via="playplayio" data-size="large" data-related="SlackAPI">Tweet</a>
+                        <br><br>
+                        Follow Us or DM <a href='https://twitter.com/playplayio' target="_blank">@playplayio on Twitter</a>.
+                        This is <a href='https://twitter.com/dblockdotorg' target="_blank">@dblockdotorg</a>'s pet project and is work in progress.
+                        <br /><br />
+                        tl;dr: S'Up for Slack does not want to know who you are and tries to collect just enough data to enable our services. Read our <a href='privacy.html' target="_blank">Privacy Policy</a>.
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div id="register" style="display: none;">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <div class="row spacer"></div>
+                        <div id="messages" class="alert">just click the button</div>
+                        <div class="alert">
+                            Having trouble? <a href='https://twitter.com/playplayio' target="_blank">@playplayio</a> on Twitter
+                            <br><br>
+                            <a href="https://twitter.com/share" class="twitter-share-button" data-url="<%= SlackSup::Service.url %>" data-text="I'm team captain on PlayPlay, a free ping pong, chess, pool and tic-tac-toe bot for @SlackHQ @SlackAPI." data-via="playplayio" data-size="large" data-related="SlackAPI">Tweet</a>
+                            <br><br>
+                            <a href='<%= SlackSup::Service.url %>'>Go back to playplay.io.</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <%= partial 'public/partials/_scripts.html' %>
+        <!-- Slack -->
+        <script src="js/register.js"></script>
+        <script src="js/status.js"></script>
+        <!-- Uptime -->
+        <script src="js/uptime.js"></script>
+    </body>
 </html>
-

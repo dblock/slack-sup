@@ -31,4 +31,20 @@ describe SlackSup::Service do
       end
     end
   end
+  context '#api_url' do
+    it 'defaults to playplay.io in production' do
+      expect(SlackSup::Service.api_url).to eq 'https://sup.playplay.io/api'
+    end
+    context 'when set' do
+      before do
+        ENV['API_URL'] = 'updated'
+      end
+      after do
+        ENV.delete 'API_URL'
+      end
+      it 'defaults to ENV' do
+        expect(SlackSup::Service.api_url).to eq 'updated'
+      end
+    end
+  end
 end

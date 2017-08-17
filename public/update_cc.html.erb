@@ -1,7 +1,8 @@
 <html>
   <head>
-    <title>Sup for Slack: Update Credit Card Info</title>
+    <title>S'Up for Slack Teams: Update Credit Card Info</title>
     <%= partial 'public/partials/_head.html' %>
+    <%= partial 'public/partials/_scripts.html' %>
     <%
       team = Team.where(team_id: request['team_id']).first
       stripe_token = request['stripeToken']
@@ -14,7 +15,7 @@
       <a href='/'><img src='img/icon.png' width='120px'></a>
     </p>
     <p>
-      <h3>Sup for Slack: Update Credit Card Info</h3>
+      <h3>S'Up for Slack Teams: Update Credit Card Info</h3>
     </p>
     <p id='messages' />
     <p id='update_cc'>

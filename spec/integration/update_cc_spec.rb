@@ -12,7 +12,7 @@ describe 'Update cc', js: true, type: :feature do
       let!(:team) { Fabricate(:team, stripe_customer_id: 'stripe_customer_id') }
       it 'updates cc' do
         visit "/update_cc?team_id=#{team.team_id}"
-        expect(find('h3')).to have_text('Sup for Slack: Update Credit Card Info')
+        expect(find('h3')).to have_text("S'UP FOR SLACK TEAMS: UPDATE CREDIT CARD INFO")
         customer = double
         expect(Stripe::Customer).to receive(:retrieve).and_return(customer)
         expect(customer).to receive(:source=)
@@ -35,7 +35,7 @@ describe 'Update cc', js: true, type: :feature do
       let!(:team) { Fabricate(:team, stripe_customer_id: nil) }
       it 'displays error' do
         visit "/update_cc?team_id=#{team.team_id}"
-        expect(find('h3')).to have_text('Sup for Slack: Update Credit Card Info')
+        expect(find('h3')).to have_text("S'UP FOR SLACK TEAMS: UPDATE CREDIT CARD INFO")
         click_button 'Update Credit Card'
         sleep 1
         stripe_iframe = all('iframe[name=stripe_checkout_app]').last
