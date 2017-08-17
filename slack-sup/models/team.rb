@@ -41,11 +41,12 @@ class Team
 
   def inform!(message)
     client = Slack::Web::Client.new(token: token)
-    channels = client.channels_list['channels'].select { |channel| channel['is_member'] }
-    return unless channels.any?
-    channel = channels.first
-    logger.info "Sending '#{message}' to #{self} on ##{channel['name']}."
-    client.chat_postMessage(text: message, channel: channel['id'], as_user: true)
+    members = client.paginate(:users_list, presence: false).map(&:members).flatten
+    members.select(&:is_admin).each do |admin|
+      channel = client.im_open(user: admin.id)
+      logger.info "Sending DM '#{message}' to #{admin.name}."
+      client.chat_postMessage(text: message, channel: channel.channel.id, as_user: true)
+    end
   end
 
   def subscription_expired?
@@ -96,17 +97,18 @@ class Team
 
   def trial_expired_text
     return unless subscription_expired?
-    'Your trial subscription has expired.'
+    "Your S'Up bot trial subscription has expired."
   end
 
   def subscribe_team_text
     "Subscribe your team for $39.99 a year at #{SlackSup::Service.url}/subscribe?team_id=#{team_id}."
   end
 
-  SUBSCRIBED_TEXT = <<~EOS.freeze
-    Your team has been subscribed. Thanks for being a customer!
-    Follow https://twitter.com/playplayio for news and updates.
-EOS
+  SUBSCRIBED_TEXT =
+    "Hi there! I'm your team's S'Up bot. " \
+    'Your team has purchased a yearly subscription. ' \
+    'Follow us on Twitter at https://twitter.com/playplayio for news and updates. ' \
+    'Thanks for being a customer!'.freeze
 
   def inform_subscribed_changed!
     return unless subscribed? && subscribed_changed?

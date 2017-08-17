@@ -37,12 +37,10 @@ class User
     "<@#{user_id}>"
   end
 
-  INTRODUCING_SUP_MESSAGE = <<~EOS.freeze
-    Hi there! I'm your team's S'Up bot.
-
-    Every Tuesday I will ask you to setup an informal meeting, or S'Up, short for standup, with a couple randomly chosen colleagues at the company.
-    It's a great opportunity for you to share and learn about the many projects we've been working on across organizational boundaries!
-  EOS
+  INTRODUCING_SUP_MESSAGE =
+    "Hi there! I'm your team's S'Up bot. " \
+    "Once a week I will ask you to setup an informal meeting, or S'Up, short for standup, with a couple randomly chosen colleagues at the company. " \
+    "It's a great opportunity for you to share and learn about the many projects we've been working on across organizational boundaries.".freeze
 
   def introduce_sup!
     return if introduced_sup_at

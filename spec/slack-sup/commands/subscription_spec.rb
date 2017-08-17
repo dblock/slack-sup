@@ -6,9 +6,7 @@ describe SlackSup::Commands::Subscription, vcr: { cassette_name: 'user_info' } d
   context 'team' do
     let!(:team) { Fabricate(:team) }
     it 'is a subscription feature' do
-      expect(message: "#{SlackRubyBot.config.user} subscription", user: 'user').to respond_with_slack_message(
-        "Your trial subscription has expired. Subscribe your team for $39.99 a year at #{SlackSup::Service.url}/subscribe?team_id=#{team.team_id}."
-      )
+      expect(message: "#{SlackRubyBot.config.user} subscription", user: 'user').to respond_with_slack_message(team.subscribe_text)
     end
   end
   context 'team without a customer ID' do

@@ -18,10 +18,10 @@ class Sup
     end
   end
 
-  PLEASE_SUP_MESSAGE = <<~EOS.freeze
-    S'up? Please find a time for a quick 20-min break on the calendar.
-    Then get together and fill each other in on something awesome you're focused on these days.
-  EOS
+  PLEASE_SUP_MESSAGE =
+    "Hi there! I'm your team's S'Up bot. " \
+    'Please find a time for a quick 20 minute break on the calendar. ' \
+    "Then get together and tell each other about something awesome you're working on these days.".freeze
 
   # creates a DM between all the parties involved
   def dm!
