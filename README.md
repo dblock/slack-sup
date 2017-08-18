@@ -18,7 +18,7 @@ We host the bot at [sup.playplay.io](https://sup.playplay.io).
 
 ### History
 
-S'Up was first introduced at [Artsy](https://www.artsy.net). This is a fresh rewrite of [artsy/sup](https://github.com/artsy/sup) for Slack teams.
+S'Up for Slack is made possible with the generous support of team [Artsy](https://www.artsy.net). This is a fresh rewrite of [artsy/sup](https://github.com/artsy/sup) for Slack teams during [ArtsyOpenSource](http://artsy.github.io) Hackathon 5.0.
 
 ### Copyright & License
 
