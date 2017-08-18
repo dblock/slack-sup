@@ -83,7 +83,11 @@ class Team
     client = Slack::Web::Client.new(token: token)
     members = client.paginate(:users_list, presence: false).map(&:members).flatten
     humans = members.select do |member|
-      !member.is_bot && !member.deleted && member.id != 'USLACKBOT'
+      !member.is_bot &&
+      !member.deleted &&
+      !member.is_restricted &&
+      !member.is_ultra_restricted &&
+      member.id != 'USLACKBOT'
     end.map do |member|
       existing_user = User.where(user_id: member.id).first
       existing_user ||= User.new(user_id: member.id, team: self)
