@@ -28,12 +28,27 @@ module SlackSup
           end
         end
 
+        def set_day(client, data, user, v)
+          if user.is_admin? || v.nil?
+            client.owner.sup_wday = Date.parse(v).wday unless v.nil?
+            client.say(channel: data.channel, text: "Team S'Up is#{client.owner.sup_wday_changed? ? ' now' : ''} on #{client.owner.sup_day}.")
+            client.owner.save! if client.owner.sup_wday_changed?
+          else
+            client.say(channel: data.channel, text: "Team S'Up is on #{client.owner.sup_day}. Only a Slack team admin can change that, sorry.")
+          end
+          logger.info "SET: #{client.owner} - #{user.user_name} team S'Up is on #{client.owner.sup_day}."
+        rescue ArgumentError
+          raise SlackSup::Error, "Day _#{v}_ is invalid, try _Monday_, _Tuesday_, etc. Team S'Up is on #{client.owner.sup_day}."
+        end
+
         def set(client, data, user, k, v)
           case k
           when 'api' then
             set_api client, data, user, v
+          when 'day' then
+            set_day client, data, user, v
           else
-            raise SlackSup::Error, "Invalid setting #{k}, you can _set api on|off_."
+            raise SlackSup::Error, "Invalid setting _#{k}_, you can _set api on|off_ or _set day_."
           end
         end
 
@@ -42,7 +57,7 @@ module SlackSup
           when 'api' then
             unset_api client, data, user
           else
-            raise SlackSup::Error, "Invalid setting #{k}, you can _unset api_."
+            raise SlackSup::Error, "Invalid setting _#{k}_, you can _unset api_."
           end
         end
       end

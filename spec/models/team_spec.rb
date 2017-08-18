@@ -73,7 +73,7 @@ describe Team do
     end
   end
   context 'team' do
-    let(:team) { Fabricate(:team) }
+    let(:team) { Fabricate(:team, sup_wday: Time.now.utc.wday) }
     before do
       allow(team).to receive(:sync!)
     end
@@ -106,7 +106,7 @@ describe Team do
         end
         context 'after less than a week' do
           before do
-            Timecop.travel(Time.now + 6.days)
+            Timecop.travel(Time.now.utc + 6.days)
           end
           it 'is false' do
             expect(team.sup?).to be false
@@ -114,7 +114,7 @@ describe Team do
         end
         context 'after more than a week' do
           before do
-            Timecop.travel(Time.now + 8.days)
+            Timecop.travel(Time.now.utc + 7.days)
           end
           it 'is true' do
             expect(team.sup?).to be true
@@ -126,6 +126,14 @@ describe Team do
             it 'is false' do
               expect(team.sup?).to be false
             end
+          end
+        end
+        context 'after more than a week on the wrong day of the week' do
+          before do
+            Timecop.travel(Time.now.utc + 8.days)
+          end
+          it 'is false' do
+            expect(team.sup?).to be false
           end
         end
       end

@@ -1,5 +1,9 @@
 class Team
+  # enable API for this team
   field :api, type: Boolean, default: false
+
+  # sup day of the week, defaults to Monday
+  field :sup_wday, type: Integer, default: 1
 
   field :stripe_customer_id, type: String
   field :subscribed, type: Boolean, default: false
@@ -38,8 +42,15 @@ class Team
     sup ? sup.created_at : nil
   end
 
+  def sup_day
+    Date::DAYNAMES[sup_wday]
+  end
+
   # is it time to sup?
   def sup?(dt = 1.week)
+    # only sup on a certain day of the week
+    return false unless Time.now.utc.wday == sup_wday
+    # don't sup more than once a week
     time_limit = Time.now.utc - dt
     (last_sup_at || time_limit) <= time_limit
   end

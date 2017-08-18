@@ -40,11 +40,11 @@ h1, h2, h3, h4, h5, h6 { font-family: Montserrat, "Helvetica Neue", Helvetica, A
   .navbar-default.navbar-shrink .navbar-brand { font-size: 1.5em }
 }
 header { background-image: url(../img/header-bg.jpg); background-repeat: none; background-attachment: scroll; background-position: center center; -webkit-background-size: cover; -moz-background-size: cover; background-size: cover; -o-background-size: cover; text-align: center; color: #fff }
-header .intro-text { padding-top: 100px; padding-bottom: 50px }
+header .intro-text { padding-top: 75px; padding-bottom: 50px }
 header .intro-text .intro-lead-in { font-family: "Droid Serif", "Helvetica Neue", Helvetica, Arial, sans-serif; font-style: italic; font-size: 22px; line-height: 22px; margin-bottom: 25px }
 header .intro-text .intro-heading { font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 200; font-size: 20px; line-height: 20px; margin-bottom: 15px }
 @media (min-width:768px) {
-  header .intro-text { padding-top: 300px; padding-bottom: 200px }
+  header .intro-text { padding-top: 200px; padding-bottom: 200px }
   header .intro-text .intro-lead-in { font-family: "Droid Serif", "Helvetica Neue", Helvetica, Arial, sans-serif; font-style: italic; font-size: 40px; line-height: 40px; margin-bottom: 25px }
   header .intro-text .intro-heading { font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 200; font-size: 20px; line-height: 20px; margin-bottom: 15px }
 }

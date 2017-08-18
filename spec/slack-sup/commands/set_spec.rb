@@ -68,15 +68,39 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
         end
       end
     end
+    context 'day' do
+      it 'defaults to Monday' do
+        expect(message: "#{SlackRubyBot.config.user} set day").to respond_with_slack_message(
+          "Team S'Up is on Monday."
+        )
+      end
+      it 'shows current value of sup day' do
+        team.update_attributes!(sup_wday: 2)
+        expect(message: "#{SlackRubyBot.config.user} set day").to respond_with_slack_message(
+          "Team S'Up is on Tuesday."
+        )
+      end
+      it 'changes day' do
+        expect(message: "#{SlackRubyBot.config.user} set day friday").to respond_with_slack_message(
+          "Team S'Up is now on Friday."
+        )
+        expect(team.reload.sup_wday).to eq 5
+      end
+      it 'errors set on an invalid day' do
+        expect(message: "#{SlackRubyBot.config.user} set day foobar").to respond_with_slack_message(
+          "Day _foobar_ is invalid, try _Monday_, _Tuesday_, etc. Team S'Up is on Monday."
+        )
+      end
+    end
     context 'invalid' do
       it 'errors set' do
         expect(message: "#{SlackRubyBot.config.user} set invalid on").to respond_with_slack_message(
-          'Invalid setting invalid, you can _set api on|off_.'
+          'Invalid setting _invalid_, you can _set api on|off_ or _set day_.'
         )
       end
       it 'errors unset' do
         expect(message: "#{SlackRubyBot.config.user} unset invalid").to respond_with_slack_message(
-          'Invalid setting invalid, you can _unset api_.'
+          'Invalid setting _invalid_, you can _unset api_.'
         )
       end
     end
@@ -91,6 +115,16 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       it 'can see api value' do
         expect(message: "#{SlackRubyBot.config.user} set api").to respond_with_slack_message(
           "API for team #{team.name} is on!\n#{team.api_url}"
+        )
+      end
+      it 'cannot set day' do
+        expect(message: "#{SlackRubyBot.config.user} set day tuesday").to respond_with_slack_message(
+          "Team S'Up is on Monday. Only a Slack team admin can change that, sorry."
+        )
+      end
+      it 'can see sup day' do
+        expect(message: "#{SlackRubyBot.config.user} set day").to respond_with_slack_message(
+          "Team S'Up is on Monday."
         )
       end
     end
