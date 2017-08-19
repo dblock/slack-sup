@@ -20,6 +20,8 @@ module Api
             sup = Sup.find(payload.callback_id) || error!('Sup Not Found', 404)
             sup.update_attributes!(outcome: payload.actions.first.value)
 
+            Api::Middleware.logger.info "Updated team #{sup.round.team}, sup #{sup} outcome to '#{sup.outcome}'."
+
             message = Sup::ASK_WHO_SUP_MESSAGE.dup
 
             message[:attachments].first[:callback_id] = sup.id.to_s
