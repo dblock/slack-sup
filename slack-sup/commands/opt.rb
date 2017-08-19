@@ -5,7 +5,11 @@ module SlackSup
 
       subscribe_command 'opt' do |client, data, match|
         user = ::User.find_create_or_update_by_slack_id!(client, data.user)
-        expression = match['expression'] if match['expression']
+        expression, mention = match['expression'].split(/[\s]+/, 2) if match['expression']
+        if mention
+          raise SlackSup::Error, 'Only a Slack team admin can opt users in and out, sorry.' unless user.is_admin?
+          user = User.find_by_slack_mention!(client.owner, mention) if mention
+        end
         case expression
         when 'in' then
           user.update_attributes!(opted_in: true)
@@ -14,10 +18,15 @@ module SlackSup
         when nil, '' then
           # ignore
         else
-          raise "You can _opt in_ or _opt out_, but not _opt #{expression}_."
+          mention = " #{mention}" if mention
+          raise SlackSup::Error, "You can _opt in#{mention}_ or _opt out#{mention}_, but not _opt #{expression}#{mention}_."
         end
-        client.say(channel: data.channel, text: "Hi there #{user.slack_mention}, you're #{expression ? 'now ' : ''}opted #{user.opted_in? ? 'into' : 'out of'} S'Up.")
-        logger.info "OPT: #{client.owner}: #{user} - #{user.opted_in? ? 'in' : 'out'}"
+        if mention
+          client.say(channel: data.channel, text: "User #{user.slack_mention} is #{expression ? 'now ' : ''}opted #{user.opted_in? ? 'into' : 'out of'} S'Up.")
+        else
+          client.say(channel: data.channel, text: "Hi there #{user.slack_mention}, you're #{expression ? 'now ' : ''}opted #{user.opted_in? ? 'into' : 'out of'} S'Up.")
+        end
+        logger.info "OPT: #{client.owner}, user=#{data.user}, #{user}, opted=#{user.opted_in? ? 'in' : 'out'}"
       end
     end
   end

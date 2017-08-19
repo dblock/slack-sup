@@ -14,7 +14,7 @@ module SlackSup
             client.say(channel: data.channel, text: message)
           else
             client.say(channel: data.channel, text: 'Only a Slack team admin can do this, sorry.')
-           end
+          end
           logger.info "SET: #{client.owner} - #{user.user_name} API is #{client.owner.api? ? 'on' : 'off'}"
         end
 

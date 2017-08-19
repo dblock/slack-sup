@@ -20,6 +20,7 @@ module SlackSup
         -----------
         set day [day of week]  - set the day to S'Up, default is Monday
         set api on|off         - enable/disable API access to your team data
+        opt in|out [@mention]  - opt a user in/out of S'Up by @mention
         subscription           - show team ubscription info
 
         More information at https://sup.playplay.io
