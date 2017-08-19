@@ -31,45 +31,47 @@
           data-locale="auto">
         </script>
       </form>
-      <p>
-        <img src='/img/stripe.png' width='119' height='26'></img>
-        <div class='small'>
-          Questions? Contact dblock[at]dblock[dot]org or DM <a href='https://twitter.com/playplayio'>@playplayio</a>.
-        </div>
-      </p>
-      <script>
-        $(document).ready(function() {
-          var data = {
-            stripe_token: "<%= stripe_token %>",
-            stripe_token_type: "<%= stripe_token_type %>",
-            stripe_email: "<%= stripe_email %>",
-            team_id: "<%= team ? team.id : nil %>"
+    </p>
+    <p>
+      <img src='/img/stripe.png' width='119' height='26'></img>
+      <div class='small'>
+        Questions? Contact dblock[at]dblock[dot]org or DM <a href='https://twitter.com/playplayio'>@playplayio</a>.
+      </div>
+    </p>
+    <script>
+      $(document).ready(function() {
+        var data = {
+          stripe_token: "<%= stripe_token %>",
+          stripe_token_type: "<%= stripe_token_type %>",
+          stripe_email: "<%= stripe_email %>",
+          team_id: "<%= team ? team.id : nil %>"
+        };
+
+        if (data.stripe_token) {
+
+          var team = {
+            id: <%= team ? "'#{team._id}'" : 'null' %>,
+            name: <%= team ? "'#{team.name}'" : 'null' %>
           };
 
-          if (data.stripe_token) {
+          $.ajax({
+            type: 'POST',
+            url: '/api/credit_cards',
+            data: data,
+            success: function(data) {
+              SlackSup.message('Successfully updated team <b>' + team.name + '</b> credit card.<br><br>Thank you for your support!');
+              $('form').remove();
+              $('#update_cc').hide();
+            },
+            error: SlackSup.error
+          });
 
-            var team = {
-              id: <%= team ? "'#{team._id}'" : 'null' %>,
-              name: <%= team ? "'#{team.name}'" : 'null' %>
-            };
-
-            $.ajax({
-              type: 'POST',
-              url: '/api/credit_cards',
-              data: data,
-              success: function(data) {
-                SlackSup.message('Successfully updated team <b>' + team.name + '</b> credit card.<br><br>Thank you for your support!');
-                $('form').remove();
-              },
-              error: SlackSup.error
-            });
-
-          } else if (!data.team_id) {
-            SlackSup.errorMessage("Team not found.")
-            $('form').remove();
-          }
-        });
-      </script>
-    </p>
+        } else if (!data.team_id) {
+          SlackSup.errorMessage("Team not found.")
+          $('form').remove();
+          $('#update_cc').hide();
+        }
+      });
+    </script>
   </body>
 </html>

@@ -24,7 +24,7 @@ describe 'Update cc', js: true, type: :feature do
         expect(customer).to receive(:source=)
         expect(customer).to receive(:save)
         click_button 'Update Credit Card'
-        sleep 2
+        sleep 1
         stripe_iframe = all('iframe[name=stripe_checkout_app]').last
         Capybara.within_frame stripe_iframe do
           page.find_field('Email').set 'foo@bar.com'
@@ -34,6 +34,7 @@ describe 'Update cc', js: true, type: :feature do
           find('button[type="submit"]').click
         end
         sleep 5
+        find('#update_cc', visible: false)
         expect(find('#messages')).to have_text("Successfully updated team #{team.name} credit card. Thank you for your support!")
       end
     end
@@ -43,7 +44,7 @@ describe 'Update cc', js: true, type: :feature do
         visit "/update_cc?team_id=#{team.team_id}"
         expect(find('h3')).to have_text("S'UP FOR SLACK TEAMS: UPDATE CREDIT CARD INFO")
         click_button 'Update Credit Card'
-        sleep 2
+        sleep 1
         stripe_iframe = all('iframe[name=stripe_checkout_app]').last
         Capybara.within_frame stripe_iframe do
           page.find_field('Email').set 'foo@bar.com'
@@ -53,6 +54,7 @@ describe 'Update cc', js: true, type: :feature do
           find('button[type="submit"]').click
         end
         sleep 5
+        find('#update_cc', visible: false)
         expect(find('#messages')).to have_text('Not a Subscriber')
       end
     end
