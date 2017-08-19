@@ -83,8 +83,44 @@ describe Round do
         expect(round.send(:met_recently?, [user1, user2])).to be true
       end
       it 'is false in some distant future' do
-        Timecop.travel(Time.now + 4.months)
+        Timecop.travel(Time.now.utc + 4.months)
         expect(round.send(:met_recently?, [user1, user2])).to be false
+      end
+    end
+    context '#ask?' do
+      it 'is false immediately after the round' do
+        expect(round.ask?).to be false
+      end
+      context 'after more than five days' do
+        before do
+          Timecop.travel(Time.now.utc + 6.days)
+        end
+        it 'is true' do
+          expect(round.ask?).to be true
+        end
+      end
+      context 'after more than five days and already asked' do
+        before do
+          round.update_attributes!(asked_at: Time.now.utc)
+          Timecop.travel(Time.now.utc + 6.days)
+        end
+        it 'is false' do
+          expect(round.ask?).to be false
+        end
+      end
+    end
+    context '#ask!' do
+      context 'with a sup' do
+        let!(:sup) { Fabricate(:sup, round: round) }
+        it 'asks every sup' do
+          expect(sup).to receive(:ask!).once
+          round.ask!
+        end
+        it 'updates asked_at' do
+          expect(round.asked_at).to be nil
+          round.ask!
+          expect(round.asked_at).to_not be nil
+        end
       end
     end
   end

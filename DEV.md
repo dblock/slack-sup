@@ -58,3 +58,15 @@ $ foreman start
 ```
 
 Navigate to [localhost:5000](http://localhost:5000).
+
+### Interactive Buttons
+
+To test interactive buttons locally you need [ngrok](https://ngrok.com) to tunnel to `localhost:5000`.
+
+```
+ngrok http 5000
+```
+
+This will give you a forwarding HTTPs URL, such as `https://a740cdc9.ngrok.io -> localhost:5000`.
+
+Enter `https://a740cdc9.ngrok.io/api/slack/action/` in the Slack `Interactive Messages` configuration section of your app under `Request Url`.

@@ -15,6 +15,7 @@ module Api
       mount Api::Endpoints::TeamsEndpoint
       mount Api::Endpoints::SubscriptionsEndpoint
       mount Api::Endpoints::CreditCardsEndpoint
+      mount Api::Endpoints::SlackEndpoint
 
       add_swagger_documentation
     end

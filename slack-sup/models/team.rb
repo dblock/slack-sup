@@ -33,6 +33,13 @@ class Team
     rounds.create!
   end
 
+  def ask!
+    sup = last_sup
+    return unless sup && sup.ask?
+    sup.ask!
+    sup
+  end
+
   def last_sup
     rounds.desc(:created_at).first
   end

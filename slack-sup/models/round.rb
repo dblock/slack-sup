@@ -6,6 +6,9 @@ class Round
   SIZE = 3
   TIMEOUT = 60
 
+  field :ran_at, type: DateTime
+  field :asked_at, type: DateTime
+
   belongs_to :team
   validates_presence_of :team
   has_many :sups, dependent: :destroy
@@ -16,6 +19,17 @@ class Round
     "id=#{id}, #{team}"
   end
 
+  def ask?(dt = 5.days)
+    return false if asked_at
+    ran_at && ran_at + dt <= Time.now.utc
+  end
+
+  def ask!
+    return if asked_at
+    update_attributes!(asked_at: Time.now.utc)
+    sups.each(&:ask!)
+  end
+
   private
 
   def run!
@@ -24,15 +38,14 @@ class Round
   end
 
   def group!
-    return if @started_at
-    @started_at = Time.now.utc
+    return if ran_at
+    update_attributes!(ran_at: Time.now.utc)
     logger.info "Generating sups for #{team} of #{team.users.suppable.count} users."
     remaining_users = team.users.suppable.to_a.shuffle
     begin
       solve(remaining_users)
       Ambit.fail!
     rescue Ambit::ChoicesExhausted
-      @started_at = nil
       logger.info "Finished round for #{team}."
     end
   end
@@ -40,7 +53,7 @@ class Round
   def dm!
     sups.each do |sup|
       begin
-        sup.dm!
+        sup.sup!
       rescue StandardError => e
         logger.warn "Error DMing sup #{self} #{sup} #{e.message}."
       end
@@ -49,7 +62,7 @@ class Round
 
   def solve(remaining_users)
     combination = group(remaining_users)
-    Ambit.clear! if @started_at + Round::TIMEOUT.seconds < Time.now.utc
+    Ambit.clear! if ran_at + Round::TIMEOUT.seconds < Time.now.utc
     Ambit.fail! if met_recently?(combination)
     Ambit.fail! if meeting_already?(combination)
     Sup.create!(round: self, users: combination)

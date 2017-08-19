@@ -13,8 +13,11 @@ module SlackSup
         check_subscribed_teams!
         check_expired_subscriptions!
       end
-      once_and_every 5 * 60 do
+      once_and_every 60 * 30 do
         sup!
+      end
+      once_and_every 60 * 30 do
+        ask!
       end
     end
 
@@ -24,6 +27,19 @@ module SlackSup
       yield
       every tt do
         yield
+      end
+    end
+
+    def ask!
+      Team.active.each do |team|
+        begin
+          last_sup_at = team.last_sup_at
+          logger.info "Checking #{team}, #{last_sup_at ? 'last sup ' + last_sup_at.ago_in_words : 'first time sup'}."
+          round = team.ask!
+          logger.info "Asked about previous sup round #{round}." if round
+        rescue StandardError => e
+          logger.warn "Error in cron for team #{team}, #{e.message}."
+        end
       end
     end
 
