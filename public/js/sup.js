@@ -16,6 +16,11 @@ $(document).ready(function() {
     $('#register').show();
   };
 
+  SlackSup.errorMessage = function(message) {
+    SlackSup.message(message)
+    $('#messages').addClass('has-error');
+  };
+
   SlackSup.error = function(xhr) {
     var message;
     if (xhr.responseText) {
@@ -32,7 +37,6 @@ $(document).ready(function() {
       }
     }
 
-    SlackSup.message(message || xhr.statusText || xhr.responseText || 'Unexpected Error');
-    $('#messages').addClass('has-error');
+    SlackSup.errorMessage(message || xhr.statusText || xhr.responseText || 'Unexpected Error');
   };
 });

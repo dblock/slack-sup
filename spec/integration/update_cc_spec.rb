@@ -8,6 +8,12 @@ describe 'Update cc', js: true, type: :feature do
     after do
       ENV.delete 'STRIPE_API_PUBLISHABLE_KEY'
     end
+    context 'with an invalid team ID' do
+      it 'displays error' do
+        visit '/update_cc?team_id=invalid'
+        expect(find('#messages')).to have_text('Team not found.')
+      end
+    end
     context 'a team with a stripe customer ID' do
       let!(:team) { Fabricate(:team, stripe_customer_id: 'stripe_customer_id') }
       it 'updates cc' do

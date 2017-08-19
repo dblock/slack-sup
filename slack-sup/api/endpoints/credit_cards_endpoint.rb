@@ -12,7 +12,7 @@ module Api
           requires :team_id, type: String
         end
         post do
-          team = Team.find(params[:team_id]) || error!('Not Found', 404)
+          team = Team.find(params[:team_id]) || error!('Team Not Found', 404)
           error!('Not a Subscriber', 400) unless team.stripe_customer_id
           customer = Stripe::Customer.retrieve(team.stripe_customer_id)
           customer.source = params['stripe_token']

@@ -63,6 +63,10 @@
               },
               error: SlackSup.error
             });
+
+          } else if (!data.team_id) {
+            SlackSup.errorMessage("Team not found.")
+            $('form').remove();
           }
         });
       </script>
