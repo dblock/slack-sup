@@ -19,6 +19,7 @@ module SlackSup
         Team Admins
         -----------
         set day [day of week]  - set the day to S'Up, default is Monday
+        set tz [timezone]      - set team timezone, default is Eastern Time (US & Canada)
         set api on|off         - enable/disable API access to your team data
         opt in|out [@mention]  - opt a user in/out of S'Up by @mention
         subscription           - show team ubscription info

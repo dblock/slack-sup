@@ -4,6 +4,8 @@ class Team
 
   # sup day of the week, defaults to Monday
   field :sup_wday, type: Integer, default: 1
+  field :sup_tz, type: String, default: 'Eastern Time (US & Canada)'
+  validates_presence_of :sup_tz
 
   field :stripe_customer_id, type: String
   field :subscribed, type: Boolean, default: false
@@ -53,10 +55,17 @@ class Team
     Date::DAYNAMES[sup_wday]
   end
 
+  def sup_tzone
+    ActiveSupport::TimeZone.new(sup_tz)
+  end
+
   # is it time to sup?
   def sup?(dt = 1.week)
     # only sup on a certain day of the week
-    return false unless Time.now.utc.wday == sup_wday
+    now_in_tz = Time.now.utc.in_time_zone(sup_tzone)
+    return false unless now_in_tz.wday == sup_wday
+    # sup after 9am
+    return false if now_in_tz.hour < 9
     # don't sup more than once a week
     time_limit = Time.now.utc - dt
     (last_sup_at || time_limit) <= time_limit

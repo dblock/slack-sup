@@ -41,12 +41,29 @@ module SlackSup
           raise SlackSup::Error, "Day _#{v}_ is invalid, try _Monday_, _Tuesday_, etc. Team S'Up is on #{client.owner.sup_day}."
         end
 
+        def set_timezone(client, data, user, v)
+          if user.is_admin? || v.nil?
+            unless v.nil?
+              timezone = ActiveSupport::TimeZone.new(v)
+              raise SlackSup::Error, "TimeZone _#{v}_ is invalid, see http://api.rubyonrails.org/classes/ActiveSupport/TimeZone.html for a list. Team S'Up timezone is currently #{client.owner.sup_tzone}." unless timezone
+              client.owner.sup_tz = timezone.name
+            end
+            client.say(channel: data.channel, text: "Team S'Up timezone is#{client.owner.sup_tz_changed? ? ' now' : ''} #{client.owner.sup_tzone}.")
+            client.owner.save! if client.owner.sup_tz_changed?
+          else
+            client.say(channel: data.channel, text: "Team S'Up timezone is #{client.owner.sup_tzone}. Only a Slack team admin can change that, sorry.")
+          end
+          logger.info "SET: #{client.owner} - #{user.user_name} team S'Up timezone is #{client.owner.sup_tzone}."
+        end
+
         def set(client, data, user, k, v)
           case k
           when 'api' then
             set_api client, data, user, v
           when 'day' then
             set_day client, data, user, v
+          when 'tz', 'timezone' then
+            set_timezone client, data, user, v
           else
             raise SlackSup::Error, "Invalid setting _#{k}_, you can _set api on|off_ or _set day_."
           end

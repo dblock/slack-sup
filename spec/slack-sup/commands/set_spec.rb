@@ -92,6 +92,30 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
         )
       end
     end
+    context 'timezone' do
+      it 'defaults to Eastern Time (US & Canada)' do
+        expect(message: "#{SlackRubyBot.config.user} set timezone").to respond_with_slack_message(
+          "Team S'Up timezone is #{ActiveSupport::TimeZone.new('Eastern Time (US & Canada)')}."
+        )
+      end
+      it 'shows current value of sup timezone' do
+        team.update_attributes!(sup_tz: 'Hawaii')
+        expect(message: "#{SlackRubyBot.config.user} set timezone").to respond_with_slack_message(
+          "Team S'Up timezone is #{ActiveSupport::TimeZone.new('Hawaii')}."
+        )
+      end
+      it 'changes timezone' do
+        expect(message: "#{SlackRubyBot.config.user} set timezone Hawaii").to respond_with_slack_message(
+          "Team S'Up timezone is now #{ActiveSupport::TimeZone.new('Hawaii')}."
+        )
+        expect(team.reload.sup_tz).to eq 'Hawaii'
+      end
+      it 'errors set on an invalid timezone' do
+        expect(message: "#{SlackRubyBot.config.user} set timezone foobar").to respond_with_slack_message(
+          "TimeZone _foobar_ is invalid, see http://api.rubyonrails.org/classes/ActiveSupport/TimeZone.html for a list. Team S'Up timezone is currently #{ActiveSupport::TimeZone.new('Eastern Time (US & Canada)')}."
+        )
+      end
+    end
     context 'invalid' do
       it 'errors set' do
         expect(message: "#{SlackRubyBot.config.user} set invalid on").to respond_with_slack_message(

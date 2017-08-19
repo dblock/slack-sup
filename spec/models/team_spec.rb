@@ -72,8 +72,32 @@ describe Team do
       end
     end
   end
+  context 'team sup on monday 3pm' do
+    let(:team) { Fabricate(:team, sup_wday: 1, sup_tz: 'Eastern Time (US & Canada)') }
+    let(:monday) { DateTime.parse('2017/1/2 3:00 PM EST').utc }
+    before do
+      Timecop.travel(monday)
+    end
+    it 'sups' do
+      expect(team.sup?).to be true
+    end
+    it 'in a different timezone' do
+      team.update_attributes!(sup_tz: 'Samoa') # Samoa is UTC-11, at 3pm in EST it's Tuesday 10AM
+      expect(team.sup?).to be false
+    end
+  end
+  context 'team sup on monday before 9am' do
+    let(:team) { Fabricate(:team, sup_wday: 1, sup_tz: 'Eastern Time (US & Canada)') }
+    let(:monday) { DateTime.parse('2017/1/2 8:00 AM EST').utc }
+    before do
+      Timecop.travel(monday)
+    end
+    it 'does not sup' do
+      expect(team.sup?).to be false
+    end
+  end
   context 'team' do
-    let(:team) { Fabricate(:team, sup_wday: Time.now.utc.wday) }
+    let(:team) { Fabricate(:team, sup_wday: Time.now.utc.in_time_zone('Eastern Time (US & Canada)').wday) }
     before do
       allow(team).to receive(:sync!)
     end
