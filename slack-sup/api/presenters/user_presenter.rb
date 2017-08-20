@@ -12,12 +12,12 @@ module Api
       property :is_admin, type: Boolean, desc: 'User is an admin.'
       property :enabled, type: Boolean, desc: 'User is enabled.'
       property :opted_in, type: Boolean, desc: "User is opted into S'Up."
-      property :created_at, type: DateTime, desc: 'Date/time when the team was created.'
-      property :updated_at, type: DateTime, desc: 'Date/time when the team was accepted, declined or canceled.'
+      property :created_at, type: DateTime, desc: 'Date/time when the user was created.'
+      property :updated_at, type: DateTime, desc: 'Date/time when the user was updated.'
 
       link :team do |opts|
         request = Grape::Request.new(opts[:env])
-        "#{request.base_url}/api/teams/#{team.id}"
+        "#{request.base_url}/api/teams/#{team_id}"
       end
 
       link :self do |opts|

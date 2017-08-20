@@ -15,6 +15,10 @@ describe Api do
         '/api/teams',
         '/api/users/{id}',
         '/api/users',
+        '/api/rounds/{id}',
+        '/api/rounds',
+        '/api/sups/{id}',
+        '/api/sups',
         '/api/subscriptions',
         '/api/credit_cards',
         '/api/slack/action'

@@ -35,7 +35,21 @@ module Api
         }
       end
 
-      %i[user team].each do |model|
+      link :rounds do |opts|
+        {
+          href: "#{base_url(opts)}/api/rounds/#{link_params(Api::Helpers::PaginationParameters::ALL, :team_id)}",
+          templated: true
+        }
+      end
+
+      link :sups do |opts|
+        {
+          href: "#{base_url(opts)}/api/sups/#{link_params(Api::Helpers::PaginationParameters::ALL, :round_id)}",
+          templated: true
+        }
+      end
+
+      %i[user team round sup].each do |model|
         link model do |opts|
           {
             href: "#{base_url(opts)}/api/#{model.to_s.pluralize}/{id}",

@@ -1,3 +1,3 @@
 Fabricator(:sup) do
-  round { Fabricate(:round) }
+  round { Round.first || Fabricate(:round) }
 end

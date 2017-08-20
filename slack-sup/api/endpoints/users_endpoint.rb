@@ -12,7 +12,7 @@ module Api
           requires :id, type: String, desc: 'User ID.'
         end
         get ':id' do
-          user = User.where(_id: params[:id]).first || error!('Not Found', 404)
+          user = User.find(params[:id]) || error!('Not Found', 404)
           error!('Not Found', 404) unless user.team.api?
           present user, with: Api::Presenters::UserPresenter
         end

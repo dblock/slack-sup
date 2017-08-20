@@ -1,3 +1,3 @@
 Fabricator(:round) do
-  team { Fabricate(:team) }
+  team { Team.first || Fabricate(:team) }
 end

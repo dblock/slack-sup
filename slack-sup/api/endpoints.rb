@@ -1,5 +1,7 @@
 require 'slack-sup/api/endpoints/teams_endpoint'
 require 'slack-sup/api/endpoints/users_endpoint'
+require 'slack-sup/api/endpoints/rounds_endpoint'
+require 'slack-sup/api/endpoints/sups_endpoint'
 require 'slack-sup/api/endpoints/subscriptions_endpoint'
 require 'slack-sup/api/endpoints/status_endpoint'
 require 'slack-sup/api/endpoints/credit_cards_endpoint'
