@@ -21,18 +21,8 @@ class User
   belongs_to :team, index: true
   validates_presence_of :team
 
-  has_many :meetings
-
   index({ user_id: 1, team_id: 1 }, unique: true)
   index(user_name: 1, team_id: 1)
-
-  def met_recently_with?(user, tt = 3.months)
-    Meeting.where(
-      user: self,
-      other: user,
-      :created_at.gt => tt.ago
-    ).exists?
-  end
 
   def slack_mention
     "<@#{user_id}>"

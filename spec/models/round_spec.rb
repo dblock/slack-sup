@@ -79,12 +79,25 @@ describe Round do
       end
     end
     context '#met_recently' do
+      let!(:round2) { team.sup! }
       it 'is true when users just met' do
-        expect(round.send(:met_recently?, [user1, user2])).to be true
+        expect(round2.send(:met_recently?, [user1, user2])).to be true
       end
-      it 'is false in some distant future' do
-        Timecop.travel(Time.now.utc + 4.months)
-        expect(round.send(:met_recently?, [user1, user2])).to be false
+      context 'in a distant future' do
+        before do
+          Timecop.travel(Time.now.utc + 4.months)
+        end
+        it 'is false in some distant future' do
+          expect(round2.send(:met_recently?, [user1, user2])).to be false
+        end
+        it 'is true with a sup with both users' do
+          Fabricate(:sup, round: round, users: [user1, user2, Fabricate(:user)])
+          expect(round2.send(:met_recently?, [user1, user2])).to be true
+        end
+        it 'is false with a sup with one user' do
+          Fabricate(:sup, round: round, users: [Fabricate(:user), user2, Fabricate(:user)])
+          expect(round2.send(:met_recently?, [user1, user2])).to be false
+        end
       end
     end
     context '#ask?' do

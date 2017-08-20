@@ -15,6 +15,8 @@ class Round
 
   after_create :run!
 
+  index(round_id: 1, user_ids: 1, created_at: 1)
+
   def to_s
     "id=#{id}, #{team}"
   end
@@ -87,10 +89,18 @@ class Round
     end
   end
 
-  def met_recently?(users)
+  def met_recently?(users, tt = 3.weeks)
     pairs = users.to_a.permutation(2)
     pairs.any? do |pair|
-      pair.first.met_recently_with?(pair.second)
+      Sup.where(
+        :round_id.ne => _id,
+        :user_ids.in => pair.map(&:id),
+        :created_at.gt => tt.ago
+      ).any? do |sup|
+        pair.all? do |user|
+          sup.user_ids.include?(user.id)
+        end
+      end
     end
   end
 end

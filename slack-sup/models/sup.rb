@@ -6,18 +6,8 @@ class Sup
   field :outcome, type: String
   belongs_to :round
   has_and_belongs_to_many :users
-  has_many :meetings, dependent: :destroy
 
   index(round: 1, user_ids: 1)
-
-  after_create do
-    users.each do |user|
-      users.each do |other|
-        next if other == user
-        Meeting.create!(sup: self, user: user, other: other)
-      end
-    end
-  end
 
   PLEASE_SUP_MESSAGE =
     "Hi there! I'm your team's S'Up bot. " \
