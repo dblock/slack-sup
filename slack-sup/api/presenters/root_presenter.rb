@@ -28,11 +28,20 @@ module Api
         }
       end
 
-      link :team do |opts|
+      link :users do |opts|
         {
-          href: "#{base_url(opts)}/api/teams/{id}",
+          href: "#{base_url(opts)}/api/users/#{link_params(Api::Helpers::PaginationParameters::ALL, :team_id)}",
           templated: true
         }
+      end
+
+      %i[user team].each do |model|
+        link model do |opts|
+          {
+            href: "#{base_url(opts)}/api/#{model.to_s.pluralize}/{id}",
+            templated: true
+          }
+        end
       end
 
       private

@@ -14,6 +14,14 @@ module Api
       property :subscribed_at, type: DateTime, desc: 'Date/time when a subscription was purchased.'
       property :created_at, type: DateTime, desc: 'Date/time when the team was created.'
       property :updated_at, type: DateTime, desc: 'Date/time when the team was accepted, declined or canceled.'
+      property :sup_wday, type: Integer, desc: "S'Up day of the week."
+      property :sup_day, type: String, desc: "S'Up day of the week in English."
+      property :sup_tz, type: String, desc: 'Team timezone.'
+
+      link :users do |opts|
+        request = Grape::Request.new(opts[:env])
+        "#{request.base_url}/api/users?team_id=#{id}"
+      end
 
       link :self do |opts|
         request = Grape::Request.new(opts[:env])

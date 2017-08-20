@@ -12,6 +12,29 @@ describe Api::Endpoints::TeamsEndpoint do
       end
     end
 
+    context 'cursor' do
+      it_behaves_like 'a cursor api', Team
+    end
+
+    context 'a team with api false' do
+      let!(:team) { Fabricate(:team, api: false) }
+      it 'is not returned' do
+        expect(client.teams.count).to eq 0
+      end
+    end
+
+    context 'a team with api true' do
+      let!(:existing_team) { Fabricate(:team, api: true) }
+      it 'is returned in the collection' do
+        expect(client.teams.count).to eq 1
+      end
+      it 'is returned directly' do
+        team = client.team(id: existing_team.id)
+        expect(team.id).to eq existing_team.id.to_s
+        expect(team._links.self._url).to eq "http://example.org/api/teams/#{existing_team.id}"
+      end
+    end
+
     context 'register' do
       before do
         oauth_access = { 'bot' => { 'bot_access_token' => 'token' }, 'team_id' => 'team_id', 'team_name' => 'team_name' }
