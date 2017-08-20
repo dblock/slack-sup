@@ -30,7 +30,7 @@ describe 'Teams', js: true, type: :feature do
       expect(title).to eq("S'Up for Slack Teams")
     end
     it 'includes a link to add to slack with the client id' do
-      expect(find("a[href='https://slack.com/oauth/authorize?scope=bot&client_id=#{ENV['SLACK_CLIENT_ID']}']"))
+      expect(find("a[href='https://slack.com/oauth/authorize?scope=bot,users.profile:read&client_id=#{ENV['SLACK_CLIENT_ID']}']"))
     end
   end
 end

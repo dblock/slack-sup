@@ -1,4 +1,7 @@
 class Team
+  # non-bot access token
+  field :access_token, type: String
+
   # enable API for this team
   field :api, type: Boolean, default: false
 
