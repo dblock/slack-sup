@@ -4,7 +4,6 @@ describe Round do
   let(:team) { Fabricate(:team) }
   before do
     allow(team).to receive(:sync!)
-    allow_any_instance_of(User).to receive(:introduce_sup!)
     allow_any_instance_of(Sup).to receive(:dm!)
   end
   context '#run' do

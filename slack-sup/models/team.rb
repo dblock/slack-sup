@@ -40,7 +40,6 @@ class Team
 
   def sup!
     sync!
-    users.suppable.each(&:introduce_sup!)
     rounds.create!
   end
 
