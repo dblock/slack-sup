@@ -9,6 +9,7 @@ module Api
       property :user_id, type: String, desc: 'Slack user ID.'
       property :user_name, type: String, desc: 'Slack user name.'
       property :real_name, type: String, desc: 'Slack real name.'
+      property :custom_team_name, type: String, desc: 'Custom team name from the user profile.'
       property :is_admin, type: Boolean, desc: 'User is an admin.'
       property :enabled, type: Boolean, desc: 'User is enabled.'
       property :opted_in, type: Boolean, desc: "User is opted into S'Up."

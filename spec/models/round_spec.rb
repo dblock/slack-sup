@@ -78,7 +78,7 @@ describe Round do
         end
       end
     end
-    context '#met_recently' do
+    context '#met_recently?' do
       let!(:round2) { team.sup! }
       it 'is true when users just met' do
         expect(round2.send(:met_recently?, [user1, user2])).to be true
@@ -98,6 +98,37 @@ describe Round do
           Fabricate(:sup, round: round, users: [Fabricate(:user), user2, Fabricate(:user)])
           expect(round2.send(:met_recently?, [user1, user2])).to be false
         end
+      end
+    end
+    context '#same_team?' do
+      it 'is false without custom teams' do
+        expect(round.send(:same_team?, [user1, user2, user3])).to be false
+      end
+      it 'is false when one team set' do
+        user1.custom_team_name = 'My Team'
+        expect(round.send(:same_team?, [user1, user2, user3])).to be false
+      end
+      it 'is false when different names' do
+        user1.custom_team_name = 'My Team'
+        user2.custom_team_name = 'Another Team'
+        expect(round.send(:same_team?, [user1, user2])).to be false
+        expect(round.send(:same_team?, [user1, user2, user3])).to be false
+      end
+      it 'is true when same team' do
+        user1.custom_team_name = 'My Team'
+        user2.custom_team_name = 'My Team'
+        expect(round.send(:same_team?, [user1, user2])).to be true
+      end
+      it 'is true when same team for any two users' do
+        user1.custom_team_name = 'My Team'
+        user3.custom_team_name = 'My Team'
+        expect(round.send(:same_team?, [user1, user2, user3])).to be true
+      end
+      it 'is true when same team for all 3 users' do
+        user1.custom_team_name = 'My Team'
+        user2.custom_team_name = 'My Team'
+        user3.custom_team_name = 'My Team'
+        expect(round.send(:same_team?, [user1, user2, user3])).to be true
       end
     end
     context '#ask?' do

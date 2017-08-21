@@ -65,6 +65,7 @@ class Round
   def solve(remaining_users)
     combination = group(remaining_users)
     Ambit.clear! if ran_at + Round::TIMEOUT.seconds < Time.now.utc
+    Ambit.fail! if same_team?(combination)
     Ambit.fail! if met_recently?(combination)
     Ambit.fail! if meeting_already?(combination)
     Sup.create!(round: self, users: combination)
@@ -86,6 +87,15 @@ class Round
   def meeting_already?(users)
     users.any? do |user|
       sups.where(user_ids: user.id).exists?
+    end
+  end
+
+  def same_team?(users)
+    pairs = users.to_a.permutation(2)
+    pairs.any? do |pair|
+      pair.first.custom_team_name == pair.last.custom_team_name &&
+        pair.first.custom_team_name &&
+        pair.last.custom_team_name
     end
   end
 

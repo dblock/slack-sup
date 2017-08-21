@@ -105,6 +105,7 @@ describe Team do
       pending 'adds new users'
       pending 'disables dead users'
       pending 'reactivates users that are back'
+      pending 'fetches user custom team information'
     end
     context '#sup!' do
       it 'creates a round for a team' do

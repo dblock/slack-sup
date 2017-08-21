@@ -11,39 +11,40 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
     end
     it 'gives help' do
       expect(message: "#{SlackRubyBot.config.user} set").to respond_with_slack_message(
-        'Missing setting, eg. _set api off_.'
+        'Missing setting, see _help_ for available options.'
       )
     end
     context 'api' do
       it 'shows current value of API on' do
         team.update_attributes!(api: true)
         expect(message: "#{SlackRubyBot.config.user} set api").to respond_with_slack_message(
-          "API for team #{team.name} is on!\n#{team.api_url}"
+          "Team data access via the API is on.\n#{team.api_url}"
         )
       end
       it 'shows current value of API off' do
         team.update_attributes!(api: false)
         expect(message: "#{SlackRubyBot.config.user} set api").to respond_with_slack_message(
-          "API for team #{team.name} is off."
+          'Team data access via the API is off.'
         )
       end
       it 'enables API' do
+        team.update_attributes!(api: false)
         expect(message: "#{SlackRubyBot.config.user} set api on").to respond_with_slack_message(
-          "API for team #{team.name} is on!\n#{team.api_url}"
+          "Team data access via the API is now on.\n#{SlackSup::Service.api_url}/teams/#{team.id}"
         )
         expect(team.reload.api).to be true
       end
       it 'disables API with set' do
         team.update_attributes!(api: true)
         expect(message: "#{SlackRubyBot.config.user} set api off").to respond_with_slack_message(
-          "API for team #{team.name} is off."
+          'Team data access via the API is now off.'
         )
         expect(team.reload.api).to be false
       end
       it 'disables API with unset' do
         team.update_attributes!(api: true)
         expect(message: "#{SlackRubyBot.config.user} unset api").to respond_with_slack_message(
-          "API for team #{team.name} is off."
+          'Team data access via the API is now off.'
         )
         expect(team.reload.api).to be false
       end
@@ -57,13 +58,13 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
         it 'shows current value of API on with API URL' do
           team.update_attributes!(api: true)
           expect(message: "#{SlackRubyBot.config.user} set api").to respond_with_slack_message(
-            "API for team #{team.name} is on!\nhttp://local.api/teams/#{team.id}"
+            "Team data access via the API is on.\nhttp://local.api/teams/#{team.id}"
           )
         end
         it 'shows current value of API off without API URL' do
           team.update_attributes!(api: false)
           expect(message: "#{SlackRubyBot.config.user} set api").to respond_with_slack_message(
-            "API for team #{team.name} is off."
+            'Team data access via the API is off.'
           )
         end
       end
@@ -116,15 +117,48 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
         )
       end
     end
+    context 'custom profile team field', vcr: { cassette_name: 'team_profile_get' } do
+      it 'is not set by default' do
+        expect(message: "#{SlackRubyBot.config.user} set team field").to respond_with_slack_message(
+          'Custom profile team field is _not set_.'
+        )
+      end
+      it 'shows current value' do
+        team.update_attributes!(team_field_label: 'Artsy Team')
+        expect(message: "#{SlackRubyBot.config.user} set team field").to respond_with_slack_message(
+          'Custom profile team field is _Artsy Team_.'
+        )
+      end
+      it 'changes value' do
+        expect(message: "#{SlackRubyBot.config.user} set team field Artsy Title").to respond_with_slack_message(
+          'Custom profile team field is now _Artsy Title_.'
+        )
+        expect(team.reload.team_field_label).to eq 'Artsy Title'
+        expect(team.reload.team_field_label_id).to eq 'Xf6RKY5F2B'
+      end
+      it 'errors set on an invalid team field' do
+        expect(message: "#{SlackRubyBot.config.user} set team field Invalid Field").to respond_with_slack_message(
+          'Custom profile team field _Invalid Field_ is invalid. Possible values are _Artsy Title_, _Artsy Team_, _Artsy Subteam_, _Personality Type_, _Instagram_, _Twitter_, _Facebook_, _Website_.'
+        )
+      end
+      it 'unsets' do
+        team.update_attributes!(team_field_label: 'Artsy Team')
+        expect(message: "#{SlackRubyBot.config.user} unset team field").to respond_with_slack_message(
+          'Custom profile team field is now _not set_.'
+        )
+        expect(team.reload.team_field_label).to be nil
+        expect(team.reload.team_field_label_id).to be nil
+      end
+    end
     context 'invalid' do
       it 'errors set' do
         expect(message: "#{SlackRubyBot.config.user} set invalid on").to respond_with_slack_message(
-          'Invalid setting _invalid_, you can _set api on|off_ or _set day_.'
+          'Invalid setting _invalid_, see _help_ for available options.'
         )
       end
       it 'errors unset' do
         expect(message: "#{SlackRubyBot.config.user} unset invalid").to respond_with_slack_message(
-          'Invalid setting _invalid_, you can _unset api_.'
+          'Invalid setting _invalid_, see _help_ for available options.'
         )
       end
     end
@@ -133,12 +167,12 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
     context 'api' do
       it 'cannot set api' do
         expect(message: "#{SlackRubyBot.config.user} set api true").to respond_with_slack_message(
-          'Only a Slack team admin can do this, sorry.'
+          'Only a Slack team admin can turn data access via the API on and off, sorry.'
         )
       end
       it 'can see api value' do
         expect(message: "#{SlackRubyBot.config.user} set api").to respond_with_slack_message(
-          "API for team #{team.name} is on!\n#{team.api_url}"
+          "Team data access via the API is on.\n#{team.api_url}"
         )
       end
       it 'cannot set day' do
@@ -149,6 +183,26 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       it 'can see sup day' do
         expect(message: "#{SlackRubyBot.config.user} set day").to respond_with_slack_message(
           "Team S'Up is on Monday."
+        )
+      end
+      it 'cannot set timezone' do
+        expect(message: "#{SlackRubyBot.config.user} set tz Hawaii").to respond_with_slack_message(
+          "Team S'Up timezone is #{ActiveSupport::TimeZone.new('Eastern Time (US & Canada)')}. Only a Slack team admin can change that, sorry."
+        )
+      end
+      it 'can see timezone' do
+        expect(message: "#{SlackRubyBot.config.user} set tz").to respond_with_slack_message(
+          "Team S'Up timezone is #{ActiveSupport::TimeZone.new('Eastern Time (US & Canada)')}."
+        )
+      end
+      it 'cannot set custom profile team field' do
+        expect(message: "#{SlackRubyBot.config.user} set team field Artsy Team").to respond_with_slack_message(
+          'Custom profile team field is _not set_. Only a Slack team admin can change that, sorry.'
+        )
+      end
+      it 'can see custom profile team field' do
+        expect(message: "#{SlackRubyBot.config.user} set team field").to respond_with_slack_message(
+          'Custom profile team field is _not set_.'
         )
       end
     end

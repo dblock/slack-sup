@@ -10,6 +10,10 @@ class Team
   field :sup_tz, type: String, default: 'Eastern Time (US & Canada)'
   validates_presence_of :sup_tz
 
+  # custom team field
+  field :team_field_label, type: String
+  field :team_field_label_id, type: String
+
   field :stripe_customer_id, type: String
   field :subscribed, type: Boolean, default: false
   field :subscribed_at, type: DateTime
@@ -20,6 +24,8 @@ class Team
   has_many :rounds, dependent: :destroy
 
   after_update :inform_subscribed_changed!
+  before_validation :validate_team_field_label
+  before_validation :validate_team_field_label_id
 
   def api_url
     return unless api?
@@ -112,6 +118,11 @@ class Team
       existing_user ||= User.new(user_id: member.id, team: self)
       existing_user.user_name = member.name
       existing_user.real_name = member.real_name
+      begin
+        existing_user.update_custom_profile
+      rescue StandardError => e
+        logger.warn "Error updating custom profile for #{existing_user}: #{e.message}."
+      end
       existing_user
     end
     humans.each do |human|
@@ -133,6 +144,23 @@ class Team
   end
 
   private
+
+  def validate_team_field_label
+    return unless team_field_label && team_field_label_changed?
+    client = Slack::Web::Client.new(token: access_token)
+    profile_fields = client.team_profile_get.profile.fields
+    label = profile_fields.detect { |field| field.label.casecmp(team_field_label.downcase).zero? }
+    if label
+      self.team_field_label_id = label.id
+      self.team_field_label = label.label
+    else
+      errors.add(:team_field_label, "Custom profile team field _#{team_field_label}_ is invalid. Possible values are _#{profile_fields.map(&:label).join('_, _')}_.")
+    end
+  end
+
+  def validate_team_field_label_id
+    self.team_field_label_id = nil unless team_field_label
+  end
 
   def trial_expired_text
     return unless subscription_expired?

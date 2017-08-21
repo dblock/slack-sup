@@ -4,6 +4,7 @@ class User
 
   field :user_id, type: String
   field :user_name, type: String
+  field :custom_team_name, type: String
   field :is_admin, type: Boolean, default: false
   field :real_name, type: String
 
@@ -61,6 +62,15 @@ class User
   end
 
   def to_s
-    "user_name=#{user_name}, user_id=#{user_id}, real_name=#{real_name}"
+    "user_name=#{user_name}, user_id=#{user_id}, real_name=#{real_name}, custom_team_name=#{custom_team_name}"
+  end
+
+  def update_custom_profile
+    custom_team_name = nil
+    return unless team.team_field_label_id
+    client = Slack::Web::Client.new(token: team.access_token)
+    fields = client.users_profile_get(user: user_id).profile.fields
+    custom_field_value = fields[team.team_field_label_id] if fields && fields.is_a?(::Slack::Messages::Message)
+    self.custom_team_name = custom_field_value.value if custom_field_value
   end
 end

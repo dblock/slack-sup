@@ -9,20 +9,21 @@ module SlackSup
 
         User
         ----
-        opt in|out             - opt in/out of S'Up
+        opt in|out                - opt in/out of S'Up
 
         General
         -------
-        help                   - this helpful message
-        about                  - more helpful info about this bot
+        help                      - this helpful message
+        about                     - more helpful info about this bot
 
         Team Admins
         -----------
-        set day [day of week]  - set the day to S'Up, default is Monday
-        set tz [timezone]      - set team timezone, default is Eastern Time (US & Canada)
-        set api on|off         - enable/disable API access to your team data
-        opt in|out [@mention]  - opt a user in/out of S'Up by @mention
-        subscription           - show team ubscription info
+        set day [day of week]     - set the day to S'Up, default is Monday
+        set timezone [tz]         - set team timezone, default is Eastern Time (US & Canada)
+        set api [on|off]          - enable/disable API access to your team data
+        set team field [name]     - set the name of the custom profile team field (users in the same team don't meet)
+        opt [in|out] [@mention]   - opt a user in/out of S'Up by @mention
+        subscription              - show team ubscription info
 
         More information at https://sup.playplay.io
         ```

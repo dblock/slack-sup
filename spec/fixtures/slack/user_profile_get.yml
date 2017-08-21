@@ -1,0 +1,58 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://slack.com/api/users.profile.get
+    body:
+      encoding: UTF-8
+      string: token=token&user=user
+    headers:
+      Accept:
+      - application/json; charset=utf-8
+      User-Agent:
+      - Slack Ruby Gem 1.1.1
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Cache-Control:
+      - private, no-cache, no-store, must-revalidate
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Wed, 29 Apr 2015 16:10:34 GMT
+      Expires:
+      - Mon, 26 Jul 1997 05:00:00 GMT
+      Pragma:
+      - no-cache
+      Server:
+      - Apache
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      X-Accepted-Oauth-Scopes:
+      - read
+      X-Content-Type-Options:
+      - nosniff
+      X-Oauth-Scopes:
+      - identify,read,post,client
+      X-Xss-Protection:
+      - '0'
+      Content-Length:
+      - '448'
+      Connection:
+      - keep-alive
+    body:
+      encoding: UTF-8
+      string: '{"ok":true,"profile":{"first_name":"Daniel","last_name":"Doubrovkine","skype":"dblockdotorg","phone":"","title":"Cheerleader","image_24":"https://avatars.slack-edge.com/2016-04-26/37792646691_9ec283c455429b6518ae_24.png","image_32":"https://avatars.slack-edge.com/2016-04-26/37792646691_9ec283c455429b6518ae_32.png","image_48":"https://avatars.slack-edge.com/2016-04-26/37792646691_9ec283c455429b6518ae_48.png","image_72":"https://avatars.slack-edge.com/2016-04-26/37792646691_9ec283c455429b6518ae_72.png","image_192":"https://avatars.slack-edge.com/2016-04-26/37792646691_9ec283c455429b6518ae_192.png","image_original":"https://avatars.slack-edge.com/2016-04-26/37792646691_9ec283c455429b6518ae_original.png","fields":{"Xf6RKY5F2B":{"value":"CTO","alt":""},"Xf6QJY0DS8":{"value":"Engineering","alt":""},"Xf4R912PGT":{"value":"https://instagram.com/dblockdotorg","alt":""},"Xf4RDN1C85":{"value":"https://twitter.com/dblockdotorg","alt":""}},"avatar_hash":"9ec283c45542","image_512":"https://avatars.slack-edge.com/2016-04-26/37792646691_9ec283c455429b6518ae_512.png","image_1024":"https://avatars.slack-edge.com/2016-04-26/37792646691_9ec283c455429b6518ae_512.png","status_text":"","status_emoji":"","real_name":"Daniel Doubrovkine","real_name_normalized":"Daniel Doubrovkine","email":"db@example.com"}}'
+    http_version:
+  recorded_at: Wed, 29 Apr 2015 16:10:34 GMT
+
