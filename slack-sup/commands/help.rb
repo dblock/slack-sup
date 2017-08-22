@@ -9,10 +9,11 @@ module SlackSup
 
         User
         ----
-        opt in|out                - opt in/out of S'Up
+        opt [in|out]              - opt in/out of S'Up
 
         General
         -------
+        stats                     - team stats
         help                      - this helpful message
         about                     - more helpful info about this bot
 

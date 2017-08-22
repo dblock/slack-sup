@@ -22,6 +22,7 @@ class Team
 
   has_many :users, dependent: :destroy
   has_many :rounds, dependent: :destroy
+  has_many :sups, dependent: :destroy
 
   after_update :inform_subscribed_changed!
   before_validation :validate_team_field_label
@@ -173,7 +174,7 @@ class Team
   INSTALLED_TEXT =
     "Hi there! I'm your team's S'Up bot. " \
     'Thanks for trying me out. Type `help` for instructions. ' \
-    "I'm going to setup some S'Ups via Slack DM shortly.".freeze
+    "I plan to setup some S'Ups via Slack DM next Monday.".freeze
 
   SUBSCRIBED_TEXT =
     "Hi there! I'm your team's S'Up bot. " \

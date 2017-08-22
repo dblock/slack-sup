@@ -90,11 +90,11 @@ describe Round do
           expect(round2.send(:met_recently?, [user1, user2])).to be false
         end
         it 'is true with a sup with both users' do
-          Fabricate(:sup, round: round, users: [user1, user2, Fabricate(:user)])
+          Fabricate(:sup, round: round, team: team, users: [user1, user2, Fabricate(:user, team: team)])
           expect(round2.send(:met_recently?, [user1, user2])).to be true
         end
         it 'is false with a sup with one user' do
-          Fabricate(:sup, round: round, users: [Fabricate(:user), user2, Fabricate(:user)])
+          Fabricate(:sup, round: round, team: team, users: [Fabricate(:user), user2, Fabricate(:user)])
           expect(round2.send(:met_recently?, [user1, user2])).to be false
         end
       end
@@ -154,7 +154,7 @@ describe Round do
     end
     context '#ask!' do
       context 'with a sup' do
-        let!(:sup) { Fabricate(:sup, round: round) }
+        let!(:sup) { Fabricate(:sup, team: team, round: round) }
         it 'asks every sup' do
           expect(sup).to receive(:ask!).once
           round.ask!

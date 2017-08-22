@@ -16,6 +16,7 @@ module Api
       mount Api::Endpoints::UsersEndpoint
       mount Api::Endpoints::RoundsEndpoint
       mount Api::Endpoints::SupsEndpoint
+      mount Api::Endpoints::StatsEndpoint
       mount Api::Endpoints::SubscriptionsEndpoint
       mount Api::Endpoints::CreditCardsEndpoint
       mount Api::Endpoints::SlackEndpoint

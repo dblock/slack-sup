@@ -4,6 +4,7 @@ class Sup
   include Mongoid::Timestamps
 
   field :outcome, type: String
+  belongs_to :team
   belongs_to :round
   has_and_belongs_to_many :users
 
@@ -62,7 +63,15 @@ class Sup
     "id=#{id}, users=#{users.map(&:user_name).join(', ')}"
   end
 
+  validates_presence_of :team_id
+  before_validation :validate_team
+
   private
+
+  def validate_team
+    return if team_id && round.team_id == team_id && users.all? { |user| user.team_id == team_id }
+    errors.add(:team, 'Rounds can only be created amongst users of the same team.')
+  end
 
   # creates a DM between all the parties involved
   def dm!(message)

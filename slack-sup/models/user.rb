@@ -10,6 +10,7 @@ class User
 
   field :opted_in, type: Boolean, default: true
   scope :opted_in, -> { where(opted_in: true) }
+  scope :opted_out, -> { where(opted_in: false) }
 
   field :enabled, type: Boolean, default: true
   scope :enabled, -> { where(enabled: true) }

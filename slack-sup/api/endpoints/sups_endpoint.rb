@@ -19,7 +19,7 @@ module Api
 
         desc "Get all the S'Up for a round."
         params do
-          requires :round_id, type: String, desc: 'Team ID.'
+          requires :round_id, type: String, desc: 'Round ID.'
           use :pagination
         end
         get do
