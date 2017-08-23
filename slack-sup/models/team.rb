@@ -5,6 +5,8 @@ class Team
   # enable API for this team
   field :api, type: Boolean, default: false
 
+  # sup size
+  field :sup_size, type: Integer, default: 3
   # sup frequency in weeks
   field :sup_time_of_day, type: Integer, default: 9 * 60 * 60
   field :sup_every_n_weeks, type: Integer, default: 1
@@ -32,6 +34,7 @@ class Team
   before_validation :validate_team_field_label_id
   before_validation :validate_sup_time_of_day
   before_validation :validate_every_n_weeks
+  before_validation :validate_sup_size
 
   def api_url
     return unless api?
@@ -183,6 +186,11 @@ class Team
   def validate_every_n_weeks
     return if sup_every_n_weeks >= 1
     errors.add(:sup_every_n_weeks, "Sup every _#{sup_every_n_weeks}_ is invalid, must be at least 1.")
+  end
+
+  def validate_sup_size
+    return if sup_size >= 2
+    errors.add(:sup_size, "Sup for _#{sup_size}_ is invalid, requires at least 2 people to meet.")
   end
 
   def trial_expired_text

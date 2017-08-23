@@ -67,6 +67,22 @@ module SlackSup
           raise SlackSup::Error, "Number _#{v}_ is invalid. Team S'Up is every #{team.reload.sup_every_n_weeks_s}."
         end
 
+        def set_size(client, team, data, user, v)
+          if user.is_admin? || v.nil?
+            if v.nil?
+              client.say(channel: data.channel, text: "Team S'Up connects #{team.sup_size} people.")
+            else
+              team.update_attributes!(sup_size: v.to_i)
+              client.say(channel: data.channel, text: "Team S'Up now connects #{team.sup_size} people.")
+            end
+          else
+            client.say(channel: data.channel, text: "Team S'Up connects #{team.sup_size} people. Only a Slack team admin can change that, sorry.")
+          end
+          logger.info "SET: #{team}, user=#{user.user_name}, sup_size=#{team.sup_size}."
+        rescue StandardError => e
+          raise SlackSup::Error, "Number _#{v}_ is invalid. Team S'Up connects #{team.reload.sup_size} people."
+        end
+
         def set_timezone(client, team, data, user, v)
           if user.is_admin? || v.nil?
             if v.nil?
@@ -127,6 +143,8 @@ module SlackSup
             set_weeks client, team, data, user, v
           when 'time' then
             set_time client, team, data, user, v
+          when 'size' then
+            set_size client, team, data, user, v
           else
             raise SlackSup::Error, "Invalid setting _#{k}_, see _help_ for available options."
           end

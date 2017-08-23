@@ -3,7 +3,6 @@ class Round
   include Mongoid::Document
   include Mongoid::Timestamps
 
-  SIZE = 3
   TIMEOUT = 60
 
   field :ran_at, type: DateTime
@@ -69,13 +68,13 @@ class Round
     Ambit.fail! if met_recently?(combination)
     Ambit.fail! if meeting_already?(combination)
     Sup.create!(round: self, team: team, users: combination)
-    logger.info "   Creating sup for #{combination.map(&:user_name)}, #{sups.count * Round::SIZE} out of #{team.users.suppable.count}."
-    Ambit.clear! if sups.count * Round::SIZE == team.users.suppable.count
+    logger.info "   Creating sup for #{combination.map(&:user_name)}, #{sups.count * team.sup_size} out of #{team.users.suppable.count}."
+    Ambit.clear! if sups.count * team.sup_size == team.users.suppable.count
     solve(remaining_users - combination)
   end
 
   def group(remaining_users, combination = [])
-    if combination.size == Round::SIZE
+    if combination.size == team.sup_size
       combination
     else
       user = Ambit.choose(remaining_users)

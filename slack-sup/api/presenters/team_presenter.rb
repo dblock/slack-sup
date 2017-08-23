@@ -17,6 +17,10 @@ module Api
       property :sup_wday, type: Integer, desc: "S'Up day of the week."
       property :sup_day, type: String, desc: "S'Up day of the week in English."
       property :sup_tz, type: String, desc: 'Team timezone.'
+      property :sup_time_of_day, type: String, desc: "Earliest time of day for a S'Up in seconds."
+      property :sup_time_of_day_s, type: String, desc: "Earliest time of day for a S'Up."
+      property :sup_every_n_weeks, type: Integer, desc: "Frequency of S'Up in weeks."
+      property :sup_size, type: Integer, desc: "The number of people that meet for each S'Up."
 
       link :users do |opts|
         request = Grape::Request.new(opts[:env])

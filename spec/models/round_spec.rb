@@ -12,12 +12,26 @@ describe Round do
       let!(:user1) { Fabricate(:user, team: team) }
       let!(:user2) { Fabricate(:user, team: team) }
       let!(:user3) { Fabricate(:user, team: team) }
-      it 'generates groups of Round::SIZE size' do
+      it 'generates groups of sup_size size' do
         expect do
           team.sup!
         end.to change(Sup, :count).by(1)
         sup = Sup.first
         expect(sup.users).to eq([user1, user2, user3])
+      end
+      context 'with sup_size of 2' do
+        let!(:user4) { Fabricate(:user, team: team) }
+        let!(:user5) { Fabricate(:user, team: team) }
+        let!(:user6) { Fabricate(:user, team: team) }
+        before do
+          team.update_attributes!(sup_size: 2)
+        end
+        it 'generates pairs' do
+          expect do
+            team.sup!
+          end.to change(Sup, :count).by(3)
+          expect(Sup.all.all? { |sup| sup.users.count == 2 })
+        end
       end
       context 'opted out' do
         let!(:user4) { Fabricate(:user, team: team) }

@@ -141,6 +141,30 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
         )
       end
     end
+    context 'size' do
+      it 'defaults to 3' do
+        expect(message: "#{SlackRubyBot.config.user} set size").to respond_with_slack_message(
+          "Team S'Up connects 3 people."
+        )
+      end
+      it 'shows current value of size' do
+        team.update_attributes!(sup_size: 3)
+        expect(message: "#{SlackRubyBot.config.user} set size").to respond_with_slack_message(
+          "Team S'Up connects 3 people."
+        )
+      end
+      it 'changes size' do
+        expect(message: "#{SlackRubyBot.config.user} set size 2").to respond_with_slack_message(
+          "Team S'Up now connects 2 people."
+        )
+        expect(team.reload.sup_size).to eq 2
+      end
+      it 'errors set on an invalid number of size' do
+        expect(message: "#{SlackRubyBot.config.user} set size foobar").to respond_with_slack_message(
+          "Number _foobar_ is invalid. Team S'Up connects 3 people."
+        )
+      end
+    end
     context 'timezone' do
       it 'defaults to Eastern Time (US & Canada)' do
         expect(message: "#{SlackRubyBot.config.user} set timezone").to respond_with_slack_message(
@@ -251,6 +275,16 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       it 'can see weeks' do
         expect(message: "#{SlackRubyBot.config.user} set weeks").to respond_with_slack_message(
           "Team S'Up is every week."
+        )
+      end
+      it 'cannot set size' do
+        expect(message: "#{SlackRubyBot.config.user} set size 2").to respond_with_slack_message(
+          "Team S'Up connects 3 people. Only a Slack team admin can change that, sorry."
+        )
+      end
+      it 'can see size' do
+        expect(message: "#{SlackRubyBot.config.user} set size").to respond_with_slack_message(
+          "Team S'Up connects 3 people."
         )
       end
       it 'cannot set timezone' do
