@@ -96,6 +96,16 @@ describe Team do
       expect(team.sup?).to be false
     end
   end
+  context 'with a custom sup_time_of_day' do
+    let(:team) { Fabricate(:team, sup_wday: 1, sup_time_of_day: 7 * 60 * 60, sup_tz: 'Eastern Time (US & Canada)') }
+    let(:monday) { DateTime.parse('2017/1/2 8:00 AM EST').utc }
+    before do
+      Timecop.travel(monday)
+    end
+    it 'does not sup' do
+      expect(team.sup?).to be true
+    end
+  end
   context 'team' do
     let(:team) { Fabricate(:team, sup_wday: Time.now.utc.in_time_zone('Eastern Time (US & Canada)').wday) }
     before do
@@ -150,6 +160,27 @@ describe Team do
             end
             it 'is false' do
               expect(team.sup?).to be false
+            end
+          end
+        end
+        context 'with a custom sup_every_n_weeks' do
+          before do
+            team.update_attributes!(sup_every_n_weeks: 2)
+          end
+          context 'after more than a week' do
+            before do
+              Timecop.travel(Time.now.utc + 7.days)
+            end
+            it 'is true' do
+              expect(team.sup?).to be false
+            end
+          end
+          context 'after more than two weeks' do
+            before do
+              Timecop.travel(Time.now.utc + 14.days)
+            end
+            it 'is true' do
+              expect(team.sup?).to be true
             end
           end
         end

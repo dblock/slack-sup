@@ -21,9 +21,12 @@ module SlackSup
 
         def set_day(client, team, data, user, v)
           if user.is_admin? || v.nil?
-            team.sup_wday = Date.parse(v).wday unless v.nil?
-            client.say(channel: data.channel, text: "Team S'Up is#{team.sup_wday_changed? ? ' now' : ''} on #{team.sup_day}.")
-            team.save! if team.sup_wday_changed?
+            if v.nil?
+              client.say(channel: data.channel, text: "Team S'Up is on #{team.sup_day}.")
+            else
+              team.update_attributes(sup_wday: Date.parse(v).wday)
+              client.say(channel: data.channel, text: "Team S'Up is now on #{team.sup_day}.")
+            end
           else
             client.say(channel: data.channel, text: "Team S'Up is on #{team.sup_day}. Only a Slack team admin can change that, sorry.")
           end
@@ -32,15 +35,48 @@ module SlackSup
           raise SlackSup::Error, "Day _#{v}_ is invalid, try _Monday_, _Tuesday_, etc. Team S'Up is on #{team.sup_day}."
         end
 
+        def set_time(client, team, data, user, v)
+          if user.is_admin? || v.nil?
+            if v.nil?
+              client.say(channel: data.channel, text: "Team S'Up is after #{team.sup_time_of_day_s}.")
+            else
+              team.update_attributes!(sup_time_of_day: DateTime.parse(v).seconds_since_midnight)
+              client.say(channel: data.channel, text: "Team S'Up is now after #{team.sup_time_of_day_s}.")
+            end
+          else
+            client.say(channel: data.channel, text: "Team S'Up is after #{team.sup_time_of_day_s}. Only a Slack team admin can change that, sorry.")
+          end
+          logger.info "SET: #{team}, user=#{user.user_name}, sup_time_of_day=#{team.sup_time_of_day_s}."
+        rescue StandardError => e
+          raise SlackSup::Error, "Time _#{v}_ is invalid. Team S'Up is after #{team.reload.sup_time_of_day_s}."
+        end
+
+        def set_weeks(client, team, data, user, v)
+          if user.is_admin? || v.nil?
+            if v.nil?
+              client.say(channel: data.channel, text: "Team S'Up is every #{team.sup_every_n_weeks_s}.")
+            else
+              team.update_attributes!(sup_every_n_weeks: v.to_i)
+              client.say(channel: data.channel, text: "Team S'Up is now every #{team.sup_every_n_weeks_s}.")
+            end
+          else
+            client.say(channel: data.channel, text: "Team S'Up is every #{team.sup_every_n_weeks_s}. Only a Slack team admin can change that, sorry.")
+          end
+          logger.info "SET: #{team}, user=#{user.user_name}, sup_every_n_weeks=#{team.sup_every_n_weeks_s}."
+        rescue StandardError => e
+          raise SlackSup::Error, "Number _#{v}_ is invalid. Team S'Up is every #{team.reload.sup_every_n_weeks_s}."
+        end
+
         def set_timezone(client, team, data, user, v)
           if user.is_admin? || v.nil?
-            unless v.nil?
+            if v.nil?
+              client.say(channel: data.channel, text: "Team S'Up timezone is #{team.sup_tzone}.")
+            else
               timezone = ActiveSupport::TimeZone.new(v)
               raise SlackSup::Error, "TimeZone _#{v}_ is invalid, see https://github.com/rails/rails/blob/5.1.3/activesupport/lib/active_support/values/time_zone.rb#L30 for a list. Team S'Up timezone is currently #{team.sup_tzone}." unless timezone
-              team.sup_tz = timezone.name
+              team.update_attributes!(sup_tz: timezone.name)
+              client.say(channel: data.channel, text: "Team S'Up timezone is now #{team.sup_tzone}.")
             end
-            client.say(channel: data.channel, text: "Team S'Up timezone is#{team.sup_tz_changed? ? ' now' : ''} #{team.sup_tzone}.")
-            team.save! if team.sup_tz_changed?
           else
             client.say(channel: data.channel, text: "Team S'Up timezone is #{team.sup_tzone}. Only a Slack team admin can change that, sorry.")
           end
@@ -87,6 +123,10 @@ module SlackSup
             set_timezone client, team, data, user, v
           when 'teamfield' then
             set_custom_profile_team_field client, team, data, user, v
+          when 'weeks' then
+            set_weeks client, team, data, user, v
+          when 'time' then
+            set_time client, team, data, user, v
           else
             raise SlackSup::Error, "Invalid setting _#{k}_, see _help_ for available options."
           end

@@ -93,6 +93,54 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
         )
       end
     end
+    context 'time' do
+      it 'defaults to 9AM' do
+        expect(message: "#{SlackRubyBot.config.user} set time").to respond_with_slack_message(
+          "Team S'Up is after 9:00 AM."
+        )
+      end
+      it 'shows current value of sup time' do
+        team.update_attributes!(sup_time_of_day: 10 * 60 * 60 + 30 * 60)
+        expect(message: "#{SlackRubyBot.config.user} set time").to respond_with_slack_message(
+          "Team S'Up is after 10:30 AM."
+        )
+      end
+      it 'changes sup time' do
+        expect(message: "#{SlackRubyBot.config.user} set time 11:20PM").to respond_with_slack_message(
+          "Team S'Up is now after 11:20 PM."
+        )
+        expect(team.reload.sup_time_of_day).to eq 23 * 60 * 60 + 20 * 60
+      end
+      it 'errors set on an invalid time' do
+        expect(message: "#{SlackRubyBot.config.user} set time foobar").to respond_with_slack_message(
+          "Time _foobar_ is invalid. Team S'Up is after 9:00 AM."
+        )
+      end
+    end
+    context 'weeks' do
+      it 'defaults to one' do
+        expect(message: "#{SlackRubyBot.config.user} set weeks").to respond_with_slack_message(
+          "Team S'Up is every week."
+        )
+      end
+      it 'shows current value of weeks' do
+        team.update_attributes!(sup_every_n_weeks: 3)
+        expect(message: "#{SlackRubyBot.config.user} set weeks").to respond_with_slack_message(
+          "Team S'Up is every 3 weeks."
+        )
+      end
+      it 'changes weeks' do
+        expect(message: "#{SlackRubyBot.config.user} set weeks 2").to respond_with_slack_message(
+          "Team S'Up is now every 2 weeks."
+        )
+        expect(team.reload.sup_every_n_weeks).to eq 2
+      end
+      it 'errors set on an invalid number of weeks' do
+        expect(message: "#{SlackRubyBot.config.user} set weeks foobar").to respond_with_slack_message(
+          "Number _foobar_ is invalid. Team S'Up is every week."
+        )
+      end
+    end
     context 'timezone' do
       it 'defaults to Eastern Time (US & Canada)' do
         expect(message: "#{SlackRubyBot.config.user} set timezone").to respond_with_slack_message(
@@ -183,6 +231,26 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       it 'can see sup day' do
         expect(message: "#{SlackRubyBot.config.user} set day").to respond_with_slack_message(
           "Team S'Up is on Monday."
+        )
+      end
+      it 'cannot set time' do
+        expect(message: "#{SlackRubyBot.config.user} set time 11:00 AM").to respond_with_slack_message(
+          "Team S'Up is after 9:00 AM. Only a Slack team admin can change that, sorry."
+        )
+      end
+      it 'can see time' do
+        expect(message: "#{SlackRubyBot.config.user} set time").to respond_with_slack_message(
+          "Team S'Up is after 9:00 AM."
+        )
+      end
+      it 'cannot set weeks' do
+        expect(message: "#{SlackRubyBot.config.user} set weeks 2").to respond_with_slack_message(
+          "Team S'Up is every week. Only a Slack team admin can change that, sorry."
+        )
+      end
+      it 'can see weeks' do
+        expect(message: "#{SlackRubyBot.config.user} set weeks").to respond_with_slack_message(
+          "Team S'Up is every week."
         )
       end
       it 'cannot set timezone' do

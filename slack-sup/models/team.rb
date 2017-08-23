@@ -5,6 +5,9 @@ class Team
   # enable API for this team
   field :api, type: Boolean, default: false
 
+  # sup frequency in weeks
+  field :sup_time_of_day, type: Integer, default: 9 * 60 * 60
+  field :sup_every_n_weeks, type: Integer, default: 1
   # sup day of the week, defaults to Monday
   field :sup_wday, type: Integer, default: 1
   field :sup_tz, type: String, default: 'Eastern Time (US & Canada)'
@@ -27,6 +30,8 @@ class Team
   after_update :inform_subscribed_changed!
   before_validation :validate_team_field_label
   before_validation :validate_team_field_label_id
+  before_validation :validate_sup_time_of_day
+  before_validation :validate_every_n_weeks
 
   def api_url
     return unless api?
@@ -60,6 +65,14 @@ class Team
     sup ? sup.created_at : nil
   end
 
+  def sup_time_of_day_s
+    Time.at(sup_time_of_day).utc.strftime('%l:%M %p').strip
+  end
+
+  def sup_every_n_weeks_s
+    sup_every_n_weeks == 1 ? 'week' : "#{sup_every_n_weeks} weeks"
+  end
+
   def sup_day
     Date::DAYNAMES[sup_wday]
   end
@@ -69,14 +82,14 @@ class Team
   end
 
   # is it time to sup?
-  def sup?(dt = 1.week)
+  def sup?
     # only sup on a certain day of the week
     now_in_tz = Time.now.utc.in_time_zone(sup_tzone)
     return false unless now_in_tz.wday == sup_wday
-    # sup after 9am
-    return false if now_in_tz.hour < 9
+    # sup after 9am by default
+    return false if now_in_tz < now_in_tz.beginning_of_day + sup_time_of_day
     # don't sup more than once a week
-    time_limit = Time.now.utc - dt
+    time_limit = Time.now.utc - sup_every_n_weeks.weeks
     (last_sup_at || time_limit) <= time_limit
   end
 
@@ -160,6 +173,16 @@ class Team
 
   def validate_team_field_label_id
     self.team_field_label_id = nil unless team_field_label
+  end
+
+  def validate_sup_time_of_day
+    return if sup_time_of_day && sup_time_of_day > 0 && sup_time_of_day < 24 * 60 * 60
+    errors.add(:sup_time_of_day, "Sup time of day _#{sup_time_of_day}_ is invalid.")
+  end
+
+  def validate_every_n_weeks
+    return if sup_every_n_weeks >= 1
+    errors.add(:sup_every_n_weeks, "Sup every _#{sup_every_n_weeks}_ is invalid, must be at least 1.")
   end
 
   def trial_expired_text
