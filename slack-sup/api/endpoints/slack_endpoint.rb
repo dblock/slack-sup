@@ -13,6 +13,8 @@ module Api
         post '/action' do
           payload = Hashie::Mash.new(JSON.parse(params[:payload]))
           error! 'Message token is not coming from Slack.', 401 if ENV.key?('SLACK_VERIFICATION_TOKEN') && payload.token != ENV['SLACK_VERIFICATION_TOKEN']
+          error! 'Missing actions.', 400 unless payload.actions
+          error! 'Missing action.', 400 unless payload.actions.first
 
           case payload.actions.first.name
           when 'outcome' then

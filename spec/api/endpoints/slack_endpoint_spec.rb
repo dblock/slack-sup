@@ -22,6 +22,27 @@ describe Api::Endpoints::SlackEndpoint do
     end
   end
 
+  it 'requires payload' do
+    post '/api/slack/action'
+    expect(last_response.status).to eq 400
+    expect(JSON.parse(last_response.body)['message']).to eq 'Invalid parameters.'
+  end
+
+  it 'requires payload with actions' do
+    post '/api/slack/action', payload: {
+    }.to_json
+    expect(last_response.status).to eq 400
+    expect(JSON.parse(last_response.body)['error']).to eq 'Missing actions.'
+  end
+
+  it 'requires payload with at least one action' do
+    post '/api/slack/action', payload: {
+      'actions': []
+    }.to_json
+    expect(last_response.status).to eq 400
+    expect(JSON.parse(last_response.body)['error']).to eq 'Missing action.'
+  end
+
   context 'with a SLACK_VERIFICATION_TOKEN' do
     before do
       ENV['SLACK_VERIFICATION_TOKEN'] = 'token'
