@@ -10,14 +10,24 @@ class Sup
 
   index(round: 1, user_ids: 1)
 
+  HI_MESSAGE = "Hi there! I'm your team's S'Up bot.".freeze
+
   PLEASE_SUP_MESSAGE =
-    "Hi there! I'm your team's S'Up bot. " \
     'Please find a time for a quick 20 minute break on the calendar. ' \
     "Then get together and tell each other about something awesome you're working on these days.".freeze
 
   def sup!
     logger.info "Creating S'Up on a DM channel with #{users.map(&:user_name)}."
-    dm!(text: Sup::PLEASE_SUP_MESSAGE)
+    messages = [
+      HI_MESSAGE,
+      intro_message,
+      PLEASE_SUP_MESSAGE
+    ].compact
+    dm!(text: messages.join(' '))
+    users.each do |user|
+      next if user.introduced_sup?
+      user.update_attributes!(introduced_sup_at: Time.now.utc)
+    end
   end
 
   ASK_WHO_SUP_MESSAGE = {
@@ -67,6 +77,16 @@ class Sup
   before_validation :validate_team
 
   private
+
+  def intro_message
+    new_users = users.reject(&:introduced_sup?)
+    return unless new_users.any?
+    [
+      team.sup_size == 3 ? 'The most valuable relationships are not made of 2 people, they’re made of 3.' : nil,
+      "Team S'Up connects #{team.sup_size} people on #{team.sup_day} every #{team.sup_every_n_weeks_s}.",
+      "Welcome #{new_users.map(&:slack_mention).and}, excited for your first S'Up!"
+    ].compact.join(' ')
+  end
 
   def validate_team
     return if team_id && round.team_id == team_id && users.all? { |user| user.team_id == team_id }

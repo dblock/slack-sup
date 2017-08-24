@@ -8,6 +8,8 @@ class User
   field :is_admin, type: Boolean, default: false
   field :real_name, type: String
 
+  field :introduced_sup_at, type: DateTime
+
   field :opted_in, type: Boolean, default: true
   scope :opted_in, -> { where(opted_in: true) }
   scope :opted_out, -> { where(opted_in: false) }
@@ -26,6 +28,10 @@ class User
 
   def slack_mention
     "<@#{user_id}>"
+  end
+
+  def introduced_sup?
+    !introduced_sup_at.nil?
   end
 
   def self.find_by_slack_mention!(team, user_name)

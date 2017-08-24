@@ -191,7 +191,7 @@ module SlackSup
         if !match['expression']
           team = client.owner
           message = [
-            "Team S'Up connects #{team.sup_size} people on #{team.sup_day} after #{team.sup_time_of_day_s} every #{team.sup_every_n_weeks_s} in #{team.sup_tzone}, taking special care to not pair the same people more frequently than #{team.sup_recency_s}.",
+            "Team S'Up connects #{team.sup_size} people on #{team.sup_day} after #{team.sup_time_of_day_s} every #{team.sup_every_n_weeks_s} in #{team.sup_tzone}, taking special care to not pair the same people more frequently than every #{team.sup_recency_s}.",
             "Custom profile team field is _#{team.team_field_label || 'not set'}_.",
             "Team data access via the API is #{team.api? ? 'on' : 'off'}.",
             team.api_url
