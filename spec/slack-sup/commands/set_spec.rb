@@ -9,9 +9,12 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
     before do
       expect(User).to receive(:find_create_or_update_by_slack_id!).and_return(admin)
     end
-    it 'gives help' do
+    it 'displays all settings' do
       expect(message: "#{SlackRubyBot.config.user} set").to respond_with_slack_message(
-        'Missing setting, see _help_ for available options.'
+        "Team S'Up connects 3 people on Monday after 9:00 AM every week in (GMT-05:00) Eastern Time (US & Canada).\n" \
+        "Custom profile team field is _not set_.\n" \
+        "Team data access via the API is on.\n" \
+        "#{team.api_url}"
       )
     end
     context 'api' do

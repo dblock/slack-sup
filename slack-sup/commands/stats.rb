@@ -15,7 +15,9 @@ module SlackSup
       subscribe_command 'stats' do |client, data, _match|
         team = client.owner
         stats = ::Stats.new(team)
-        message = "Team S'Up started #{team.created_at.ago_in_words} with #{stats.users_count > 0 ? stats.users_opted_in_count * 100 / stats.users_count : 0}% of users opted in.\n" \
+        message =
+          "Team S'Up connects #{team.sup_size} people on #{team.sup_day} after #{team.sup_time_of_day_s} every #{team.sup_every_n_weeks_s}.\n" \
+          "Team S'Up started #{team.created_at.ago_in_words} with #{stats.users_count > 0 ? stats.users_opted_in_count * 100 / stats.users_count : 0}% of users opted in.\n" \
           "Facilitated #{pluralize(stats.sups_count, 'S\'Up')} " \
           "in #{pluralize(stats.rounds_count, 'round')} " \
           "for #{pluralize(stats.users_in_sups_count, 'user')} " \

@@ -4,7 +4,7 @@ module SlackSup
       include SlackSup::Commands::Mixins::Subscribe
 
       class << self
-        def set_api(client, team, data, user, v)
+        def set_api(client, team, data, user, v = nil)
           if user.is_admin? || v.nil?
             team.api = v.to_b unless v.nil?
             message = [
@@ -19,7 +19,7 @@ module SlackSup
           logger.info "SET: #{team}, user=#{user.user_name}, api=#{team.api? ? 'on' : 'off'}"
         end
 
-        def set_day(client, team, data, user, v)
+        def set_day(client, team, data, user, v = nil)
           if user.is_admin? || v.nil?
             if v.nil?
               client.say(channel: data.channel, text: "Team S'Up is on #{team.sup_day}.")
@@ -35,7 +35,7 @@ module SlackSup
           raise SlackSup::Error, "Day _#{v}_ is invalid, try _Monday_, _Tuesday_, etc. Team S'Up is on #{team.sup_day}."
         end
 
-        def set_time(client, team, data, user, v)
+        def set_time(client, team, data, user, v = nil)
           if user.is_admin? || v.nil?
             if v.nil?
               client.say(channel: data.channel, text: "Team S'Up is after #{team.sup_time_of_day_s}.")
@@ -51,7 +51,7 @@ module SlackSup
           raise SlackSup::Error, "Time _#{v}_ is invalid. Team S'Up is after #{team.reload.sup_time_of_day_s}."
         end
 
-        def set_weeks(client, team, data, user, v)
+        def set_weeks(client, team, data, user, v = nil)
           if user.is_admin? || v.nil?
             if v.nil?
               client.say(channel: data.channel, text: "Team S'Up is every #{team.sup_every_n_weeks_s}.")
@@ -67,7 +67,7 @@ module SlackSup
           raise SlackSup::Error, "Number _#{v}_ is invalid. Team S'Up is every #{team.reload.sup_every_n_weeks_s}."
         end
 
-        def set_size(client, team, data, user, v)
+        def set_size(client, team, data, user, v = nil)
           if user.is_admin? || v.nil?
             if v.nil?
               client.say(channel: data.channel, text: "Team S'Up connects #{team.sup_size} people.")
@@ -83,7 +83,7 @@ module SlackSup
           raise SlackSup::Error, "Number _#{v}_ is invalid. Team S'Up connects #{team.reload.sup_size} people."
         end
 
-        def set_timezone(client, team, data, user, v)
+        def set_timezone(client, team, data, user, v = nil)
           if user.is_admin? || v.nil?
             if v.nil?
               client.say(channel: data.channel, text: "Team S'Up timezone is #{team.sup_tzone}.")
@@ -171,8 +171,15 @@ module SlackSup
       command 'set' do |client, data, match|
         user = ::User.find_create_or_update_by_slack_id!(client, data.user)
         if !match['expression']
-          client.say(channel: data.channel, text: 'Missing setting, see _help_ for available options.')
-          logger.info "SET: #{client.owner} - #{user.user_name}, failed, missing setting"
+          team = client.owner
+          message = [
+            "Team S'Up connects #{team.sup_size} people on #{team.sup_day} after #{team.sup_time_of_day_s} every #{team.sup_every_n_weeks_s} in #{team.sup_tzone}.",
+            "Custom profile team field is _#{team.team_field_label || 'not set'}_.",
+            "Team data access via the API is #{team.api? ? 'on' : 'off'}.",
+            team.api_url
+          ].compact.join("\n")
+          client.say(channel: data.channel, text: message)
+          logger.info "SET: #{client.owner} - #{user.user_name}"
         else
           k, v = parse_expression(match)
           set client, client.owner, data, user, k, v

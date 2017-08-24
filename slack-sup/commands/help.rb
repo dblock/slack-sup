@@ -16,6 +16,7 @@ module SlackSup
         stats                     - team stats
         help                      - this helpful message
         about                     - more helpful info about this bot
+        set                       - show all settings
 
         Team Admins
         -----------
