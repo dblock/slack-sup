@@ -31,11 +31,11 @@ describe Sup do
           expect(sup.send(:intro_message)).to eq(
             'The most valuable relationships are not made of 2 people, they’re made of 3. ' \
             "Team S'Up connects 3 people on Monday every week. " \
-            "Welcome #{sup.users.map(&:slack_mention).and}, excited for your first S'Up!"
+            "Welcome #{sup.users.asc(:_id).map(&:slack_mention).and}, excited for your first S'Up!"
           )
         end
         it 'two are new' do
-          users = sup.users.take(2)
+          users = sup.users.take(2).sort_by(&:id)
           users.each { |u| u.update_attributes!(introduced_sup_at: nil) }
           expect(sup.send(:intro_message)).to eq(
             'The most valuable relationships are not made of 2 people, they’re made of 3. ' \
@@ -63,6 +63,32 @@ describe Sup do
           expect(sup.send(:intro_message)).to be nil
         end
       end
+    end
+  end
+  context 'sup!' do
+    let(:team) { Fabricate(:team) }
+    let!(:user1) { Fabricate(:user, team: team) }
+    let!(:user2) { Fabricate(:user, team: team) }
+    let!(:user3) { Fabricate(:user, team: team) }
+    it 'uses default message' do
+      allow(team).to receive(:sync!)
+      expect_any_instance_of(Sup).to receive(:dm!).with(
+        text: "Hi there! I'm your team's S'Up bot. The most valuable relationships are not made of 2 people, they’re made of 3. " \
+          "Team S'Up connects 3 people on Monday every week. Welcome #{team.users.asc(:_id).map(&:slack_mention).and}, excited for your first S'Up! " \
+          'Please find a time for a quick 20 minute break on the calendar. ' \
+          "Then get together and tell each other about something awesome you're working on these days."
+      )
+      team.sup!
+    end
+    it 'uses a custom message' do
+      team.update_attributes!(sup_message: 'SUP SUP')
+      allow(team).to receive(:sync!)
+      expect_any_instance_of(Sup).to receive(:dm!).with(
+        text: "Hi there! I'm your team's S'Up bot. The most valuable relationships are not made of 2 people, they’re made of 3. " \
+          "Team S'Up connects 3 people on Monday every week. Welcome #{team.users.asc(:_id).map(&:slack_mention).and}, excited for your first S'Up! " \
+          'SUP SUP'
+      )
+      team.sup!
     end
   end
 end

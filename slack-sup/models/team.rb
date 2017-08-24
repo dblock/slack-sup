@@ -16,6 +16,8 @@ class Team
   field :sup_tz, type: String, default: 'Eastern Time (US & Canada)'
   validates_presence_of :sup_tz
 
+  field :sup_message, type: String
+
   # custom team field
   field :team_field_label, type: String
   field :team_field_label_id, type: String
@@ -41,6 +43,10 @@ class Team
   def api_url
     return unless api?
     "#{SlackSup::Service.api_url}/teams/#{id}"
+  end
+
+  def api_s
+    api? ? 'on' : 'off'
   end
 
   def asleep?(dt = 3.weeks)

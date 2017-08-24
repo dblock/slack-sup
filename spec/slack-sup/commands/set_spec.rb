@@ -44,13 +44,6 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
         )
         expect(team.reload.api).to be false
       end
-      it 'disables API with unset' do
-        team.update_attributes!(api: true)
-        expect(message: "#{SlackRubyBot.config.user} unset api").to respond_with_slack_message(
-          'Team data access via the API is now off.'
-        )
-        expect(team.reload.api).to be false
-      end
       context 'with API_URL' do
         before do
           ENV['API_URL'] = 'http://local.api'
@@ -249,6 +242,32 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
         expect(team.reload.team_field_label_id).to be nil
       end
     end
+    context 'custom sup message' do
+      it 'is not set by default' do
+        expect(message: "#{SlackRubyBot.config.user} set message").to respond_with_slack_message(
+          "Using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_"
+        )
+      end
+      it 'shows current value' do
+        team.update_attributes!(sup_message: 'Please meet.')
+        expect(message: "#{SlackRubyBot.config.user} set message").to respond_with_slack_message(
+          "Using a custom S'Up message. _Please meet._"
+        )
+      end
+      it 'changes value' do
+        expect(message: "#{SlackRubyBot.config.user} set message Hello world!").to respond_with_slack_message(
+          "Now using a custom S'Up message. _Hello world!_"
+        )
+        expect(team.reload.sup_message).to eq 'Hello world!'
+      end
+      it 'unsets' do
+        team.update_attributes!(sup_message: 'Updated')
+        expect(message: "#{SlackRubyBot.config.user} unset message").to respond_with_slack_message(
+          "Now using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_"
+        )
+        expect(team.reload.sup_message).to be nil
+      end
+    end
     context 'invalid' do
       it 'errors set' do
         expect(message: "#{SlackRubyBot.config.user} set invalid on").to respond_with_slack_message(
@@ -266,7 +285,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
     context 'api' do
       it 'cannot set api' do
         expect(message: "#{SlackRubyBot.config.user} set api true").to respond_with_slack_message(
-          'Only a Slack team admin can turn data access via the API on and off, sorry.'
+          'Team data access via the API is on. Only a Slack team admin can change that, sorry.'
         )
       end
       it 'can see api value' do
@@ -342,6 +361,16 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       it 'can see custom profile team field' do
         expect(message: "#{SlackRubyBot.config.user} set team field").to respond_with_slack_message(
           'Custom profile team field is _not set_.'
+        )
+      end
+      it 'cannot set message' do
+        expect(message: "#{SlackRubyBot.config.user} set message Custom message.").to respond_with_slack_message(
+          "Using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_ Only a Slack team admin can change that, sorry."
+        )
+      end
+      it 'can see custom sup message' do
+        expect(message: "#{SlackRubyBot.config.user} set message").to respond_with_slack_message(
+          "Using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_"
         )
       end
     end
