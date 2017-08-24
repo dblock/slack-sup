@@ -10,6 +10,7 @@ class Team
   # sup frequency in weeks
   field :sup_time_of_day, type: Integer, default: 9 * 60 * 60
   field :sup_every_n_weeks, type: Integer, default: 1
+  field :sup_recency, type: Integer, default: 12
   # sup day of the week, defaults to Monday
   field :sup_wday, type: Integer, default: 1
   field :sup_tz, type: String, default: 'Eastern Time (US & Canada)'
@@ -33,8 +34,9 @@ class Team
   before_validation :validate_team_field_label
   before_validation :validate_team_field_label_id
   before_validation :validate_sup_time_of_day
-  before_validation :validate_every_n_weeks
+  before_validation :validate_sup_every_n_weeks
   before_validation :validate_sup_size
+  before_validation :validate_sup_recency
 
   def api_url
     return unless api?
@@ -74,6 +76,10 @@ class Team
 
   def sup_every_n_weeks_s
     sup_every_n_weeks == 1 ? 'week' : "#{sup_every_n_weeks} weeks"
+  end
+
+  def sup_recency_s
+    sup_recency == 1 ? 'week' : "#{sup_recency} weeks"
   end
 
   def sup_day
@@ -180,17 +186,22 @@ class Team
 
   def validate_sup_time_of_day
     return if sup_time_of_day && sup_time_of_day > 0 && sup_time_of_day < 24 * 60 * 60
-    errors.add(:sup_time_of_day, "Sup time of day _#{sup_time_of_day}_ is invalid.")
+    errors.add(:sup_time_of_day, "S'Up time of day _#{sup_time_of_day}_ is invalid.")
   end
 
-  def validate_every_n_weeks
+  def validate_sup_every_n_weeks
     return if sup_every_n_weeks >= 1
-    errors.add(:sup_every_n_weeks, "Sup every _#{sup_every_n_weeks}_ is invalid, must be at least 1.")
+    errors.add(:sup_every_n_weeks, "S'Up every _#{sup_every_n_weeks}_ is invalid, must be at least 1.")
+  end
+
+  def validate_sup_recency
+    return if sup_recency >= 1
+    errors.add(:sup_recency, "Don't S'Up with the same people more than every _#{sup_recency_s}_ is invalid, must be at least 1.")
   end
 
   def validate_sup_size
     return if sup_size >= 2
-    errors.add(:sup_size, "Sup for _#{sup_size}_ is invalid, requires at least 2 people to meet.")
+    errors.add(:sup_size, "S'Up for _#{sup_size}_ is invalid, requires at least 2 people to meet.")
   end
 
   def trial_expired_text

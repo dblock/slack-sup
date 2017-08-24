@@ -96,9 +96,17 @@ describe Round do
       it 'is true when users just met' do
         expect(round2.send(:met_recently?, [user1, user2])).to be true
       end
+      context 'in not so distant future' do
+        before do
+          Timecop.travel(Time.now.utc + 1.week)
+        end
+        it 'is true' do
+          expect(round2.send(:met_recently?, [user1, user2])).to be true
+        end
+      end
       context 'in a distant future' do
         before do
-          Timecop.travel(Time.now.utc + 4.months)
+          Timecop.travel(Time.now.utc + team.sup_recency.weeks)
         end
         it 'is false in some distant future' do
           expect(round2.send(:met_recently?, [user1, user2])).to be false

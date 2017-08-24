@@ -98,13 +98,13 @@ class Round
     end
   end
 
-  def met_recently?(users, tt = 3.weeks)
+  def met_recently?(users)
     pairs = users.to_a.permutation(2)
     pairs.any? do |pair|
       Sup.where(
         :round_id.ne => _id,
         :user_ids.in => pair.map(&:id),
-        :created_at.gt => tt.ago
+        :created_at.gt => Time.now.utc - team.sup_recency.weeks
       ).any? do |sup|
         pair.all? do |user|
           sup.user_ids.include?(user.id)

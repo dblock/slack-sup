@@ -25,6 +25,7 @@ module SlackSup
         set time [time of day]    - set the earliest time to S'Up, default is 9 AM
         set timezone [tz]         - set team timezone, default is Eastern Time (US & Canada)
         set weeks [number]        - set the number of weeks between S'Up, default is 1
+        set recency [number]      - set the number of weeks during which to avoid pairing the same people, default is 12
         set api [on|off]          - enable/disable API access to your team data
         set team field [name]     - set the name of the custom profile team field (users in the same team don't meet)
         opt [in|out] [@mention]   - opt a user in/out of S'Up by @mention
