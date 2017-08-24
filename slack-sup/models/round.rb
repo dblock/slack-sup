@@ -20,7 +20,7 @@ class Round
     "id=#{id}, #{team}"
   end
 
-  def ask?(dt = 5.days)
+  def ask?(dt = 3.days)
     return false if asked_at
     ran_at && ran_at + dt <= Time.now.utc
   end

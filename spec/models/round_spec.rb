@@ -148,18 +148,18 @@ describe Round do
       it 'is false immediately after the round' do
         expect(round.ask?).to be false
       end
-      context 'after more than five days' do
+      context 'after more than three days' do
         before do
-          Timecop.travel(Time.now.utc + 6.days)
+          Timecop.travel(Time.now.utc + 4.days)
         end
         it 'is true' do
           expect(round.ask?).to be true
         end
       end
-      context 'after more than five days and already asked' do
+      context 'after more than three days and already asked' do
         before do
           round.update_attributes!(asked_at: Time.now.utc)
-          Timecop.travel(Time.now.utc + 6.days)
+          Timecop.travel(Time.now.utc + 4.days)
         end
         it 'is false' do
           expect(round.ask?).to be false
