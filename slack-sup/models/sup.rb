@@ -70,7 +70,7 @@ class Sup
   end
 
   def to_s
-    "id=#{id}, users=#{users.map(&:user_name).join(', ')}"
+    "id=#{id}, users=#{users.map(&:user_name).and}"
   end
 
   validates_presence_of :team_id
