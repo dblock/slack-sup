@@ -4,6 +4,7 @@ class User
 
   field :user_id, type: String
   field :user_name, type: String
+  field :email, type: String
   field :custom_team_name, type: String
   field :is_admin, type: Boolean, default: false
   field :real_name, type: String
@@ -53,7 +54,7 @@ class User
   end
 
   def to_s
-    "user_name=#{user_name}, user_id=#{user_id}, real_name=#{real_name}, custom_team_name=#{custom_team_name}"
+    "user_name=#{user_name}, user_id=#{user_id}, email=#{email}, real_name=#{real_name}, custom_team_name=#{custom_team_name}"
   end
 
   def update_custom_profile

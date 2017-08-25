@@ -1,0 +1,103 @@
+<html>
+  <head>
+    <title>S'Up for Slack Teams: Create a Calendar Event</title>
+    <%= partial 'public/partials/_head.html.erb' %>
+    <%= partial 'public/partials/_scripts.html' %>
+  </head>
+  <body style='text-align: center'>
+    <p style='margin: 50px;'>
+      <a href='/'><img src='img/icon.png' width='120px'></a>
+    </p>
+    <p>
+      <h3>S'Up for Slack Teams: Creating a Calendar Event</h3>
+    </p>
+    <p id='messages' />
+
+    <script type="text/javascript">
+      var CLIENT_ID = '<%= ENV['GOOGLE_API_CLIENT_ID'] %>';
+      var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
+      var SCOPES = "https://www.googleapis.com/auth/calendar";
+
+      <% sup = Sup.where(id: request['sup_id']).first %>
+
+      var sup = {
+        id: '<%= sup && sup.id %>',
+        with: "<%= sup && sup.users.map(&:real_name).and %>",
+        emails: ['<%= sup && sup.users.map(&:email).join("','") %>'],
+        dt_time_zone: '<%= sup && sup.team.sup_tzone.tzinfo.identifier %>',
+        dt_start_iso8601: '<%= Time.at(request['dt'].to_i).strftime('%Y-%m-%dT%H:%M:%S.%L%z') %>',
+        dt_end_iso8601: '<%= Time.at(request['dt'].to_i + 20 * 60).strftime('%Y-%m-%dT%H:%M:%S.%L%z') %>',
+        dt_s: '<%= Time.at(request['dt'].to_i).in_time_zone(sup.team.sup_tzone).strftime('%A, %B %d, %Y at %l:%m %P') %>'
+      }
+
+      function handleClientLoad() {
+
+        if (sup.id) {
+          SlackSup.message("Adding S'Up calendar for <b>" + sup.with + "</b> on " + sup.dt_s + " ...");
+          gapi.load('client:auth2', initClient);
+        } else {
+          SlackSup.message('Missing or invalid Sup ID.');
+        }
+      }
+
+      function initClient() {
+        gapi.client.init({
+          discoveryDocs: DISCOVERY_DOCS,
+          clientId: CLIENT_ID,
+          scope: SCOPES
+        }).then(function () {
+          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+          if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            gapi.auth2.getAuthInstance().signIn();
+          } else {
+            createEvent();
+          }
+        });
+      }
+
+      function updateSigninStatus(signedIn) {
+        if (signedIn) {
+          createEvent()
+        }
+      }
+
+      function createEvent() {
+        var event = {
+          'summary': "S'Up with " + sup.with,
+          'location': null,
+          'description': "A 20 minute standup to talk about the awesome things we're working on.",
+          'start': {
+            'dateTime': sup.dt_start_iso8601,
+            'timeZone': sup.dt_time_zone
+          },
+          'end': {
+            'dateTime': sup.dt_end_iso8601,
+            'timeZone': sup.dt_time_zone
+          },
+          'attendees': sup.emails.map(function(email) {
+            return { "email" : email };
+          }),
+          'reminders': {
+            'useDefault': true
+          }
+        };
+
+        var request = gapi.client.calendar.events.insert({
+          'calendarId': 'primary',
+          'resource': event
+        });
+
+        request.execute(function(event) {
+          window.location = event.htmlLink;
+        });
+      }
+
+    </script>
+
+    <script async defer src="https://apis.google.com/js/api.js"
+      onload="this.onload=function(){};handleClientLoad()"
+      onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+  </body>
+</html>

@@ -73,8 +73,8 @@ describe Sup do
     it 'uses default message' do
       allow(team).to receive(:sync!)
       expect_any_instance_of(Sup).to receive(:dm!).with(
-        text: "Hi there! I'm your team's S'Up bot. The most valuable relationships are not made of 2 people, they’re made of 3. " \
-          "Team S'Up connects 3 people on Monday every week. Welcome #{team.users.asc(:_id).map(&:slack_mention).and}, excited for your first S'Up! " \
+        text: "Hi there! I'm your team's S'Up bot.\n\nThe most valuable relationships are not made of 2 people, they’re made of 3. " \
+          "Team S'Up connects 3 people on Monday every week. Welcome #{team.users.asc(:_id).map(&:slack_mention).and}, excited for your first S'Up!\n\n" \
           'Please find a time for a quick 20 minute break on the calendar. ' \
           "Then get together and tell each other about something awesome you're working on these days."
       )
@@ -84,8 +84,8 @@ describe Sup do
       team.update_attributes!(sup_message: 'SUP SUP')
       allow(team).to receive(:sync!)
       expect_any_instance_of(Sup).to receive(:dm!).with(
-        text: "Hi there! I'm your team's S'Up bot. The most valuable relationships are not made of 2 people, they’re made of 3. " \
-          "Team S'Up connects 3 people on Monday every week. Welcome #{team.users.asc(:_id).map(&:slack_mention).and}, excited for your first S'Up! " \
+        text: "Hi there! I'm your team's S'Up bot.\n\nThe most valuable relationships are not made of 2 people, they’re made of 3. " \
+          "Team S'Up connects 3 people on Monday every week. Welcome #{team.users.asc(:_id).map(&:slack_mention).and}, excited for your first S'Up!\n\n" \
           'SUP SUP'
       )
       team.sup!

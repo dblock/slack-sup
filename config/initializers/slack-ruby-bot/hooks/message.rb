@@ -9,7 +9,8 @@ module SlackRubyBot
           SlackSup::Commands::Subscription,
           SlackSup::Commands::Opt,
           SlackSup::Commands::Set,
-          SlackSup::Commands::Stats
+          SlackSup::Commands::Stats,
+          SlackSup::Commands::Calendar
         ]
       end
     end

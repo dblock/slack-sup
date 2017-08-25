@@ -4,6 +4,7 @@ class Sup
   include Mongoid::Timestamps
 
   field :outcome, type: String
+  field :channel_id, type: String
   belongs_to :team
   belongs_to :round
   has_and_belongs_to_many :users
@@ -23,7 +24,7 @@ class Sup
       intro_message,
       team.sup_message || PLEASE_SUP_MESSAGE
     ].compact
-    dm!(text: messages.join(' '))
+    dm!(text: messages.join("\n\n"))
     users.each do |user|
       next if user.introduced_sup?
       user.update_attributes!(introduced_sup_at: Time.now.utc)
@@ -73,6 +74,10 @@ class Sup
     "id=#{id}, users=#{users.map(&:user_name).and}"
   end
 
+  def calendar_href(dt = nil)
+    "#{SlackSup::Service.url}/calendar?sup_id=#{id}&dt=#{dt ? dt.to_i : nil}"
+  end
+
   validates_presence_of :team_id
   before_validation :validate_team
 
@@ -96,7 +101,10 @@ class Sup
   # creates a DM between all the parties involved
   def dm!(message)
     client = Slack::Web::Client.new(token: round.team.token)
-    channel = client.mpim_open(users: users.map(&:user_id).join(','))
-    client.chat_postMessage(message.merge(channel: channel.group.id, as_user: true))
+    unless channel_id
+      channel = client.mpim_open(users: users.map(&:user_id).join(','))
+      update_attributes!(channel_id: channel.group.id)
+    end
+    client.chat_postMessage(message.merge(channel: channel_id, as_user: true))
   end
 end

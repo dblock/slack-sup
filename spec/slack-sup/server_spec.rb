@@ -8,7 +8,7 @@ describe SlackSup::Server do
   end
   context '#channel_joined' do
     it 'sends a welcome message' do
-      expect(client).to receive(:say).with(channel: 'C12345', text: SlackSup::Server::CHANNEL_JOINED_MESSAGE)
+      expect(client).to receive(:say).with(channel: 'C12345', text: "Hi there! I'm your team's S'Up bot. Type `@sup help` for instructions.")
       client.send(:callback, Hashie::Mash.new('channel' => { 'id' => 'C12345' }), :channel_joined)
     end
   end

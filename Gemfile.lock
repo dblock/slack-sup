@@ -48,6 +48,7 @@ GEM
       timers (>= 4.1.1)
     childprocess (0.7.1)
       ffi (~> 1.0, >= 1.0.11)
+    chronic (0.10.2)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     concurrent-ruby (1.0.5)
@@ -272,6 +273,7 @@ PLATFORMS
 DEPENDENCIES
   ambit
   capybara
+  chronic
   database_cleaner
   fabrication
   faker

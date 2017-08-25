@@ -3,6 +3,7 @@ source 'http://rubygems.org'
 ruby '2.4.1'
 
 gem 'ambit'
+gem 'chronic'
 gem 'grape'
 gem 'mongoid'
 gem 'mongoid-scroll'

@@ -70,3 +70,15 @@ ngrok http 5000
 This will give you a forwarding HTTPs URL, such as `https://a740cdc9.ngrok.io -> localhost:5000`.
 
 Enter `https://a740cdc9.ngrok.io/api/slack/action/` in the Slack `Interactive Messages` configuration section of your app under `Request Url`.
+
+### Google Calendar Integration
+
+* Create a new project on https://console.developers.google.com
+* Click `Enable APIs and Services`
+* Look for `Google Calendar API`, choose `Enable`
+* Choose `Add Credentials`, accessing `User Data` via `Google Calendar API` via `Web Browser (Javascript)`
+* Answer remaining questions and `Create a Client ID`
+* Set `GOOGLE_API_CLIENT_ID`
+
+
+

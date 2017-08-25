@@ -10,6 +10,7 @@ module SlackSup
         User
         ----
         opt [in|out]              - opt in/out of S'Up
+        cal [date/time]           - help me create a GCal (works inside a S'Up, eg. @sup gcal tomorrow 5pm)
 
         General
         -------

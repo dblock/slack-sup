@@ -40,6 +40,13 @@ class Team
   before_validation :validate_sup_size
   before_validation :validate_sup_recency
 
+  def bot_name
+    client = server.send(:client) if server
+    name = client.self.name if client && client.self
+    name ||= 'sup'
+    "@#{name}"
+  end
+
   def api_url
     return unless api?
     "#{SlackSup::Service.api_url}/teams/#{id}"
@@ -146,6 +153,7 @@ class Team
       existing_user ||= User.new(user_id: member.id, team: self)
       existing_user.user_name = member.name
       existing_user.real_name = member.real_name
+      existing_user.email = member.profile.email if member.profile
       begin
         existing_user.update_custom_profile
       rescue StandardError => e
