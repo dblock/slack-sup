@@ -32,7 +32,7 @@ module SlackSup
         set message [message]     - set the message users see when creating a S'Up DM
         unset message             - reset the message users see when creating a S'Up DM to the default one
         opt [in|out] [@mention]   - opt a user in/out of S'Up by @mention
-        subscription              - show team ubscription info
+        subscription              - show team subscription info
 
         More information at https://sup.playplay.io
         ```
