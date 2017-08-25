@@ -55,51 +55,67 @@
         <header>
             <div class="container">
                 <div class="intro-text">
+                    <div class="intro-icon">
+                        <img class='icon' src="img/icon.png">
+                    </div>
                     <div class="intro-lead-in">
-                        <img src="img/icon.png" width="100">
+                        <p>The most valuable relationships are not made of two people, they’re made of three.</p>
+                        This bot generates fresh triads of team members to meet every week in an informal standup, or S'Up.
                         <br><br>
-                        Welcome to S'Up for Slack Teams
+                        <a class="add-to-slack" href="https://slack.com/oauth/authorize?scope=bot,users.profile:read&amp;client_id=<%= ENV['SLACK_CLIENT_ID'] %>"><img alt="Add S'Up to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"></a>
                     </div>
-                    <div class="intro-subheading">
-                        The most valuable relationships are not made of two people, they’re made of three.
-                    </div>
-                    <a id="uptime" href="https://twitter.com/playplayio">
-                        <h6 id="value" class="section-subheading text-center">&nbsp;</h6>
-                    </a>
-                    <div class="row spacer"></div>
-                    <div class="row text-center services-text-color">
-                      <a class="add-to-slack" href="https://slack.com/oauth/authorize?scope=bot,users.profile:read&amp;client_id=<%= ENV['SLACK_CLIENT_ID'] %>"><img alt="Add S'Up to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"></a>
-                    </div>
-                    <div class="row spacer"></div>
                     <div>
-                        Bot offline?
-                        <a href="https://twitter.com/messages/compose?recipient_id=4528918701&text=Help! My bot is offline. My team name is " class="twitter-dm-button" data-screen-name="@playplayio">
-                        I'm having trouble, DM @playplayio</a>
+                        <img src="img/sup-dm.png" width="75%">
                     </div>
                 </div>
             </div>
         </header>
-        <section id="howtouse">
+        <section id="howtouse" class="bg-light-gray">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12 text-center">
-                        <h3 class="section-heading">You're automatically opted in!</h3>
+                        <h3 class="section-heading">Why Triads?</h3>
                         <h3 class="section-subheading text-muted">
                             <p>
-                                The most valuable relationships are not made of two people, they’re made of three.
-                                <br>
                                 A third person will always stabilize and grow the relationship between the other two.
                                 It’s called a <a href='http://www.culturesync.net/toolbox/intro-to-triads' target='_blank'>triad</a>, and the more you create, the stronger your network.
-                                <br>
-                                This bot passively generates fresh triads of company members to meet every week in an informal standup, or <i>S'Up</i>.
                             </p>
-                            <p><img src="img/sup-dm.png"></p>
-                            <p>S'Up will then ask whether you met and keep track, a few days later.</p>
-                            <p><img src="img/sup-ask.png"> <img src="img/sup-answer.png"></p>
-                            <p>Don't want to participate? Send a DM to <b>@sup</b> with <b>opt out</b> to opt out or <b>opt in</b> to opt back in.</p>
-                            <p>S'Up lets you configure the <b>team's timezone</b>, the <b>number of people</b> that meet, <b>how often</b> S'Ups are created and <b>when to notify</b> the team.</p>
-                            <p>You can also <b>customize S'Up messages</b> and take advantage of <b>custom Slack fields</b> to improve matches across subteams.</p>
-                            <p>Finally, S'Up provides some <b>statistics</b> about the meeting outcomes.</p>
+                            <p>
+                                Don't care about triads and just want to use S'Up to pair team members? S'Up can be customized to introduce any number of people.
+                            </p>
+                        </h3>
+                        <h3 class="section-heading">How to Use</h3>
+                        <h3 class="section-subheading text-muted">
+                            <p>
+                                This bot generates fresh triads of company members to meet every week in an informal standup, or <i>S'Up</i>. It also introduces itself to new team members.
+                            </p>
+                            <p>
+                                <img src="img/sup-intro.png" width="50%">
+                            </p>
+                            <p>
+                                S'Up will then ask whether you met and keep track, a few days later.
+                            </p>
+                            <p>
+                                <img src="img/sup-ask.png" width="40%"> <img src="img/sup-answer.png" width="40%">
+                            </p>
+                            <p>
+                                Don't want to participate? Send a DM to <b>@sup</b> with <b>opt out</b> to opt out or <b>opt in</b> to opt back in.
+                            </p>
+                            <p>
+                                S'Up lets you configure the <b>team's timezone</b>, the <b>number of people</b> that meet, <b>how often</b> S'Ups are created and <b>when to notify</b> the team.
+                            </p>
+                            <p>
+                                <img src="img/sup-help.png" width="75%">
+                            </p>
+                            <p>
+                                You can also <b>customize S'Up messages</b> and take advantage of <b>custom Slack fields</b> to improve matches across subteams.
+                            </p>
+                            <p>
+                                Finally, S'Up provides some <b>statistics</b> about the meeting outcomes.
+                            </p>
+                            <p>
+                                <img src="img/sup-stats.png" width="50%">
+                            </p>
                         </h3>
                     </div>
                 </div>
@@ -111,7 +127,7 @@
                     <div class="col-lg-12 text-center">
                         <h3 class="section-heading">Open-Source</h3>
                         <h3 class="section-subheading text-muted">
-                            <p><a href="https://github.com/dblock/slack-sup" target="_blank"><img src="img/sup-oss.png"></a></p>
+                            <p><a href="https://github.com/dblock/slack-sup" target="_blank"><img src="img/sup-oss.png" width="75%"></a></p>
                             <p>The bot service is open-source under the MIT license.</p>
                             <p><a href="https://github.com/dblock/slack-sup" target="_blank">Fork us on Github</a></p>
                         </h3>
@@ -126,7 +142,7 @@
                         <h3 class="setion-heading">Hypermedia API</h3>
                         <h3 class="section-subheading text-muted">
                             <p>Your team's data belongs to you and is available via a Hypermedia API.</p>
-                            <p><a href="<%= SlackSup::Service.api_url %>" target="_blank"><img src="img/sup-api.png"></a></p>
+                            <p><a href="<%= SlackSup::Service.api_url %>" target="_blank"><img src="img/sup-api.png" width="75%"></a></p>
                             <p>Go to <a href="<%= SlackSup::Service.api_url %>" target="_blank">https://sup.playplay.io/api</a></p>
                         </h3>
                     </div>
@@ -165,6 +181,11 @@
                     </div>
                 </div>
                 <div class="row">
+                    <div class="text-center">
+                        <a id="uptime" href="https://twitter.com/playplayio">
+                            <h6 id="value" class="section-subheading text-center">&nbsp;</h6>
+                        </a>
+                    </div>
                     <div class="col-lg-12 text-center">
                         <h3 class="section-subheading text-muted">
                             <p>
