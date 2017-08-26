@@ -75,7 +75,7 @@ class Sup
   end
 
   def calendar_href(dt = nil)
-    "#{SlackSup::Service.url}/calendar?sup_id=#{id}&dt=#{dt ? dt.to_i : nil}"
+    "#{SlackSup::Service.url}/gcal?sup_id=#{id}&dt=#{dt ? dt.to_i : nil}"
   end
 
   validates_presence_of :team_id
