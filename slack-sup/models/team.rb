@@ -185,7 +185,7 @@ class Team
   end
 
   def on_vacation?(member)
-    [member.name, member.real_name, member.profile.status_text].join =~ /(ooo|vacationing)/i
+    [member.name, member.real_name, member&.profile&.status_text].compact.join =~ /(ooo|vacationing)/i
   end
 
   def validate_team_field_label
