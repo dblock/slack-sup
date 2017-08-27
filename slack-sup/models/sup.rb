@@ -22,7 +22,8 @@ class Sup
     messages = [
       HI_MESSAGE,
       intro_message,
-      team.sup_message || PLEASE_SUP_MESSAGE
+      team.sup_message || PLEASE_SUP_MESSAGE,
+      "@#{users.sample.user_name}, you're in charge this week to make it happen!"
     ].compact
     dm!(text: messages.join("\n\n"))
     users.each do |user|

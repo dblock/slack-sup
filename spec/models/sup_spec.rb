@@ -70,13 +70,18 @@ describe Sup do
     let!(:user1) { Fabricate(:user, team: team) }
     let!(:user2) { Fabricate(:user, team: team) }
     let!(:user3) { Fabricate(:user, team: team) }
-    it 'uses default message' do
+    before do
       allow(team).to receive(:sync!)
+    end
+    it 'uses default message' do
       expect_any_instance_of(Sup).to receive(:dm!).with(
-        text: "Hi there! I'm your team's S'Up bot.\n\nThe most valuable relationships are not made of 2 people, they’re made of 3. " \
-          "Team S'Up connects 3 people on Monday every week. Welcome #{team.users.asc(:_id).map(&:slack_mention).and}, excited for your first S'Up!\n\n" \
-          'Please find a time for a quick 20 minute break on the calendar. ' \
-          "Then get together and tell each other about something awesome you're working on these days."
+        text: /Please find a time for a quick 20 minute break on the calendar./
+      )
+      team.sup!
+    end
+    it 'includes intro message' do
+      expect_any_instance_of(Sup).to receive(:dm!).with(
+        text: /Team S'Up connects 3 people on Monday every week. Welcome #{team.users.asc(:_id).map(&:slack_mention).and}, excited for your first S'Up!/
       )
       team.sup!
     end
@@ -84,9 +89,13 @@ describe Sup do
       team.update_attributes!(sup_message: 'SUP SUP')
       allow(team).to receive(:sync!)
       expect_any_instance_of(Sup).to receive(:dm!).with(
-        text: "Hi there! I'm your team's S'Up bot.\n\nThe most valuable relationships are not made of 2 people, they’re made of 3. " \
-          "Team S'Up connects 3 people on Monday every week. Welcome #{team.users.asc(:_id).map(&:slack_mention).and}, excited for your first S'Up!\n\n" \
-          'SUP SUP'
+        text: /SUP SUP/
+      )
+      team.sup!
+    end
+    it 'mentions SUP captain' do
+      expect_any_instance_of(Sup).to receive(:dm!).with(
+        text: /@(#{user1.user_name}|#{user2.user_name}|#{user3.user_name}), you're in charge this week to make it happen!/
       )
       team.sup!
     end
