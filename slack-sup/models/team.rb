@@ -142,13 +142,7 @@ class Team
   def sync!
     client = Slack::Web::Client.new(token: token)
     members = client.paginate(:users_list, presence: false).map(&:members).flatten
-    humans = members.select do |member|
-      !member.is_bot &&
-        !member.deleted &&
-        !member.is_restricted &&
-        !member.is_ultra_restricted &&
-        member.id != 'USLACKBOT'
-    end.map do |member|
+    humans = members.select { |member| active_member?(member) }.map do |member|
       existing_user = User.where(user_id: member.id).first
       existing_user ||= User.new(user_id: member.id, team: self)
       existing_user.user_name = member.name
@@ -180,6 +174,19 @@ class Team
   end
 
   private
+
+  def active_member?(member)
+    !member.is_bot &&
+      !member.deleted &&
+      !member.is_restricted &&
+      !member.is_ultra_restricted &&
+      !on_vacation?(member) &&
+      member.id != 'USLACKBOT'
+  end
+
+  def on_vacation?(member)
+    [member.name, member.real_name, member&.profile&.status_text].compact.join =~ /(ooo|vacationing)/i
+  end
 
   def validate_team_field_label
     return unless team_field_label && team_field_label_changed?
