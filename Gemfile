@@ -17,6 +17,7 @@ gem 'time_ago_in_words'
 gem 'wannabe_bool'
 
 group :development, :test do
+  gem 'byebug'
   gem 'foreman'
   gem 'rake', '~> 10.4'
   gem 'rubocop', '0.49.1'

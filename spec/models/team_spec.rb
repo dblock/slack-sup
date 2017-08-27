@@ -108,16 +108,57 @@ describe Team do
   end
   context 'team' do
     let(:team) { Fabricate(:team, sup_wday: Time.now.utc.in_time_zone('Eastern Time (US & Canada)').wday) }
-    before do
-      allow(team).to receive(:sync!)
-    end
     context '#sync!' do
-      pending 'adds new users'
-      pending 'disables dead users'
-      pending 'reactivates users that are back'
+      let(:member_default_attr) do
+        {
+          id: 'member-id',
+          is_bot: false,
+          deleted: false,
+          is_restricted: false,
+          is_ultra_restricted: false,
+          name: 'Forrest Gump',
+          real_name: 'Real Forrest Gump',
+          profile: double(email: nil, status: nil, status_text: nil)
+        }
+      end
+      let(:bot_member) { double(member_default_attr.merge(id: 'bot-user', is_bot: true)) }
+      let(:deleted_member) { double(member_default_attr.merge(id: 'deleted-user', deleted: true)) }
+      let(:restricted_member) { double(member_default_attr.merge(id: 'restricted-user', is_restricted: true)) }
+      let(:ultra_restricted_member) { double(member_default_attr.merge(id: 'ult-rest-user', is_ultra_restricted: true)) }
+      let(:ooo_member) { double(member_default_attr.merge(id: 'ooo-user', name: 'member-name-on-ooo')) }
+      let(:available_member) { double(member_default_attr) }
+      let(:members) do
+        [bot_member, deleted_member, restricted_member, ultra_restricted_member, ooo_member, available_member]
+      end
+      before do
+        allow_any_instance_of(Slack::Web::Client).to receive(:paginate).and_return([double(members: members)])
+      end
+      it 'adds new users' do
+        expect { team.sync! }.to change(User, :count).by(1)
+        new_user = User.last
+        expect(new_user.user_id).to eq 'member-id'
+        expect(new_user.user_name).to eq 'Forrest Gump'
+      end
+      it 'disables dead users' do
+        available_user = Fabricate(:user, team: team, user_id: available_member.id, enabled: true)
+        to_be_disabled_users = [deleted_member, restricted_member, ultra_restricted_member, ooo_member].map do |member|
+          Fabricate(:user, team: team, user_id: member.id, enabled: true)
+        end
+        expect { team.sync! }.to change(User, :count).by(0)
+        expect(to_be_disabled_users.map(&:reload).map(&:enabled)).to eq [false] * 4
+        expect(available_user.reload.enabled).to be true
+      end
+      it 'reactivates users that are back' do
+        disabled_user = Fabricate(:user, team: team, enabled: false, user_id: available_member.id)
+        expect { team.sync! }.to change(User, :count).by(0)
+        expect(disabled_user.reload.enabled).to be true
+      end
       pending 'fetches user custom team information'
     end
     context '#sup!' do
+      before do
+        allow(team).to receive(:sync!)
+      end
       it 'creates a round for a team' do
         expect do
           team.sup!
@@ -127,6 +168,9 @@ describe Team do
       end
     end
     context '#sup?' do
+      before do
+        allow(team).to receive(:sync!)
+      end
       context 'without rounds' do
         it 'is true' do
           expect(team.sup?).to be true
