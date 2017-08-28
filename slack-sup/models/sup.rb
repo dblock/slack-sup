@@ -9,6 +9,8 @@ class Sup
   belongs_to :round
   has_and_belongs_to_many :users
 
+  belongs_to :captain, class_name: 'User', inverse_of: nil, optional: true
+
   index(round: 1, user_ids: 1)
 
   HI_MESSAGE = "Hi there! I'm your team's S'Up bot.".freeze
@@ -19,11 +21,12 @@ class Sup
 
   def sup!
     logger.info "Creating S'Up on a DM channel with #{users.map(&:user_name)}."
+    update_attributes!(captain: users.sample)
     messages = [
       HI_MESSAGE,
       intro_message,
       team.sup_message || PLEASE_SUP_MESSAGE,
-      "@#{users.sample.user_name}, you're in charge this week to make it happen!"
+      captain && "#{captain.slack_mention}, you're in charge this week to make it happen!"
     ].compact
     dm!(text: messages.join("\n\n"))
     users.each do |user|

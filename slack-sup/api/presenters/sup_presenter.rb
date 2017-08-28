@@ -12,6 +12,12 @@ module Api
 
       collection :users, extend: UserPresenter, as: :users, embedded: true
 
+      link :captain do |opts|
+        next unless captain_id
+        request = Grape::Request.new(opts[:env])
+        "#{request.base_url}/api/users/#{captain_id}"
+      end
+
       link :round do |opts|
         request = Grape::Request.new(opts[:env])
         "#{request.base_url}/api/rounds/#{round_id}"

@@ -95,9 +95,13 @@ describe Sup do
     end
     it 'mentions SUP captain' do
       expect_any_instance_of(Sup).to receive(:dm!).with(
-        text: /@(#{user1.user_name}|#{user2.user_name}|#{user3.user_name}), you're in charge this week to make it happen!/
+        text: /(#{user1.slack_mention}|#{user2.slack_mention}|#{user3.slack_mention}), you're in charge this week to make it happen!/
       )
-      team.sup!
+      expect do
+        team.sup!
+      end.to change(Sup, :count).by(1)
+      sup = team.sups.first
+      expect(team.users).to include sup.captain
     end
   end
 end
