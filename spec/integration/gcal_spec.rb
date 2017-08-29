@@ -28,8 +28,8 @@ describe 'GCal', js: true, type: :feature do
         visit "/gcal?sup_id=#{sup.id}"
         expect(find('#messages', visible: true)).to have_text("Missing or invalid S'Up time.")
       end
-      pending 'creates a calendar event' do
-        # Firefox fails with idpiframe_initialization_failed
+      it 'creates a calendar event' do
+        # Firefox may fail locally with idpiframe_initialization_failed
         visit "/gcal?sup_id=#{sup.id}&dt=1483394400"
         expect(find('#messages', visible: true)).to have_text("Adding S'Up calendar for on Monday, January 02, 2017 at 5:00 pm ...")
       end
