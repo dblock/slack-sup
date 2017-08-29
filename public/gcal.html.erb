@@ -27,7 +27,7 @@
         dt_time_zone: '<%= sup && sup.team.sup_tzone.tzinfo.identifier %>',
         dt_start_iso8601: '<%= Time.at(request['dt'].to_i).strftime('%Y-%m-%dT%H:%M:%S.%L%z') %>',
         dt_end_iso8601: '<%= Time.at(request['dt'].to_i + 20 * 60).strftime('%Y-%m-%dT%H:%M:%S.%L%z') %>',
-        dt_s: '<%= Time.at(request['dt'].to_i).in_time_zone(sup.team.sup_tzone).strftime('%A, %B %d, %Y at %l:%m %P') %>'
+        dt_s: '<%= dt = Time.at(request['dt'].to_i).in_time_zone(sup.team.sup_tzone); "#{dt.strftime('%A, %B %d, %Y')} at #{dt.strftime('%l:%M %P').strip}" %>'
       }
 
       function handleClientLoad() {
