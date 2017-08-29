@@ -12,6 +12,9 @@
       <h3>S'Up for Slack Teams: Creating a Calendar Event</h3>
     </p>
     <p id='messages' />
+    <p>
+      <button id='createEvent' type="button" class="btn btn-success hidden" onclick="gapi.auth2.getAuthInstance().signIn();">Create Event</button>
+    </p>
 
     <script type="text/javascript">
 
@@ -55,19 +58,20 @@
           scope: SCOPES
         }).then(function () {
 
-
           gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
 
           if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
             Promise.resolve(gapi.auth2.getAuthInstance().signIn()).then(function() {
               SlackSup.message("Adding S'Up calendar for <b>" + sup.with + "</b> on " + sup.dt_s + " ...");
             }).catch(function(error) {
+              $('#createEvent').removeClass('hidden');
               if (error && error.error == 'popup_blocked_by_browser') {
-                SlackSup.errorMessage("A popup has been blocked by the browser. Please enable popups for GCal to work and reload this page.");
+                SlackSup.errorMessage("A popup has been blocked by the browser. Click on the button below.");
+                $('#createEvent').removeClass('hidden');
               } else if (error && error.error == 'popup_closed_by_user') {
-                SlackSup.errorMessage("A popup was closed. You must sign into Google Calendar for this to work.");
+                SlackSup.errorMessage("A popup was closed. You must sign into Google Calendar for this to work. Click on the button below.");
               } else {
-                SlackSup.errorMessage("There was an error signing into GCal: " + error.error);
+                SlackSup.errorMessage("There was an error signing into GCal: " + error.error + ". Click on the button below.");
               }
             });
           } else {
