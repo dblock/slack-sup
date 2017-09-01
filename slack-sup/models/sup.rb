@@ -21,7 +21,8 @@ class Sup
 
   def sup!
     logger.info "Creating S'Up on a DM channel with #{users.map(&:user_name)}."
-    update_attributes!(captain: users.sample)
+    captain = select_best_captain(users)
+    update_attributes!(captain: captain)
     messages = [
       HI_MESSAGE,
       intro_message,
@@ -86,6 +87,14 @@ class Sup
   before_validation :validate_team
 
   private
+
+  def select_best_captain(users)
+    users.map { |u| [u, last_time_captain(u)] }.to_h.min_by { |_k, v| v.to_i }.first
+  end
+
+  def last_time_captain(user)
+    team.sups.where(captain_id: user.id).order(created_at: 'desc').first&.created_at
+  end
 
   def intro_message
     new_users = users.reject(&:introduced_sup?)

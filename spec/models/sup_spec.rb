@@ -103,5 +103,29 @@ describe Sup do
       sup = team.sups.first
       expect(team.users).to include sup.captain
     end
+
+    context 'find best captain' do
+      before do
+        allow_any_instance_of(Sup).to receive(:dm!)
+      end
+      it 'picks best captain with one user never been a captain' do
+        Fabricate(:sup, captain: user1, created_at: 4.weeks.ago)
+        Fabricate(:sup, captain: user1, created_at: 5.weeks.ago)
+        Fabricate(:sup, captain: user2, created_at: 6.weeks.ago)
+        sup = Fabricate(:sup, user_ids: [user1.id, user2.id, user3.id])
+        sup.sup!
+        expect(sup.captain).to eq user3
+      end
+
+      it 'picks best captain who last time was captain is older' do
+        Fabricate(:sup, captain: user1, created_at: 4.weeks.ago)
+        Fabricate(:sup, captain: user1, created_at: 5.weeks.ago)
+        Fabricate(:sup, captain: user2, created_at: 6.weeks.ago)
+        Fabricate(:sup, captain: user3, created_at: 3.weeks.ago)
+        sup = Fabricate(:sup, user_ids: [user1.id, user2.id, user3.id])
+        sup.sup!
+        expect(sup.captain).to eq user2
+      end
+    end
   end
 end
