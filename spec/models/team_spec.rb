@@ -1,6 +1,21 @@
 require 'spec_helper'
 
 describe Team do
+  context '#short_lived_token' do
+    let(:team) { Fabricate(:team) }
+    it 'create a new token every time' do
+      token1 = team.short_lived_token
+      Timecop.travel(Time.now + 1.second)
+      token2 = team.short_lived_token
+      expect(token1).to_not eq token2
+    end
+    it 'create a token that is valid for 1 minute' do
+      token = team.short_lived_token
+      expect(team.short_lived_token_valid?(token)).to be true
+      Timecop.travel(Time.now.utc + 30.minutes)
+      expect(team.short_lived_token_valid?(token)).to be false
+    end
+  end
   context '#find_or_create_from_env!' do
     before do
       ENV['SLACK_API_TOKEN'] = 'token'

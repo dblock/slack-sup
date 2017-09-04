@@ -9,6 +9,17 @@ describe Sup do
       expect(sup).to receive(:dm!).with(message)
       sup.ask!
     end
+    context '#calendar_href' do
+      it 'includes date/time and sup id and a valid access token' do
+        t = Time.now.utc
+        href = URI.parse(sup.calendar_href(t))
+        expect(href).to be_a URI::HTTPS
+        params = Rack::Utils.parse_nested_query(href.query)
+        expect(params['sup_id']).to eq sup.id.to_s
+        expect(sup.team.short_lived_token_valid?(params['access_token'])).to be true
+        expect(params['dt'].to_i).to eq t.to_i
+      end
+    end
   end
   context 'a round' do
     let(:team) { Fabricate(:team) }

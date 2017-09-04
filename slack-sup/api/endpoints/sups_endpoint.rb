@@ -5,6 +5,7 @@ module Api
       helpers Api::Helpers::CursorHelpers
       helpers Api::Helpers::SortHelpers
       helpers Api::Helpers::PaginationParameters
+      helpers Api::Helpers::AuthHelpers
 
       namespace :sups do
         desc "Get a S'Up."
@@ -14,6 +15,18 @@ module Api
         get ':id' do
           sup = Sup.find(params[:id]) || error!('Not Found', 404)
           error!('Not Found', 404) unless sup.round.team.api?
+          present sup, with: Api::Presenters::SupPresenter
+        end
+
+        desc "Update a S'Up."
+        params do
+          requires :id, type: String, desc: 'Sup ID.'
+          requires :gcal_html_link, type: String, desc: 'GCal HTML link.'
+        end
+        put ':id' do
+          sup = Sup.find(params[:id]) || error!('Not Found', 404)
+          authorize! sup.team
+          sup.update_attributes!(gcal_html_link: params[:gcal_html_link])
           present sup, with: Api::Presenters::SupPresenter
         end
 

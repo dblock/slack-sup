@@ -25,9 +25,11 @@
       <% sup = Sup.where(id: request['sup_id']).first %>
 
       var sup = {
-        id: <%= sup ? '"#{sup.id}"' : "null" %>,
+        id: <%= sup ? "'#{sup.id}'" : "null" %>,
         with: "<%= sup && sup.users.map(&:real_name).and %>",
         emails: ['<%= sup && sup.users.map(&:email).join("','") %>'],
+        access_token: '<%= request["access_token"] %>',
+        access_token_valid: <%= !! (request["access_token"] && sup.team.short_lived_token_valid?(request["access_token"])) %>,
         dt_time_zone: '<%= sup && sup.team.sup_tzone.tzinfo.identifier %>',
         dt_start_iso8601: '<%= Time.at(request['dt'].to_i).strftime('%Y-%m-%dT%H:%M:%S.%L%z') %>',
         dt_end_iso8601: '<%= Time.at(request['dt'].to_i + 20 * 60).strftime('%Y-%m-%dT%H:%M:%S.%L%z') %>',
@@ -38,13 +40,15 @@
       function handleClientLoad() {
         if (!CLIENT_ID) {
           SlackSup.errorMessage("Missing GOOGLE_API_CLIENT_ID.");
-        } else if (sup.id && sup.dt) {
+        } else if (sup.id && sup.dt && sup.access_token_valid) {
           SlackSup.message("Adding S'Up calendar for <b>" + sup.with + "</b> on " + sup.dt_s + " ...");
           gapi.load('client:auth2', initClient);
         } else if (!sup.id) {
           SlackSup.errorMessage("Missing or invalid S'Up ID.");
         } else if (!sup.dt) {
           SlackSup.errorMessage("Missing or invalid S'Up time.");
+        } else if (!sup.access_token_valid) {
+          SlackSup.errorMessage("This link has expired, ask for a new one on your S'Up channel.");
         } else {
           SlackSup.errorMessage("Unexpected error.");
         }
@@ -62,7 +66,7 @@
 
           if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
             Promise.resolve(gapi.auth2.getAuthInstance().signIn()).then(function() {
-              SlackSup.message("Adding S'Up calendar for <b>" + sup.with + "</b> on " + sup.dt_s + " ...");
+              SlackSup.message("Creating S'Up calendar for <b>" + sup.with + "</b> on " + sup.dt_s + " ...");
             }).catch(function(error) {
               $('#createEvent').removeClass('hidden');
               if (error && error.error == 'popup_blocked_by_browser') {
@@ -119,11 +123,25 @@
         });
 
         request.execute(function(response) {
-          console.log(response);
           if (response.error) {
             SlackSup.errorMessage(response.message || 'Unexpected error creating a Google Calendar event.');
           } else if (response.htmlLink) {
-            window.location = response.htmlLink;
+            $.ajax({
+              type: 'PUT',
+              url: '/api/sups/' + sup.id,
+              beforeSend: function(request) {
+                request.setRequestHeader('X-Access-Token', sup.access_token);
+              },
+              data: {
+                gcal_html_link: response.htmlLink
+              },
+              success: function(data) {
+                SlackSup.message("Added S'Up calendar for <b>" + sup.with + "</b> on " + sup.dt_s + ". You may close this window.");
+              },
+              error: function(xhr) {
+                SlackSup.error(xhr);
+              }
+            });
           } else {
             SlackSup.errorMessage("Unexpected error creating a Google Calendar event.");
           }
