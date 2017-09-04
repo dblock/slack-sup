@@ -26,6 +26,20 @@ describe Api::Endpoints::SupsEndpoint do
         expect(json['error']).to eq 'Not Found'
       end
     end
+    it 'requires auth to update' do
+      expect do
+        client.sup(id: existing_sup.id)._put(gcal_html_link: 'updated')
+      end.to raise_error Faraday::ClientError do |e|
+        json = JSON.parse(e.response[:body])
+        expect(json['error']).to eq 'Access Denied'
+      end
+    end
+    it 'updates a sup html link and DMs sup' do
+      expect_any_instance_of(Sup).to receive(:dm!).with(text: "I've added this S'Up to your Google Calendar: updated")
+      client.headers.update('X-Access-Token' => team.short_lived_token)
+      client.sup(id: existing_sup.id)._put(gcal_html_link: 'updated')
+      expect(existing_sup.reload.gcal_html_link).to eq 'updated'
+    end
   end
 
   context 'sups' do

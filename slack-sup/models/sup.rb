@@ -5,6 +5,7 @@ class Sup
 
   field :outcome, type: String
   field :channel_id, type: String
+  field :gcal_html_link, type: String
   belongs_to :team
   belongs_to :round
   has_and_belongs_to_many :users
@@ -79,13 +80,19 @@ class Sup
   end
 
   def calendar_href(dt = nil)
-    "#{SlackSup::Service.url}/gcal?sup_id=#{id}&dt=#{dt ? dt.to_i : nil}"
+    "#{SlackSup::Service.url}/gcal?sup_id=#{id}&dt=#{dt ? dt.to_i : nil}&access_token=#{team.short_lived_token}"
   end
 
   validates_presence_of :team_id
   before_validation :validate_team
+  after_save :notify_gcal_html_link_changed!
 
   private
+
+  def notify_gcal_html_link_changed!
+    return unless gcal_html_link_changed? && gcal_html_link
+    dm!(text: "I've added this S'Up to your Google Calendar: #{gcal_html_link}")
+  end
 
   def intro_message
     new_users = users.reject(&:introduced_sup?)

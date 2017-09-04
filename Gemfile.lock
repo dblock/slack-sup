@@ -111,6 +111,7 @@ GEM
     i18n (0.8.6)
     ice_nine (0.11.2)
     json (2.1.0)
+    jwt (1.5.6)
     kaminari-core (1.0.1)
     kaminari-grape (1.0.1)
       grape
@@ -282,6 +283,7 @@ DEPENDENCIES
   foreman
   grape
   hyperclient
+  jwt
   mongoid
   mongoid-scroll
   mongoid-shell
