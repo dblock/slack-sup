@@ -21,8 +21,7 @@ class Sup
 
   def sup!
     logger.info "Creating S'Up on a DM channel with #{users.map(&:user_name)}."
-    captain = select_best_captain(users)
-    update_attributes!(captain: captain)
+    update_attributes!(captain: select_best_captain)
     messages = [
       HI_MESSAGE,
       intro_message,
@@ -88,12 +87,11 @@ class Sup
 
   private
 
-  def select_best_captain(users)
-    users.map { |u| [u, last_time_captain(u)] }.to_h.min_by { |_k, v| v.to_i }.first
-  end
-
-  def last_time_captain(user)
-    team.sups.where(captain_id: user.id).order(created_at: 'desc').first&.created_at
+  def select_best_captain
+    users.sort_by do |u|
+      last_captain_at = u.last_captain_at
+      [last_captain_at ? 1 : 0, last_captain_at]
+    end.first
   end
 
   def intro_message
