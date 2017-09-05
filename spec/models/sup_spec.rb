@@ -114,5 +114,29 @@ describe Sup do
       sup = team.sups.first
       expect(team.users).to include sup.captain
     end
+    context 'chooses captain' do
+      before do
+        allow_any_instance_of(Sup).to receive(:dm!)
+        allow_any_instance_of(Round).to receive(:run!)
+      end
+      it 'picks the user who has never been captain' do
+        Fabricate(:sup, captain: user1, created_at: 4.weeks.ago)
+        Fabricate(:sup, captain: user1, created_at: 5.weeks.ago)
+        Fabricate(:sup, captain: user2, created_at: 6.weeks.ago)
+        user4 = Fabricate(:user, team: team)
+        sup = Fabricate(:sup, user_ids: [user1.id, user2.id, user4.id])
+        sup.sup!
+        expect(sup.captain).to eq user4
+      end
+      it 'picks the user who has not been captain for the longest' do
+        Fabricate(:sup, captain: user1, created_at: 4.weeks.ago)
+        Fabricate(:sup, captain: user1, created_at: 5.weeks.ago)
+        Fabricate(:sup, captain: user2, created_at: 6.weeks.ago)
+        Fabricate(:sup, captain: user3, created_at: 3.weeks.ago)
+        sup = Fabricate(:sup, user_ids: [user1.id, user2.id, user3.id])
+        sup.sup!
+        expect(sup.captain).to eq user2
+      end
+    end
   end
 end

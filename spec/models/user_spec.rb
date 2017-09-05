@@ -59,4 +59,27 @@ describe User do
       expect(user.custom_team_name).to eq 'Engineering'
     end
   end
+
+  context '#last_captain_at' do
+    let(:user) { Fabricate(:user) }
+    it 'retuns nil when user has never been a captain' do
+      expect(user.last_captain_at).to be_nil
+    end
+    context 'with a sup' do
+      let!(:sup) { Fabricate(:sup, captain: user, created_at: 2.weeks.ago) }
+      it 'returns last time user was captain' do
+        expect(user.last_captain_at).to eq sup.reload.created_at
+      end
+      it 'returns nol for another user' do
+        expect(Fabricate(:user).last_captain_at).to be nil
+      end
+    end
+    context 'with multiple sups' do
+      let!(:sup1) { Fabricate(:sup, captain: user, created_at: 2.weeks.ago) }
+      let!(:sup2) { Fabricate(:sup, captain: user, created_at: 3.weeks.ago) }
+      it 'returns most recent sup' do
+        expect(user.last_captain_at).to eq sup1.reload.created_at
+      end
+    end
+  end
 end

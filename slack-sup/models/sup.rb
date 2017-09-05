@@ -22,7 +22,7 @@ class Sup
 
   def sup!
     logger.info "Creating S'Up on a DM channel with #{users.map(&:user_name)}."
-    update_attributes!(captain: users.sample)
+    update_attributes!(captain: select_best_captain)
     messages = [
       HI_MESSAGE,
       intro_message,
@@ -92,6 +92,13 @@ class Sup
   def notify_gcal_html_link_changed!
     return unless gcal_html_link_changed? && gcal_html_link
     dm!(text: "I've added this S'Up to your Google Calendar: #{gcal_html_link}")
+  end
+
+  def select_best_captain
+    users.sort_by do |u|
+      return u if u.last_captain_at.nil?
+      u.last_captain_at
+    end.first
   end
 
   def intro_message
