@@ -5,6 +5,7 @@ module Api
       helpers Api::Helpers::CursorHelpers
       helpers Api::Helpers::SortHelpers
       helpers Api::Helpers::PaginationParameters
+      helpers Api::Helpers::AuthHelpers
 
       namespace :rounds do
         desc "Get a S'Up round."
@@ -13,7 +14,7 @@ module Api
         end
         get ':id' do
           round = Round.find(params[:id]) || error!('Not Found', 404)
-          error!('Not Found', 404) unless round.team.api?
+          authorize! round.team
           present round, with: Api::Presenters::RoundPresenter
         end
 
@@ -24,7 +25,7 @@ module Api
         end
         get do
           team = Team.find(params[:team_id]) || error!('Not Found', 404)
-          error!('Not Found', 404) unless team.api?
+          authorize! team
           rounds = paginate_and_sort_by_cursor(team.rounds, default_sort_order: '_id')
           present rounds, with: Api::Presenters::RoundsPresenter
         end

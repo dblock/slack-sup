@@ -3,6 +3,8 @@ module Api
     class StatsEndpoint < Grape::API
       format :json
 
+      helpers Api::Helpers::AuthHelpers
+
       namespace :stats do
         desc 'Get stats.'
         params do
@@ -11,6 +13,7 @@ module Api
         get do
           if params[:team_id]
             team = Team.where(_id: params[:team_id], api: true).first || error!('Not Found', 404)
+            authorize! team
             present Stats.new(team), with: Api::Presenters::TeamStatsPresenter
           else
             present Stats.new, with: Api::Presenters::StatsPresenter

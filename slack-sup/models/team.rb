@@ -4,6 +4,7 @@ class Team
 
   # enable API for this team
   field :api, type: Boolean, default: false
+  field :api_token, type: String
 
   # sup size
   field :sup_size, type: Integer, default: 3

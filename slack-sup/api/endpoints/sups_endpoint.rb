@@ -14,7 +14,7 @@ module Api
         end
         get ':id' do
           sup = Sup.find(params[:id]) || error!('Not Found', 404)
-          error!('Not Found', 404) unless sup.round.team.api?
+          authorize! sup.round.team
           present sup, with: Api::Presenters::SupPresenter
         end
 
@@ -25,7 +25,7 @@ module Api
         end
         put ':id' do
           sup = Sup.find(params[:id]) || error!('Not Found', 404)
-          authorize! sup.team
+          authorize_short_lived_token! sup.team
           sup.update_attributes!(gcal_html_link: params[:gcal_html_link])
           present sup, with: Api::Presenters::SupPresenter
         end
@@ -37,7 +37,7 @@ module Api
         end
         get do
           round = Round.find(params[:round_id]) || error!('Not Found', 404)
-          error!('Not Found', 404) unless round.team.api?
+          authorize! round.team
           sups = paginate_and_sort_by_cursor(round.sups, default_sort_order: '_id')
           present sups, with: Api::Presenters::SupsPresenter
         end

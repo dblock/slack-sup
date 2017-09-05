@@ -23,6 +23,31 @@ describe Api::Endpoints::TeamsEndpoint do
       end
     end
 
+    context 'a team with api and token' do
+      let!(:team) { Fabricate(:team, api: true, api_token: 'token') }
+      it 'is not returned' do
+        expect(client.teams.count).to eq 0
+      end
+      it 'is returned with api token header' do
+        Fabricate(:team, api: true) # another team
+        Fabricate(:team, api: false) # another team
+        client.headers.update('X-Access-Token' => 'token')
+        expect(client.teams.count).to eq 1
+        expect(client.teams.first.id).to eq team.id.to_s
+      end
+      it 'is not returned directly without a token' do
+        expect { client.team(id: team.id).resource }.to raise_error Faraday::ClientError do |e|
+          json = JSON.parse(e.response[:body])
+          expect(json['error']).to eq 'Access Denied'
+        end
+      end
+      it 'is returned directly' do
+        client.headers.update('X-Access-Token' => 'token')
+        returned_team = client.team(id: team.id)
+        expect(returned_team.id).to eq team.id.to_s
+      end
+    end
+
     context 'a team with api true' do
       let!(:existing_team) { Fabricate(:team, api: true) }
       it 'is returned in the collection' do

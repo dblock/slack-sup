@@ -8,20 +8,102 @@ module SlackSup
           if user.is_admin? && v
             team.update_attributes!(api: v.to_b)
             message = [
-              "Team data access via the API is now #{team.api_s}.",
+              team_data_access_message(user, true),
               team.api_url
             ].compact.join("\n")
             client.say(channel: data.channel, text: message)
           elsif v
-            client.say(channel: data.channel, text: "Team data access via the API is #{team.api_s}. Only a Slack team admin can change that, sorry.")
+            message = [
+              team_data_access_message(user),
+              'Only a Slack team admin can change that, sorry.'
+            ].join(' ')
+            client.say(channel: data.channel, text: message)
           else
             message = [
-              "Team data access via the API is #{team.api_s}.",
+              team_data_access_message(user),
               team.api_url
             ].compact.join("\n")
             client.say(channel: data.channel, text: message)
           end
           logger.info "SET: #{team}, user=#{user.user_name}, api=#{team.api_s}"
+        end
+
+        def set_api_token(client, team, data, user)
+          if !team.api?
+            set_api(client, team, data, user)
+          elsif user.is_admin? && !team.api_token
+            team.update_attributes!(api_token: SecureRandom.hex)
+            message = [
+              team_data_access_message(user, false, true),
+              team.api_url
+            ].compact.join("\n")
+            client.say(channel: data.channel, text: message)
+          elsif user.is_admin? && team.api_token
+            message = [
+              team_data_access_message(user),
+              team.api_url
+            ].compact.join("\n")
+            client.say(channel: data.channel, text: message)
+          elsif !team.api_token
+            message = [
+              team_data_access_message(user),
+              'Only a Slack team admin can change that, sorry.'
+            ].join(' ')
+            client.say(channel: data.channel, text: message)
+          else
+            message = [
+              team_data_access_message(user),
+              team.api_url
+            ].join("\n")
+            client.say(channel: data.channel, text: message)
+          end
+          logger.info "SET: #{team}, user=#{user.user_name}, api=#{team.api_s}, api_token=#{team.api_token ? '(set)' : '(not set)'}"
+        end
+
+        def unset_api_token(client, team, data, user)
+          if !team.api?
+            set_api(client, team, data, user)
+          elsif user.is_admin? && team.api_token
+            team.update_attributes!(api_token: nil)
+            message = [
+              team_data_access_message(user, true),
+              team.api_url
+            ].compact.join("\n")
+            client.say(channel: data.channel, text: message)
+          elsif user.is_admin? && !team.api_token
+            message = [
+              team_data_access_message(user),
+              team.api_url
+            ].compact.join("\n")
+            client.say(channel: data.channel, text: message)
+          else
+            message = [
+              team_data_access_message(user),
+              'Only a Slack team admin can unset it, sorry.'
+            ].join(' ')
+            client.say(channel: data.channel, text: message)
+          end
+          logger.info "UNSET: #{team}, user=#{user.user_name}, api=#{team.api_s}, api_token=#{team.api_token ? '(set)' : '(not set)'}"
+        end
+
+        def rotate_api_token(client, team, data, user)
+          if !team.api?
+            set_api(client, team, data, user)
+          elsif user.is_admin?
+            team.update_attributes!(api_token: SecureRandom.hex)
+            message = [
+              team_data_access_message(user, false, true),
+              team.api_url
+            ].compact.join("\n")
+            client.say(channel: data.channel, text: message)
+          else
+            message = [
+              team_data_access_message(user),
+              'Only a Slack team admin can rotate it, sorry.'
+            ].join(' ')
+            client.say(channel: data.channel, text: message)
+          end
+          logger.info "SET: #{team}, user=#{user.user_name}, api=#{team.api_s}, api_token=(rotated)"
         end
 
         def set_day(client, team, data, user, v = nil)
@@ -162,6 +244,8 @@ module SlackSup
           case k
           when 'api' then
             set_api client, team, data, user, v
+          when 'apitoken' then
+            set_api_token client, team, data, user
           when 'day' then
             set_day client, team, data, user, v
           when 'tz', 'timezone' then
@@ -187,8 +271,19 @@ module SlackSup
           case k
           when 'teamfield' then
             unset_custom_profile_team_field client, team, data, user
+          when 'apitoken' then
+            unset_api_token client, team, data, user
           when 'message' then
             unset_message client, team, data, user
+          else
+            raise SlackSup::Error, "Invalid setting _#{k}_, see _help_ for available options."
+          end
+        end
+
+        def rotate(client, team, data, user, k)
+          case k
+          when 'apitoken' then
+            rotate_api_token client, team, data, user
           else
             raise SlackSup::Error, "Invalid setting _#{k}_, see _help_ for available options."
           end
@@ -197,7 +292,18 @@ module SlackSup
         def parse_expression(m)
           m['expression']
             .gsub(/^team field/, 'teamfield')
+            .gsub(/^api token/, 'apitoken')
             .split(/[\s]+/, 2)
+        end
+
+        def team_data_access_message(user, updated_api = false, updated_token = false)
+          if user.team.api? && user.is_admin? && user.team.api_token
+            "Team data access via the API is #{updated_api ? 'now ' : nil}on with a#{updated_token ? ' new' : 'n'} access token `#{user.team.api_token}`."
+          elsif user.team.api? && !user.is_admin? && user.team.api_token
+            "Team data access via the API is #{updated_api ? 'now ' : nil}on with a#{updated_token ? ' new' : 'n'} access token visible to admins."
+          else
+            "Team data access via the API is #{updated_api ? 'now ' : nil}#{user.team.api_s}."
+          end
         end
       end
 
@@ -208,7 +314,7 @@ module SlackSup
           message = [
             "Team S'Up connects #{team.sup_size} people on #{team.sup_day} after #{team.sup_time_of_day_s} every #{team.sup_every_n_weeks_s} in #{team.sup_tzone}, taking special care to not pair the same people more frequently than every #{team.sup_recency_s}.",
             "Custom profile team field is _#{team.team_field_label || 'not set'}_.",
-            "Team data access via the API is #{team.api_s}.",
+            team_data_access_message(user),
             team.api_url
           ].compact.join("\n")
           client.say(channel: data.channel, text: message)
@@ -227,6 +333,17 @@ module SlackSup
         else
           k, = parse_expression(match)
           unset client, client.owner, data, user, k
+        end
+      end
+
+      command 'rotate' do |client, data, match|
+        user = ::User.find_create_or_update_by_slack_id!(client, data.user)
+        if !match['expression']
+          client.say(channel: data.channel, text: 'Missing setting, see _help_ for available options.')
+          logger.info "UNSET: #{client.owner} - #{user.user_name}, failed, missing setting"
+        else
+          k, = parse_expression(match)
+          rotate client, client.owner, data, user, k
         end
       end
     end

@@ -10,6 +10,7 @@ describe Api::Endpoints::RoundsEndpoint do
   end
 
   it_behaves_like 'a cursor api', Round
+  it_behaves_like 'a team token api', Round
 
   context 'round' do
     let(:existing_round) { Fabricate(:round, team: team) }
@@ -18,25 +19,11 @@ describe Api::Endpoints::RoundsEndpoint do
       expect(round.id).to eq existing_round.id.to_s
       expect(round._links.self._url).to eq "http://example.org/api/rounds/#{existing_round.id}"
     end
-    it 'cannot return a round for a team with api off' do
-      team.update_attributes!(api: false)
-      expect { client.round(id: existing_round.id).resource }.to raise_error Faraday::ClientError do |e|
-        json = JSON.parse(e.response[:body])
-        expect(json['error']).to eq 'Not Found'
-      end
-    end
   end
 
   context 'rounds' do
     let!(:round_1) { Fabricate(:round, team: team) }
     let!(:round_2) { Fabricate(:round, team: team) }
-    it 'cannot return rounds for a team with api off' do
-      team.update_attributes!(api: false)
-      expect { client.rounds(team_id: team.id).resource }.to raise_error Faraday::ClientError do |e|
-        json = JSON.parse(e.response[:body])
-        expect(json['error']).to eq 'Not Found'
-      end
-    end
     it 'returns rounds' do
       rounds = client.rounds(team_id: team.id)
       expect(rounds.map(&:id).sort).to eq [round_1, round_2].map(&:id).map(&:to_s).sort

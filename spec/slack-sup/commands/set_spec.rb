@@ -65,6 +65,55 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
         end
       end
     end
+    context 'api token' do
+      it 'shows current value of API token' do
+        team.update_attributes!(api_token: 'token', api: true)
+        expect(message: "#{SlackRubyBot.config.user} set api token").to respond_with_slack_message(
+          "Team data access via the API is on with an access token `#{team.api_token}`.\n#{team.api_url}"
+        )
+      end
+      it "doesn't show current value when API off" do
+        team.update_attributes!(api: false)
+        expect(message: "#{SlackRubyBot.config.user} set api token").to respond_with_slack_message(
+          'Team data access via the API is off.'
+        )
+      end
+      it 'rotate api token' do
+        expect(SecureRandom).to receive(:hex).and_return('new')
+        team.update_attributes!(api: true, api_token: 'old')
+        expect(message: "#{SlackRubyBot.config.user} rotate api token").to respond_with_slack_message(
+          "Team data access via the API is on with a new access token `new`.\n#{team.api_url}"
+        )
+        expect(team.reload.api_token).to eq 'new'
+      end
+      it 'unsets api token' do
+        team.update_attributes!(api: true, api_token: 'old')
+        expect(message: "#{SlackRubyBot.config.user} unset api token").to respond_with_slack_message(
+          "Team data access via the API is now on.\n#{team.api_url}"
+        )
+        expect(team.reload.api_token).to be nil
+      end
+      context 'with API_URL' do
+        before do
+          ENV['API_URL'] = 'http://local.api'
+        end
+        after do
+          ENV.delete 'API_URL'
+        end
+        it 'shows current value of API on with API URL' do
+          team.update_attributes!(api: true)
+          expect(message: "#{SlackRubyBot.config.user} set api").to respond_with_slack_message(
+            "Team data access via the API is on.\nhttp://local.api/teams/#{team.id}"
+          )
+        end
+        it 'shows current value of API off without API URL' do
+          team.update_attributes!(api: false)
+          expect(message: "#{SlackRubyBot.config.user} set api").to respond_with_slack_message(
+            'Team data access via the API is off.'
+          )
+        end
+      end
+    end
     context 'day' do
       it 'defaults to Monday' do
         expect(message: "#{SlackRubyBot.config.user} set day").to respond_with_slack_message(
@@ -292,6 +341,26 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
         expect(message: "#{SlackRubyBot.config.user} set api").to respond_with_slack_message(
           "Team data access via the API is on.\n#{team.api_url}"
         )
+      end
+      it 'does not show current value of API token' do
+        team.update_attributes!(api_token: 'token', api: true)
+        expect(message: "#{SlackRubyBot.config.user} set api token").to respond_with_slack_message(
+          "Team data access via the API is on with an access token visible to admins.\n#{team.api_url}"
+        )
+      end
+      it 'rotate api token' do
+        team.update_attributes!(api: true, api_token: 'old')
+        expect(message: "#{SlackRubyBot.config.user} rotate api token").to respond_with_slack_message(
+          'Team data access via the API is on with an access token visible to admins. Only a Slack team admin can rotate it, sorry.'
+        )
+        expect(team.reload.api_token).to eq 'old'
+      end
+      it 'unsets api token' do
+        team.update_attributes!(api: true, api_token: 'old')
+        expect(message: "#{SlackRubyBot.config.user} unset api token").to respond_with_slack_message(
+          'Team data access via the API is on with an access token visible to admins. Only a Slack team admin can unset it, sorry.'
+        )
+        expect(team.reload.api_token).to eq 'old'
       end
       it 'cannot set day' do
         expect(message: "#{SlackRubyBot.config.user} set day tuesday").to respond_with_slack_message(

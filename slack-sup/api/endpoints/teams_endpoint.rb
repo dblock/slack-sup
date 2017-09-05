@@ -5,6 +5,7 @@ module Api
       helpers Api::Helpers::CursorHelpers
       helpers Api::Helpers::SortHelpers
       helpers Api::Helpers::PaginationParameters
+      helpers Api::Helpers::AuthHelpers
 
       namespace :teams do
         desc 'Get a team.'
@@ -13,6 +14,7 @@ module Api
         end
         get ':id' do
           team = Team.where(_id: params[:id], api: true).first || error!('Not Found', 404)
+          authorize! team
           present team, with: Api::Presenters::TeamPresenter
         end
 
@@ -23,7 +25,9 @@ module Api
         end
         sort Team::SORT_ORDERS
         get do
-          teams = Team.api
+          teams = headers['X-Access-Token'] ?
+            Team.where(api_token: headers['X-Access-Token']) :
+            Team.where(api: true, api_token: nil)
           teams = teams.active if params[:active]
           teams = paginate_and_sort_by_cursor(teams, default_sort_order: '-_id')
           present teams, with: Api::Presenters::TeamsPresenter
