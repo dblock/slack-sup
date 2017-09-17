@@ -79,19 +79,19 @@ class Team
   end
 
   def ask!
-    sup = last_sup
-    return unless sup && sup.ask?
-    sup.ask!
-    sup
+    round = last_round
+    return unless round && round.ask?
+    round.ask!
+    round
   end
 
-  def last_sup
+  def last_round
     rounds.desc(:created_at).first
   end
 
-  def last_sup_at
-    sup = last_sup
-    sup ? sup.created_at : nil
+  def last_round_at
+    round = last_round
+    round ? round.created_at : nil
   end
 
   def sup_time_of_day_s
@@ -123,7 +123,7 @@ class Team
     return false if now_in_tz < now_in_tz.beginning_of_day + sup_time_of_day
     # don't sup more than once a week
     time_limit = Time.now.utc - sup_every_n_weeks.weeks
-    (last_sup_at || time_limit) <= time_limit
+    (last_round_at || time_limit) <= time_limit
   end
 
   def inform!(message)
