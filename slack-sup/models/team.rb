@@ -14,6 +14,8 @@ class Team
   field :sup_recency, type: Integer, default: 12
   # sup day of the week, defaults to Monday
   field :sup_wday, type: Integer, default: 1
+  # sup day of the week we ask for sup results, defaults to Thursday
+  field :sup_followup_wday, type: Integer, default: 4
   field :sup_tz, type: String, default: 'Eastern Time (US & Canada)'
   validates_presence_of :sup_tz
 
@@ -80,7 +82,7 @@ class Team
 
   def ask!
     round = last_round
-    return unless round && round.ask?
+    return unless round && round.ask?(sup_followup_wday.days)
     round.ask!
     round
   end
@@ -108,6 +110,10 @@ class Team
 
   def sup_day
     Date::DAYNAMES[sup_wday]
+  end
+
+  def sup_followup_day
+    Date::DAYNAMES[sup_followup_wday]
   end
 
   def sup_tzone
