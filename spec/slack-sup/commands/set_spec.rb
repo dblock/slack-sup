@@ -416,6 +416,16 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
           "Team S'Up is every week."
         )
       end
+      it 'cannot set followup day' do
+        expect(message: "#{SlackRubyBot.config.user} set followup 2").to respond_with_slack_message(
+          "Team S'Up followup day is on Thursday. Only a Slack team admin can change that, sorry."
+        )
+      end
+      it 'can see followup day' do
+        expect(message: "#{SlackRubyBot.config.user} set followup").to respond_with_slack_message(
+          "Team S'Up followup day is on Thursday."
+        )
+      end
       it 'cannot set recency' do
         expect(message: "#{SlackRubyBot.config.user} set recency 2").to respond_with_slack_message(
           'Taking special care to not pair the same people more than every 12 weeks. Only a Slack team admin can change that, sorry.'
