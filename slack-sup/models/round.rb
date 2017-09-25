@@ -20,9 +20,9 @@ class Round
     "id=#{id}, #{team}"
   end
 
-  def ask?(dt = 3.days)
+  def ask?
     return false if asked_at
-    ran_at && ran_at <= dt.ago
+    Time.now.wday == team.sup_followup_wday
   end
 
   def ask!

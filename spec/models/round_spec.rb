@@ -156,18 +156,25 @@ describe Round do
       it 'is false immediately after the round' do
         expect(round.ask?).to be false
       end
-      context 'after more than three days' do
-        before do
-          Timecop.travel(Time.now.utc + 4.days)
+      context 'have not asked already' do
+        it 'is true for Thursday day of the week' do
+          Timecop.travel(Time.now - Time.now.wday.days + 4.days)
+          expect(round.ask?).to be true
         end
-        it 'is true' do
+        it 'is false for Wednesday' do
+          Timecop.travel(Time.now - Time.now.wday.days + 3.days)
+          expect(round.ask?).to be false
+        end
+        it 'is true for Wednesday when team.followup_day is 3' do
+          team.update_attributes!(sup_followup_wday: 3)
+          Timecop.travel(Time.now - Time.now.wday.days + 3.days)
           expect(round.ask?).to be true
         end
       end
-      context 'after more than three days and already asked' do
+      context 'on Thursday days and already asked' do
         before do
           round.update_attributes!(asked_at: Time.now.utc)
-          Timecop.travel(Time.now.utc + 4.days)
+          Timecop.travel(Time.now - Time.now.wday.days + 4.days)
         end
         it 'is false' do
           expect(round.ask?).to be false
