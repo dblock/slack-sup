@@ -134,6 +134,20 @@ module SlackSup
           raise SlackSup::Error, "Time _#{v}_ is invalid. Team S'Up is after #{team.reload.sup_time_of_day_s}."
         end
 
+        def set_followup_day(client, team, data, user, v = nil)
+          if user.is_admin? && v
+            team.update_attributes(sup_followup_wday: Date.parse(v).wday)
+            client.say(channel: data.channel, text: "Team S'Up followup day is now on #{team.sup_followup_day}.")
+          elsif v
+            client.say(channel: data.channel, text: "Team S'Up followup day is on #{team.sup_followup_day}. Only a Slack team admin can change that, sorry.")
+          else
+            client.say(channel: data.channel, text: "Team S'Up followup day is on #{team.sup_followup_day}.")
+          end
+          logger.info "SET: #{team}, user=#{user.user_name}, sup_followup_day=#{team.sup_followup_day}."
+        rescue ArgumentError
+          raise SlackSup::Error, "Day _#{v}_ is invalid, try _Monday_, _Tuesday_, etc. Team S'Up followup day is on #{team.sup_followup_day}."
+        end
+
         def set_weeks(client, team, data, user, v = nil)
           if user.is_admin? && v
             team.update_attributes!(sup_every_n_weeks: v.to_i)
@@ -248,6 +262,8 @@ module SlackSup
             set_api_token client, team, data, user
           when 'day' then
             set_day client, team, data, user, v
+          when 'followup' then
+            set_followup_day client, team, data, user, v
           when 'tz', 'timezone' then
             set_timezone client, team, data, user, v
           when 'teamfield' then

@@ -15,6 +15,7 @@ module Api
       property :created_at, type: DateTime, desc: 'Date/time when the team was created.'
       property :updated_at, type: DateTime, desc: 'Date/time when the team was updated.'
       property :sup_wday, type: Integer, desc: "S'Up day of the week."
+      property :sup_followup_wday, type: Integer, desc: "Ask for S'up result day of week."
       property :sup_day, type: String, desc: "S'Up day of the week in English."
       property :sup_tz, type: String, desc: 'Team timezone.'
       property :sup_time_of_day, type: String, desc: "Earliest time of day for a S'Up in seconds."

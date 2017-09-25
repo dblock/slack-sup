@@ -138,6 +138,30 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
         )
       end
     end
+    context 'followup' do
+      it 'defaults to Thursday' do
+        expect(message: "#{SlackRubyBot.config.user} set followup").to respond_with_slack_message(
+          "Team S'Up followup day is on Thursday."
+        )
+      end
+      it 'shows current value of sup followup' do
+        team.update_attributes!(sup_followup_wday: 2)
+        expect(message: "#{SlackRubyBot.config.user} set followup").to respond_with_slack_message(
+          "Team S'Up followup day is on Tuesday."
+        )
+      end
+      it 'changes followup' do
+        expect(message: "#{SlackRubyBot.config.user} set followup friday").to respond_with_slack_message(
+          "Team S'Up followup day is now on Friday."
+        )
+        expect(team.reload.sup_followup_wday).to eq 5
+      end
+      it 'errors set on an invalid day' do
+        expect(message: "#{SlackRubyBot.config.user} set followup foobar").to respond_with_slack_message(
+          "Day _foobar_ is invalid, try _Monday_, _Tuesday_, etc. Team S'Up followup day is on Thursday."
+        )
+      end
+    end
     context 'time' do
       it 'defaults to 9AM' do
         expect(message: "#{SlackRubyBot.config.user} set time").to respond_with_slack_message(
@@ -390,6 +414,16 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       it 'can see weeks' do
         expect(message: "#{SlackRubyBot.config.user} set weeks").to respond_with_slack_message(
           "Team S'Up is every week."
+        )
+      end
+      it 'cannot set followup day' do
+        expect(message: "#{SlackRubyBot.config.user} set followup 2").to respond_with_slack_message(
+          "Team S'Up followup day is on Thursday. Only a Slack team admin can change that, sorry."
+        )
+      end
+      it 'can see followup day' do
+        expect(message: "#{SlackRubyBot.config.user} set followup").to respond_with_slack_message(
+          "Team S'Up followup day is on Thursday."
         )
       end
       it 'cannot set recency' do
