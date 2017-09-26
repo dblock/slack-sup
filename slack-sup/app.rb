@@ -46,8 +46,8 @@ module SlackSup
     def sup!
       Team.active.each do |team|
         begin
-          last_sup_at = team.last_sup_at
-          logger.info "Checking #{team}, #{last_sup_at ? 'last sup ' + last_sup_at.ago_in_words : 'first time sup'}."
+          last_round_at = team.last_round_at
+          logger.info "Checking #{team}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
           next unless team.sup?
           round = team.sup!
           logger.info "Created sup round #{round}."
