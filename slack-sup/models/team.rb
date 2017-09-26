@@ -82,7 +82,7 @@ class Team
 
   def ask!
     round = last_round
-    return unless round && round.ask?(sup_followup_wday.days)
+    return unless round && round.ask?
     round.ask!
     round
   end

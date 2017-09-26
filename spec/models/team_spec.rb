@@ -182,6 +182,28 @@ describe Team do
         expect(round.team).to eq(team)
       end
     end
+    context '#ask!' do
+      it 'works without rounds' do
+        expect { team.ask! }.to_not raise_error
+      end
+      context 'with a round' do
+        before do
+          allow(team).to receive(:sync!)
+          team.sup!
+        end
+        let(:last_round) { team.last_round }
+        it 'skips last round' do
+          allow_any_instance_of(Round).to receive(:ask?).and_return(false)
+          expect_any_instance_of(Round).to_not receive(:ask!)
+          team.ask!
+        end
+        it 'checks against last round' do
+          allow_any_instance_of(Round).to receive(:ask?).and_return(true)
+          expect_any_instance_of(Round).to receive(:ask!).once
+          team.ask!
+        end
+      end
+    end
     context '#sup?' do
       before do
         allow(team).to receive(:sync!)

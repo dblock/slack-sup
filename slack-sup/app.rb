@@ -38,7 +38,8 @@ module SlackSup
           round = team.ask!
           logger.info "Asked about previous sup round #{round}." if round
         rescue StandardError => e
-          logger.warn "Error in cron for team #{team}, #{e.message}."
+          backtrace = e.backtrace.join("\n")
+          logger.warn "Error in cron for team #{team}, #{e.message}, #{backtrace}."
         end
       end
     end
@@ -52,7 +53,8 @@ module SlackSup
           round = team.sup!
           logger.info "Created sup round #{round}."
         rescue StandardError => e
-          logger.warn "Error in cron for team #{team}, #{e.message}."
+          backtrace = e.backtrace.join("\n")
+          logger.warn "Error in cron for team #{team}, #{e.message}, #{backtrace}."
         end
       end
     end
