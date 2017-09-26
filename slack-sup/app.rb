@@ -34,7 +34,7 @@ module SlackSup
       Team.active.each do |team|
         begin
           last_round_at = team.last_round_at
-          logger.info "Checking #{team}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
+          logger.info "Checking whether to ask #{team}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
           round = team.ask!
           logger.info "Asked about previous sup round #{round}." if round
         rescue StandardError => e
@@ -48,7 +48,7 @@ module SlackSup
       Team.active.each do |team|
         begin
           last_round_at = team.last_round_at
-          logger.info "Checking #{team}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
+          logger.info "Checking whether to sup #{team}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
           next unless team.sup?
           round = team.sup!
           logger.info "Created sup round #{round}."
