@@ -22,7 +22,8 @@ class Round
 
   def ask?
     return false if asked_at
-    Time.now.wday == team.sup_followup_wday
+    now_in_tz = Time.now.utc.in_time_zone(team.sup_tzone)
+    now_in_tz.wday == team.sup_followup_wday
   end
 
   def ask!
