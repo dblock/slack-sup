@@ -122,7 +122,8 @@ describe Team do
     end
   end
   context 'team' do
-    let(:team) { Fabricate(:team, sup_wday: Time.now.utc.in_time_zone('Eastern Time (US & Canada)').wday) }
+    let(:wday) { Time.now.utc.in_time_zone('Eastern Time (US & Canada)').wday }
+    let(:team) { Fabricate(:team, sup_wday: wday, sup_time_of_day: 1) }
     context '#sync!' do
       let(:member_default_attr) do
         {
