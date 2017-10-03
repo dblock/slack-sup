@@ -157,18 +157,30 @@ describe Round do
         expect(round.ask?).to be false
       end
       context 'have not asked already' do
-        it 'is true for Thursday day of the week' do
-          Timecop.travel(Time.now - Time.now.wday.days + 4.days)
-          expect(round.ask?).to be true
+        let(:wednesday_est) { DateTime.parse('2017/1/4 3:00 PM EST').utc }
+        let(:thursday_morning_utc) { DateTime.parse('2017/1/5 0:00 AM UTC').utc }
+        let(:thursday_est) { DateTime.parse('2017/1/5 3:00 PM EST').utc }
+        it 'is false for Wednesday eastern time' do
+          Timecop.travel(wednesday_est) do
+            expect(round.ask?).to be false
+          end
         end
-        it 'is false for Wednesday' do
-          Timecop.travel(Time.now - Time.now.wday.days + 3.days)
-          expect(round.ask?).to be false
+        it 'is false for Thursday morning utc time when team is eastern time' do
+          Timecop.travel(thursday_morning_utc) do
+            expect(round.ask?).to be false
+          end
+        end
+        it 'is true for Thursday eastern' do
+          Timecop.travel(thursday_est) do
+            expect(round.ask?).to be true
+          end
         end
         it 'is true for Wednesday when team.followup_day is 3' do
           team.update_attributes!(sup_followup_wday: 3)
-          Timecop.travel(Time.now - Time.now.wday.days + 3.days)
-          expect(round.ask?).to be true
+
+          Timecop.travel(wednesday_est) do
+            expect(round.ask?).to be true
+          end
         end
       end
       context 'on Thursday days and already asked' do
