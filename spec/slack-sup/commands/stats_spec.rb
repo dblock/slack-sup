@@ -7,8 +7,7 @@ describe SlackSup::Commands::Stats do
   it 'empty stats' do
     expect(message: "#{SlackRubyBot.config.user} stats").to respond_with_slack_message(
       "Team S'Up connects 3 people on Monday after 9:00 AM every week.\n" \
-      "Team S'Up started 21 days ago with 0% of users opted in.\n" \
-      "Facilitated S'Ups in rounds for users with 0% positive outcomes from 0% outcomes reported."
+      "Team S'Up started 21 days ago with no users opted in."
     )
   end
   context 'with outcomes' do
