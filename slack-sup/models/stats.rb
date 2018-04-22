@@ -19,7 +19,7 @@ class Stats
   end
 
   def reported_outcomes_count
-    outcomes.values.sum - outcomes[:unknown]
+    outcomes.values.sum - (outcomes[:unknown] || 0)
   end
 
   private

@@ -9,6 +9,8 @@ describe Stats do
       expect(stats.users_in_sups_count).to eq 0
       expect(stats.users_opted_in_count).to eq 0
       expect(stats.users_count).to eq 0
+      expect(stats.positive_outcomes_count).to eq 0
+      expect(stats.reported_outcomes_count).to eq 0
       expect(stats.outcomes).to eq({})
       expect(stats.team).to be nil
     end
@@ -21,6 +23,8 @@ describe Stats do
       expect(stats.sups_count).to eq 0
       expect(stats.users_in_sups_count).to eq 0
       expect(stats.users_opted_in_count).to eq 0
+      expect(stats.positive_outcomes_count).to eq 0
+      expect(stats.reported_outcomes_count).to eq 0
       expect(stats.users_count).to eq 0
       expect(stats.outcomes).to eq({})
       expect(stats.team).to eq team
@@ -44,6 +48,8 @@ describe Stats do
         expect(stats.users_in_sups_count).to eq 3
         expect(stats.users_opted_in_count).to eq 3
         expect(stats.users_count).to eq 3
+        expect(stats.positive_outcomes_count).to eq 1
+        expect(stats.reported_outcomes_count).to eq 1
         expect(stats.outcomes).to eq(all: 1, unknown: 1)
         expect(stats.team).to eq team
       end
