@@ -12,7 +12,7 @@ describe Round do
       let!(:user1) { Fabricate(:user, team: team) }
       let!(:user2) { Fabricate(:user, team: team) }
       let!(:user3) { Fabricate(:user, team: team) }
-      it 'generates groups of sup_size size' do
+      it 'generates sup_size size' do
         expect do
           team.sup!
         end.to change(Sup, :count).by(1)

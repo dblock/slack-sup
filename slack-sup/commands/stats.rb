@@ -6,9 +6,9 @@ module SlackSup
       def self.pluralize(count, text)
         case count
         when 1
-          text
+          "#{count} #{text}"
         else
-          text.pluralize
+          "#{count} #{text.pluralize}"
         end
       end
 
@@ -18,9 +18,9 @@ module SlackSup
         messages = []
         messages << "Team S'Up connects #{team.sup_size} people on #{team.sup_day} after #{team.sup_time_of_day_s} every #{team.sup_every_n_weeks_s}."
         messages << if stats.users_count > 0 && stats.users_opted_in_count > 0
-                      "Team S'Up started #{team.created_at.ago_in_words} with #{stats.users_opted_in_count * 100 / stats.users_count}% of users opted in."
+                      "Team S'Up started #{team.created_at.ago_in_words} with #{stats.users_opted_in_count * 100 / stats.users_count}% (#{stats.users_opted_in_count}/#{stats.users_count}) of users opted in."
                     else
-                      "Team S'Up started #{team.created_at.ago_in_words} with no users opted in."
+                      "Team S'Up started #{team.created_at.ago_in_words} with no users (0/#{stats.users_count}) opted in."
                     end
         if stats.sups_count > 0
           messages << "Facilitated #{pluralize(stats.sups_count, 'S\'Up')} " \
