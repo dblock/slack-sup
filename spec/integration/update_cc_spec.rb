@@ -36,7 +36,7 @@ describe 'Update cc', js: true, type: :feature do
           end
           sleep 5
           find('#update_cc', visible: false)
-          expect(find('#messages')).to have_text("Successfully updated team #{team.name} credit card. Thank you for your support!")
+          expect(find('#messages')).to have_text("Successfully updated team #{team.name} credit card.\n\nThank you for your support!")
         end
       end
     end
