@@ -153,13 +153,17 @@ describe Round do
       end
     end
     context '#ask?' do
+      it 'is false within 24 hours even if sup_followup_wday is today' do
+        team.update_attributes!(sup_followup_wday: DateTime.now.wday)
+        expect(round.ask?).to be false
+      end
       it 'is false immediately after the round' do
         expect(round.ask?).to be false
       end
       context 'have not asked already' do
-        let(:wednesday_est) { DateTime.parse('2017/1/4 3:00 PM EST').utc }
-        let(:thursday_morning_utc) { DateTime.parse('2017/1/5 0:00 AM UTC').utc }
-        let(:thursday_est) { DateTime.parse('2017/1/5 3:00 PM EST').utc }
+        let(:wednesday_est) { DateTime.parse('2042/1/8 3:00 PM EST').utc }
+        let(:thursday_morning_utc) { DateTime.parse('2042/1/9 0:00 AM UTC').utc }
+        let(:thursday_est) { DateTime.parse('2042/1/9 3:00 PM EST').utc }
         it 'is false for Wednesday eastern time' do
           Timecop.travel(wednesday_est) do
             expect(round.ask?).to be false
@@ -204,6 +208,47 @@ describe Round do
           expect(round.asked_at).to be nil
           round.ask!
           expect(round.asked_at).to_not be nil
+        end
+      end
+    end
+    context '#remind?' do
+      it 'is false immediately after the round' do
+        expect(round.remind?).to be false
+      end
+      context 'have not reminded already' do
+        it 'is false 12 hours later' do
+          Timecop.travel(round.created_at + 12.hours) do
+            expect(round.remind?).to be false
+          end
+        end
+        it 'is true 24 hours later' do
+          Timecop.travel(round.created_at + 25.hours) do
+            expect(round.remind?).to be true
+          end
+        end
+      end
+      context 'already reminded' do
+        before do
+          round.update_attributes!(reminded_at: Time.now.utc)
+        end
+        it 'is false' do
+          Timecop.travel(round.created_at + 25.hours) do
+            expect(round.remind?).to be false
+          end
+        end
+      end
+    end
+    context '#remind!' do
+      context 'with a sup' do
+        let!(:sup) { Fabricate(:sup, team: team, round: round) }
+        it 'reminds every sup' do
+          expect(sup).to receive(:remind!).once
+          round.remind!
+        end
+        it 'updates reminded_at' do
+          expect(round.reminded_at).to be nil
+          round.remind!
+          expect(round.reminded_at).to_not be nil
         end
       end
     end

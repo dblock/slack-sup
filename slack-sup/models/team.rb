@@ -87,6 +87,13 @@ class Team
     round
   end
 
+  def remind!
+    round = last_round
+    return unless round && round.remind?
+    round.remind!
+    round
+  end
+
   def last_round
     rounds.desc(:created_at).first
   end
@@ -133,12 +140,11 @@ class Team
   end
 
   def inform!(message)
-    client = Slack::Web::Client.new(token: token)
-    members = client.paginate(:users_list, presence: false).map(&:members).flatten
+    members = slack_client.paginate(:users_list, presence: false).map(&:members).flatten
     members.select(&:is_admin).each do |admin|
-      channel = client.im_open(user: admin.id)
+      channel = slack_client.im_open(user: admin.id)
       logger.info "Sending DM '#{message}' to #{admin.name}."
-      client.chat_postMessage(text: message, channel: channel.channel.id, as_user: true)
+      slack_client.chat_postMessage(text: message, channel: channel.channel.id, as_user: true)
     end
   end
 
@@ -157,8 +163,7 @@ class Team
 
   # synchronize users with slack
   def sync!
-    client = Slack::Web::Client.new(token: token)
-    members = client.paginate(:users_list, presence: false).map(&:members).flatten
+    members = slack_client.paginate(:users_list, presence: false).map(&:members).flatten
     humans = members.select { |member| active_member?(member) }.map do |member|
       existing_user = User.where(user_id: member.id).first
       existing_user ||= User.new(user_id: member.id, team: self)
@@ -188,6 +193,10 @@ class Team
       dead_user.enabled = false
       dead_user.save!
     end
+  end
+
+  def slack_client
+    @client ||= Slack::Web::Client.new(token: token)
   end
 
   private

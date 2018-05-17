@@ -75,6 +75,13 @@ class Sup
     dm!(message)
   end
 
+  def remind!
+    return unless channel_id
+    messages = slack_client.mpim_history(channel: channel_id, count: 3).messages
+    return unless messages.size <= 1
+    dm!(text: captain ? "Bumping myself on top of your list, #{captain.slack_mention}." : 'Bumping myself on top of your list.')
+  end
+
   def to_s
     "id=#{id}, users=#{users.map(&:user_name).and}"
   end
@@ -116,13 +123,16 @@ class Sup
     errors.add(:team, 'Rounds can only be created amongst users of the same team.')
   end
 
+  def slack_client
+    round.team.slack_client
+  end
+
   # creates a DM between all the parties involved
   def dm!(message)
-    client = Slack::Web::Client.new(token: round.team.token)
     unless channel_id
-      channel = client.mpim_open(users: users.map(&:user_id).join(','))
+      channel = slack_client.mpim_open(users: users.map(&:user_id).join(','))
       update_attributes!(channel_id: channel.group.id)
     end
-    client.chat_postMessage(message.merge(channel: channel_id, as_user: true))
+    slack_client.chat_postMessage(message.merge(channel: channel_id, as_user: true))
   end
 end

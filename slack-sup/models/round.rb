@@ -7,6 +7,7 @@ class Round
 
   field :ran_at, type: DateTime
   field :asked_at, type: DateTime
+  field :reminded_at, type: DateTime
 
   belongs_to :team
   validates_presence_of :team
@@ -22,6 +23,9 @@ class Round
 
   def ask?
     return false if asked_at
+    # do not ask within 24 hours
+    return false if Time.now.utc < (ran_at + 24.hours)
+    # only ask on sup_followup_day
     now_in_tz = Time.now.utc.in_time_zone(team.sup_tzone)
     now_in_tz.wday == team.sup_followup_wday
   end
@@ -30,6 +34,19 @@ class Round
     return if asked_at
     update_attributes!(asked_at: Time.now.utc)
     sups.each(&:ask!)
+  end
+
+  def remind?
+    # don't remind if already tried to record outcome
+    return false if asked_at || reminded_at
+    # remind after 24 hours
+    Time.now.utc > (ran_at + 24.hours)
+  end
+
+  def remind!
+    return if reminded_at
+    update_attributes!(reminded_at: Time.now.utc)
+    sups.each(&:remind!)
   end
 
   private

@@ -17,6 +17,7 @@ module SlackSup
         sup!
       end
       once_and_every 60 * 30 do
+        remind!
         ask!
       end
     end
@@ -30,13 +31,10 @@ module SlackSup
       end
     end
 
-    def ask!
+    def invoke!(&_block)
       Team.active.each do |team|
         begin
-          last_round_at = team.last_round_at
-          logger.info "Checking whether to ask #{team}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
-          round = team.ask!
-          logger.info "Asked about previous sup round #{round}." if round
+          yield team
         rescue StandardError => e
           backtrace = e.backtrace.join("\n")
           logger.warn "Error in cron for team #{team}, #{e.message}, #{backtrace}."
@@ -44,18 +42,31 @@ module SlackSup
       end
     end
 
+    def ask!
+      invoke! do |team|
+        last_round_at = team.last_round_at
+        logger.info "Checking whether to ask #{team}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
+        round = team.ask!
+        logger.info "Asked about previous sup round #{round}." if round
+      end
+    end
+
+    def remind!
+      invoke! do |team|
+        last_round_at = team.last_round_at
+        logger.info "Checking whether to remind #{team}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
+        round = team.remind!
+        logger.info "Reminded about previous sup round #{round}." if round
+      end
+    end
+
     def sup!
-      Team.active.each do |team|
-        begin
-          last_round_at = team.last_round_at
-          logger.info "Checking whether to sup #{team}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
-          next unless team.sup?
-          round = team.sup!
-          logger.info "Created sup round #{round}."
-        rescue StandardError => e
-          backtrace = e.backtrace.join("\n")
-          logger.warn "Error in cron for team #{team}, #{e.message}, #{backtrace}."
-        end
+      invoke! do |team|
+        last_round_at = team.last_round_at
+        logger.info "Checking whether to sup #{team}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
+        next unless team.sup?
+        round = team.sup!
+        logger.info "Created sup round #{round}."
       end
     end
 

@@ -9,6 +9,40 @@ describe Sup do
       expect(sup).to receive(:dm!).with(message)
       sup.ask!
     end
+    context '#remind' do
+      context 'having not messaged' do
+        it 'no reminder' do
+          expect(sup).to_not receive(:dm!)
+          sup.remind!
+        end
+      end
+      context 'with channel' do
+        before do
+          sup.update_attributes!(channel_id: 'channel')
+        end
+        it 'reminds for outcome' do
+          expect(sup.send(:slack_client)).to receive(:mpim_history).and_return(Hashie::Mash.new(messages: []))
+          expect(sup).to receive(:dm!).with(text: 'Bumping myself on top of your list.')
+          sup.remind!
+        end
+        context 'with captain' do
+          let(:captain) { Fabricate(:user, team: sup.team) }
+          before do
+            sup.update_attributes!(captain: captain)
+          end
+          it 'pings captain' do
+            expect(sup.send(:slack_client)).to receive(:mpim_history).and_return(Hashie::Mash.new(messages: []))
+            expect(sup).to receive(:dm!).with(text: "Bumping myself on top of your list, #{captain.slack_mention}.")
+            sup.remind!
+          end
+        end
+        it 'does not remind if a conversation has been had' do
+          expect(sup.send(:slack_client)).to receive(:mpim_history).and_return(Hashie::Mash.new(messages: [1, 2]))
+          expect(sup).to_not receive(:dm!)
+          sup.remind!
+        end
+      end
+    end
     context '#calendar_href' do
       it 'includes date/time and sup id and a valid access token' do
         t = Time.now.utc
