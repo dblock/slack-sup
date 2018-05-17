@@ -45,7 +45,7 @@ class Team
 
   def bot_name
     client = server.send(:client) if server
-    name = client.self.name if client && client.self
+    name = client.self.name if client&.self
     name ||= 'sup'
     "@#{name}"
   end
@@ -82,14 +82,14 @@ class Team
 
   def ask!
     round = last_round
-    return unless round && round.ask?
+    return unless round&.ask?
     round.ask!
     round
   end
 
   def remind!
     round = last_round
-    return unless round && round.remind?
+    return unless round&.remind?
     round.remind!
     round
   end
@@ -182,7 +182,7 @@ class Team
                 human.enabled? ? 'active' : 'back'
               else
                 'new'
-      end
+              end
       logger.info "Team #{self}: #{human} is #{state}."
       human.enabled = true
       human.save!

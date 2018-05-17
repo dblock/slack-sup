@@ -63,11 +63,11 @@ class User
   end
 
   def update_custom_profile
-    custom_team_name = nil
+    self.custom_team_name = nil
     return unless team.team_field_label_id
     client = Slack::Web::Client.new(token: team.access_token)
     fields = client.users_profile_get(user: user_id).profile.fields
-    custom_field_value = fields[team.team_field_label_id] if fields && fields.is_a?(::Slack::Messages::Message)
+    custom_field_value = fields[team.team_field_label_id] if fields&.is_a?(::Slack::Messages::Message)
     self.custom_team_name = custom_field_value.value if custom_field_value
   end
 end

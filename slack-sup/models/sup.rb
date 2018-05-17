@@ -102,10 +102,10 @@ class Sup
   end
 
   def select_best_captain
-    users.sort_by do |u|
+    users.min_by do |u|
       return u if u.last_captain_at.nil?
       u.last_captain_at
-    end.first
+    end
   end
 
   def intro_message

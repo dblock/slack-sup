@@ -21,7 +21,7 @@ group :development, :test do
   gem 'byebug'
   gem 'foreman'
   gem 'rake', '~> 10.4'
-  gem 'rubocop', '0.49.1'
+  gem 'rubocop', '0.56.0'
 end
 
 group :development do

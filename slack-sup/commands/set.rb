@@ -130,7 +130,7 @@ module SlackSup
             client.say(channel: data.channel, text: "Team S'Up is after #{team.sup_time_of_day_s}.")
           end
           logger.info "SET: #{team}, user=#{user.user_name}, sup_time_of_day=#{team.sup_time_of_day_s}."
-        rescue StandardError => e
+        rescue StandardError
           raise SlackSup::Error, "Time _#{v}_ is invalid. Team S'Up is after #{team.reload.sup_time_of_day_s}."
         end
 
@@ -158,7 +158,7 @@ module SlackSup
             client.say(channel: data.channel, text: "Team S'Up is every #{team.sup_every_n_weeks_s}.")
           end
           logger.info "SET: #{team}, user=#{user.user_name}, sup_every_n_weeks=#{team.sup_every_n_weeks_s}."
-        rescue StandardError => e
+        rescue StandardError
           raise SlackSup::Error, "Number _#{v}_ is invalid. Team S'Up is every #{team.reload.sup_every_n_weeks_s}."
         end
 
@@ -172,7 +172,7 @@ module SlackSup
             client.say(channel: data.channel, text: "Team S'Up connects #{team.sup_size} people.")
           end
           logger.info "SET: #{team}, user=#{user.user_name}, sup_size=#{team.sup_size}."
-        rescue StandardError => e
+        rescue StandardError
           raise SlackSup::Error, "Number _#{v}_ is invalid. Team S'Up connects #{team.reload.sup_size} people."
         end
 
@@ -250,7 +250,7 @@ module SlackSup
             client.say(channel: data.channel, text: "Taking special care to not pair the same people more than every #{team.sup_recency_s}.")
           end
           logger.info "SET: #{team}, user=#{user.user_name}, sup_recency=#{team.sup_recency_s}."
-        rescue StandardError => e
+        rescue StandardError
           raise SlackSup::Error, "Number _#{v}_ is invalid. Taking special care to not pair the same people more than every #{team.reload.sup_recency_s}."
         end
 
