@@ -36,7 +36,7 @@ module SlackSup
         team.rounds.desc(:_id).take(max).each do |round|
           stats = RoundStats.new(round)
           ran_at = if round.ran_at && round.asked_at
-                     round.ran_at.to_time.ago_in_words.gsub(/ and \d* hours/, '')
+                     round.ran_at.to_time.ago_in_words.gsub(/ and \d* \w*/, '')
                    elsif round.ran_at
                      'in progress'
                    else
