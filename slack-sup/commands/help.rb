@@ -15,6 +15,7 @@ module SlackSup
         General
         -------
         stats                     - team stats
+        rounds [n]                - team stats for the last n rounds, default is 3
         help                      - this helpful message
         about                     - more helpful info about this bot
         set                       - show all settings
