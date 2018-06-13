@@ -20,7 +20,7 @@ module SlackSup
         remind!
         ask!
       end
-      once_and_every 60 * 60 do
+      once_and_every 60 * 3 do
         ping_teams!
       end
     end
