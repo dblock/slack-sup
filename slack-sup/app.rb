@@ -6,17 +6,19 @@ module SlackSup
     end
 
     def after_start!
-      logger.info 'Starting sup and subscription crons.'
-      once_and_every 60 * 60 * 24 * 3 do
-        check_subscribed_teams!
-        check_expired_subscriptions!
-      end
-      once_and_every 60 * 30 do
-        sup!
-      end
-      once_and_every 60 * 30 do
-        remind!
-        ask!
+      ::Async::Reactor.run do
+        logger.info 'Starting sup and subscription crons.'
+        once_and_every 60 * 60 * 24 * 3 do
+          check_subscribed_teams!
+          check_expired_subscriptions!
+        end
+        once_and_every 60 * 30 do
+          sup!
+        end
+        once_and_every 60 * 30 do
+          remind!
+          ask!
+        end
       end
     end
 
