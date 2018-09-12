@@ -1,7 +1,5 @@
 module SlackSup
   class App < SlackRubyBotServer::App
-    include Celluloid
-
     def prepare!
       super
       deactivate_asleep_teams!
@@ -25,9 +23,11 @@ module SlackSup
     private
 
     def once_and_every(tt)
-      yield
-      every tt do
-        yield
+      ::Async::Reactor.run do |task|
+        loop do
+          yield
+          task.sleep tt
+        end
       end
     end
 
