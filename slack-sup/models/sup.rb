@@ -113,7 +113,7 @@ class Sup
     return unless new_users.any?
     [
       team.sup_size == 3 ? 'The most valuable relationships are not made of 2 people, they’re made of 3.' : nil,
-      "Team S'Up connects #{team.sup_size} people on #{team.sup_day} every #{team.sup_every_n_weeks_s}.",
+      "Team S'Up connects groups of #{team.sup_size} people on #{team.sup_day} every #{team.sup_every_n_weeks_s}.",
       "Welcome #{new_users.sort_by(&:id).map(&:slack_mention).and}, excited for your first S'Up!"
     ].compact.join(' ')
   end

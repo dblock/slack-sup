@@ -16,7 +16,7 @@ module SlackSup
         team = client.owner
         stats = ::Stats.new(team)
         messages = []
-        messages << "Team S'Up connects #{team.sup_size} people on #{team.sup_day} after #{team.sup_time_of_day_s} every #{team.sup_every_n_weeks_s}."
+        messages << "Team S'Up connects groups of #{team.sup_size} people on #{team.sup_day} after #{team.sup_time_of_day_s} every #{team.sup_every_n_weeks_s}."
         messages << if stats.users_count > 0 && stats.users_opted_in_count > 0
                       "Team S'Up started #{team.created_at.ago_in_words} with #{stats.users_opted_in_count * 100 / stats.users_count}% (#{stats.users_opted_in_count}/#{stats.users_count}) of users opted in."
                     else

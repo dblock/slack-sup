@@ -165,15 +165,15 @@ module SlackSup
         def set_size(client, team, data, user, v = nil)
           if user.is_admin? && v
             team.update_attributes!(sup_size: v.to_i)
-            client.say(channel: data.channel, text: "Team S'Up now connects #{team.sup_size} people.")
+            client.say(channel: data.channel, text: "Team S'Up now connects groups of #{team.sup_size} people.")
           elsif v
-            client.say(channel: data.channel, text: "Team S'Up connects #{team.sup_size} people. Only a Slack team admin can change that, sorry.")
+            client.say(channel: data.channel, text: "Team S'Up connects groups of #{team.sup_size} people. Only a Slack team admin can change that, sorry.")
           else
-            client.say(channel: data.channel, text: "Team S'Up connects #{team.sup_size} people.")
+            client.say(channel: data.channel, text: "Team S'Up connects groups of #{team.sup_size} people.")
           end
           logger.info "SET: #{team}, user=#{user.user_name}, sup_size=#{team.sup_size}."
         rescue StandardError
-          raise SlackSup::Error, "Number _#{v}_ is invalid. Team S'Up connects #{team.reload.sup_size} people."
+          raise SlackSup::Error, "Number _#{v}_ is invalid. Team S'Up connects groups of #{team.reload.sup_size} people."
         end
 
         def set_timezone(client, team, data, user, v = nil)
@@ -328,7 +328,7 @@ module SlackSup
         if !match['expression']
           team = client.owner
           message = [
-            "Team S'Up connects #{team.sup_size} people on #{team.sup_day} after #{team.sup_time_of_day_s} every #{team.sup_every_n_weeks_s} in #{team.sup_tzone}, taking special care to not pair the same people more frequently than every #{team.sup_recency_s}.",
+            "Team S'Up connects groups of #{team.sup_size} people on #{team.sup_day} after #{team.sup_time_of_day_s} every #{team.sup_every_n_weeks_s} in #{team.sup_tzone}, taking special care to not pair the same people more frequently than every #{team.sup_recency_s}.",
             "Custom profile team field is _#{team.team_field_label || 'not set'}_.",
             team_data_access_message(user),
             team.api_url

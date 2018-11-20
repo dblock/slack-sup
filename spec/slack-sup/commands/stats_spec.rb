@@ -6,7 +6,7 @@ describe SlackSup::Commands::Stats do
   let(:client) { app.send(:client) }
   it 'empty stats' do
     expect(message: "#{SlackRubyBot.config.user} stats").to respond_with_slack_message(
-      "Team S'Up connects 3 people on Monday after 9:00 AM every week.\n" \
+      "Team S'Up connects groups of 3 people on Monday after 9:00 AM every week.\n" \
       "Team S'Up started 21 days ago with no users (0/0) opted in."
     )
   end
@@ -28,7 +28,7 @@ describe SlackSup::Commands::Stats do
     end
     it 'reports counts' do
       expect(message: "#{SlackRubyBot.config.user} stats").to respond_with_slack_message(
-        "Team S'Up connects 3 people on Monday after 9:00 AM every week.\n" \
+        "Team S'Up connects groups of 3 people on Monday after 9:00 AM every week.\n" \
         "Team S'Up started 21 days ago with 66% (2/3) of users opted in.\n" \
         "Facilitated 2 S'Ups in 2 rounds for 3 users with 50% positive outcomes from 50% outcomes reported."
       )
