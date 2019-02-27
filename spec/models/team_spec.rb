@@ -303,7 +303,7 @@ describe Team do
         merge_fields: {
           'FNAME' => 'First',
           'LNAME' => 'Last',
-          'BOT' => 'supbot'
+          'BOT' => 'Sup'
         },
         status: 'pending',
         name: nil,
@@ -327,7 +327,7 @@ describe Team do
         merge_fields: {
           'FNAME' => 'First',
           'LNAME' => 'Last',
-          'BOT' => 'supbot'
+          'BOT' => 'Sup'
         },
         status: 'subscribed',
         name: nil,

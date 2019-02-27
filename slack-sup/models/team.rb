@@ -322,7 +322,7 @@ class Team
       merge_fields: {
         'FNAME' => profile.first_name.to_s,
         'LNAME' => profile.last_name.to_s,
-        'BOT' => 'supbot'
+        'BOT' => 'Sup'
       }
     )
     logger.info "Subscribed #{profile.email} to #{ENV['MAILCHIMP_LIST_ID']}, #{self}."
