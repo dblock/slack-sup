@@ -102,6 +102,8 @@ GEM
       grape
       kaminari-core (~> 1.0)
     kgio (2.11.2)
+    mailchimp_api_v3 (0.2.18)
+      rest-client (~> 2)
     mime-types (3.2.2)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2018.0812)
@@ -267,6 +269,7 @@ DEPENDENCIES
   grape
   hyperclient
   jwt
+  mailchimp_api_v3
   mongoid
   mongoid-scroll
   mongoid-shell
