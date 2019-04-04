@@ -25,6 +25,7 @@ class Round
     return false if asked_at
     # do not ask within 24 hours
     return false if Time.now.utc < (ran_at + 24.hours)
+
     # only ask on sup_followup_day
     now_in_tz = Time.now.utc.in_time_zone(team.sup_tzone)
     now_in_tz.wday == team.sup_followup_wday
@@ -32,6 +33,7 @@ class Round
 
   def ask!
     return if asked_at
+
     update_attributes!(asked_at: Time.now.utc)
     sups.each(&:ask!)
   end
@@ -39,12 +41,14 @@ class Round
   def remind?
     # don't remind if already tried to record outcome
     return false if asked_at || reminded_at
+
     # remind after 24 hours
     Time.now.utc > (ran_at + 24.hours)
   end
 
   def remind!
     return if reminded_at
+
     update_attributes!(reminded_at: Time.now.utc)
     sups.each(&:remind!)
   end
@@ -58,6 +62,7 @@ class Round
 
   def group!
     return if ran_at
+
     update_attributes!(ran_at: Time.now.utc)
     logger.info "Generating sups for #{team} of #{team.users.suppable.count} users."
     remaining_users = team.users.suppable.to_a.shuffle

@@ -20,6 +20,7 @@ module Slack
           response = client.send(method, query)
           yield response
           break unless response.response_metadata
+
           next_cursor = response.response_metadata.next_cursor
           break if next_cursor.blank?
         end

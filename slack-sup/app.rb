@@ -1,6 +1,7 @@
 module SlackSup
   class App < SlackRubyBotServer::App
     def prepare!
+      migrate_access_token!
       super
       deactivate_asleep_teams!
     end
@@ -67,6 +68,7 @@ module SlackSup
         last_round_at = team.last_round_at
         logger.info "Checking whether to sup #{team}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
         next unless team.sup?
+
         round = team.sup!
         logger.info "Created sup round #{round}."
       end
@@ -76,16 +78,28 @@ module SlackSup
       Team.active.where(subscribed: false).each do |team|
         logger.info "Checking #{team} created #{team.created_at.ago_in_words}, subscription #{team.subscription_expired? ? 'has expired' : 'is active'}."
         next unless team.subscription_expired?
+
         team.inform! team.subscribe_text
+      end
+    end
+
+    def migrate_access_token!
+      Team.where(:access_token.ne => nil).each do |team|
+        next if team.activated_user_access_token
+
+        logger.info("Migrating #{team} access_token #{team[:access_token][0..10]} ...")
+        team.set(activated_user_access_token: team[:access_token])
+        team.unset(:access_token)
       end
     end
 
     def deactivate_asleep_teams!
       Team.active.each do |team|
         next unless team.asleep?
+
         begin
           team.deactivate!
-          team.inform! "The S'Up bot hasn't been used for 3 weeks, deactivating. Reactivate at #{SlackSup::Service.url}. Your data will be purged in another 2 weeks."
+          team.inform! "The S'Up bot hasn't been used for 3 weeks, deactivating. Reactivate at #{SlackRubyBotServer::Service.url}. Your data will be purged in another 2 weeks."
         rescue StandardError => e
           logger.warn "Error informing team #{team}, #{e.message}."
         end

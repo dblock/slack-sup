@@ -14,6 +14,7 @@ module Api
 
       link :captain do |opts|
         next unless captain_id
+
         request = Grape::Request.new(opts[:env])
         "#{request.base_url}/api/users/#{captain_id}"
       end

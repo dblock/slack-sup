@@ -1,10 +1,11 @@
 source 'http://rubygems.org'
 
-ruby '2.4.1'
+ruby '2.6.2'
 
 gem 'ambit'
 gem 'chronic'
 gem 'grape'
+gem 'irb'
 gem 'jwt'
 gem 'mailchimp_api_v3'
 gem 'mongoid'
@@ -13,6 +14,7 @@ gem 'newrelic_rpm'
 gem 'rack-robotz'
 gem 'rack-server-pages'
 gem 'slack-ruby-bot-server'
+gem 'slack-ruby-bot-server-mailchimp'
 gem 'slack-ruby-client'
 gem 'stripe', '~> 1.58.0'
 gem 'time_ago_in_words'
@@ -22,7 +24,7 @@ group :development, :test do
   gem 'byebug'
   gem 'foreman'
   gem 'rake', '~> 10.4'
-  gem 'rubocop', '0.56.0'
+  gem 'rubocop'
 end
 
 group :development do

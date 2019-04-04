@@ -45,6 +45,7 @@ class User
     query = user_match ? { user_id: user_match[1] } : { user_name: ::Regexp.new("^#{user_name}$", 'i') }
     user = User.where(query.merge(team: team)).first
     raise SlackSup::Error, "I don't know who #{user_name} is!" unless user
+
     user
   end
 
@@ -65,7 +66,8 @@ class User
   def update_custom_profile
     self.custom_team_name = nil
     return unless team.team_field_label_id
-    client = Slack::Web::Client.new(token: team.access_token)
+
+    client = Slack::Web::Client.new(token: team.activated_user_access_token)
     fields = client.users_profile_get(user: user_id).profile.fields
     custom_field_value = fields[team.team_field_label_id] if fields&.is_a?(::Slack::Messages::Message)
     self.custom_team_name = custom_field_value.value if custom_field_value

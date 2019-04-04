@@ -180,6 +180,7 @@ module SlackSup
           if user.is_admin? && v
             timezone = ActiveSupport::TimeZone.new(v)
             raise SlackSup::Error, "TimeZone _#{v}_ is invalid, see https://github.com/rails/rails/blob/5.1.3/activesupport/lib/active_support/values/time_zone.rb#L30 for a list. Team S'Up timezone is currently #{team.sup_tzone}." unless timezone
+
             team.update_attributes!(sup_tz: timezone.name)
             client.say(channel: data.channel, text: "Team S'Up timezone is now #{team.sup_tzone}.")
           elsif v

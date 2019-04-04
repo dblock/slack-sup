@@ -19,7 +19,7 @@ SlackSup::App.instance.prepare!
 Thread.abort_on_exception = true
 
 Thread.new do
-  SlackSup::Service.instance.start_from_database!
+  SlackRubyBotServer::Service.instance.start_from_database!
   SlackSup::App.instance.after_start!
 end
 

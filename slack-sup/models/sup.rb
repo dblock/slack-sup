@@ -32,6 +32,7 @@ class Sup
     dm!(text: messages.join("\n\n"))
     users.each do |user|
       next if user.introduced_sup?
+
       user.update_attributes!(introduced_sup_at: Time.now.utc)
     end
   end
@@ -77,8 +78,10 @@ class Sup
 
   def remind!
     return unless channel_id
+
     messages = slack_client.mpim_history(channel: channel_id, count: 3).messages
     return unless messages.size <= 1
+
     dm!(text: captain ? "Bumping myself on top of your list, #{captain.slack_mention}." : 'Bumping myself on top of your list.')
   end
 
@@ -87,7 +90,7 @@ class Sup
   end
 
   def calendar_href(dt = nil)
-    "#{SlackSup::Service.url}/gcal?sup_id=#{id}&dt=#{dt ? dt.to_i : nil}&access_token=#{team.short_lived_token}"
+    "#{SlackRubyBotServer::Service.url}/gcal?sup_id=#{id}&dt=#{dt ? dt.to_i : nil}&access_token=#{team.short_lived_token}"
   end
 
   validates_presence_of :team_id
@@ -98,12 +101,14 @@ class Sup
 
   def notify_gcal_html_link_changed!
     return unless gcal_html_link_changed? && gcal_html_link
+
     dm!(text: "I've added this S'Up to your Google Calendar: #{gcal_html_link}")
   end
 
   def select_best_captain
     users.min_by do |u|
       return u if u.last_captain_at.nil?
+
       u.last_captain_at
     end
   end
@@ -111,6 +116,7 @@ class Sup
   def intro_message
     new_users = users.reject(&:introduced_sup?)
     return unless new_users.any?
+
     [
       team.sup_size == 3 ? 'The most valuable relationships are not made of 2 people, they’re made of 3.' : nil,
       "Team S'Up connects groups of #{team.sup_size} people on #{team.sup_day} every #{team.sup_every_n_weeks_s}.",
@@ -120,6 +126,7 @@ class Sup
 
   def validate_team
     return if team_id && round.team_id == team_id && users.all? { |user| user.team_id == team_id }
+
     errors.add(:team, 'Rounds can only be created amongst users of the same team.')
   end
 

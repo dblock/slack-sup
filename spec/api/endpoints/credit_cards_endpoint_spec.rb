@@ -36,7 +36,6 @@ describe Api::Endpoints::CreditCardsEndpoint do
           email: 'foo@bar.com'
         )
         expect_any_instance_of(Team).to receive(:inform!).once
-        expect_any_instance_of(Team).to receive(:signup_to_mailing_list!)
         team.update_attributes!(subscribed: true, stripe_customer_id: customer['id'])
       end
       it 'updates a credit card' do

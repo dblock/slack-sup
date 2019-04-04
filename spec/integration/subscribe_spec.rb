@@ -33,7 +33,6 @@ describe 'Subscribe', js: true, type: :feature do
       expect(find('#messages')).to have_text("Subscribe team #{team.name} for $39.99 a year.")
 
       expect_any_instance_of(Team).to receive(:inform!).with(Team::SUBSCRIBED_TEXT)
-      expect_any_instance_of(Team).to receive(:signup_to_mailing_list!)
 
       find('#subscribe', visible: true)
 

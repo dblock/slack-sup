@@ -8,6 +8,7 @@ module SlackSup
         expression, mention = match['expression'].split(/[\s]+/, 2) if match['expression']
         if mention
           raise SlackSup::Error, 'Only a Slack team admin can opt users in and out, sorry.' unless user.is_admin?
+
           user = User.find_by_slack_mention!(client.owner, mention) if mention
         end
         case expression

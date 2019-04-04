@@ -1,7 +1,4 @@
 class Team
-  # non-bot access token
-  field :access_token, type: String
-
   # enable API for this team
   field :api, type: Boolean, default: false
   field :api_token, type: String
@@ -29,9 +26,6 @@ class Team
   field :subscribed, type: Boolean, default: false
   field :subscribed_at, type: DateTime
 
-  field :bot_user_id, type: String
-  field :activated_user_id, type: String
-
   scope :api, -> { where(api: true) }
 
   has_many :users, dependent: :destroy
@@ -48,6 +42,13 @@ class Team
   before_validation :validate_sup_size
   before_validation :validate_sup_recency
 
+  def tags
+    [
+      subscribed? ? 'subscribed' : 'trial',
+      stripe_customer_id? ? 'paid' : nil
+    ].compact
+  end
+
   def bot_name
     client = server.send(:client) if server
     name = client.self.name if client&.self
@@ -57,7 +58,8 @@ class Team
 
   def api_url
     return unless api?
-    "#{SlackSup::Service.api_url}/teams/#{id}"
+
+    "#{SlackRubyBotServer::Service.api_url}/teams/#{id}"
   end
 
   def short_lived_token
@@ -66,6 +68,7 @@ class Team
 
   def short_lived_token_valid?(short_lived_token, dt = 30.minutes)
     return false unless short_lived_token
+
     data, = JWT.decode(short_lived_token, token)
     Time.at(data['dt']).utc + dt >= Time.now.utc
   end
@@ -76,6 +79,7 @@ class Team
 
   def asleep?(dt = 3.weeks)
     return false unless subscription_expired?
+
     time_limit = Time.now.utc - dt
     created_at <= time_limit
   end
@@ -88,6 +92,7 @@ class Team
   def ask!
     round = last_round
     return unless round&.ask?
+
     round.ask!
     round
   end
@@ -95,6 +100,7 @@ class Team
   def remind!
     round = last_round
     return unless round&.remind?
+
     round.remind!
     round
   end
@@ -139,6 +145,7 @@ class Team
     return false unless now_in_tz.wday == sup_wday
     # sup after 9am by default
     return false if now_in_tz < now_in_tz.beginning_of_day + sup_time_of_day
+
     # don't sup more than once a week
     time_limit = Time.now.utc - sup_every_n_weeks.weeks
     (last_round_at || time_limit) <= time_limit
@@ -155,6 +162,7 @@ class Team
 
   def subscription_expired?
     return false if subscribed?
+
     (created_at + 2.weeks) < Time.now
   end
 
@@ -163,7 +171,7 @@ class Team
   end
 
   def update_cc_text
-    "Update your credit card info at #{SlackSup::Service.url}/update_cc?team_id=#{team_id}."
+    "Update your credit card info at #{SlackRubyBotServer::Service.url}/update_cc?team_id=#{team_id}."
   end
 
   # synchronize users with slack
@@ -194,6 +202,7 @@ class Team
     end
     (users - humans).each do |dead_user|
       next unless dead_user.enabled?
+
       logger.info "Team #{self}: #{dead_user} was disabled."
       dead_user.enabled = false
       dead_user.save!
@@ -221,7 +230,8 @@ class Team
 
   def validate_team_field_label
     return unless team_field_label && team_field_label_changed?
-    client = Slack::Web::Client.new(token: access_token)
+
+    client = Slack::Web::Client.new(token: activated_user_access_token)
     profile_fields = client.team_profile_get.profile.fields
     label = profile_fields.detect { |field| field.label.casecmp(team_field_label.downcase).zero? }
     if label
@@ -238,31 +248,36 @@ class Team
 
   def validate_sup_time_of_day
     return if sup_time_of_day && sup_time_of_day > 0 && sup_time_of_day < 24 * 60 * 60
+
     errors.add(:sup_time_of_day, "S'Up time of day _#{sup_time_of_day}_ is invalid.")
   end
 
   def validate_sup_every_n_weeks
     return if sup_every_n_weeks >= 1
+
     errors.add(:sup_every_n_weeks, "S'Up every _#{sup_every_n_weeks}_ is invalid, must be at least 1.")
   end
 
   def validate_sup_recency
     return if sup_recency >= 1
+
     errors.add(:sup_recency, "Don't S'Up with the same people more than every _#{sup_recency_s}_ is invalid, must be at least 1.")
   end
 
   def validate_sup_size
     return if sup_size >= 2
+
     errors.add(:sup_size, "S'Up for _#{sup_size}_ is invalid, requires at least 2 people to meet.")
   end
 
   def trial_expired_text
     return unless subscription_expired?
+
     "Your S'Up bot trial subscription has expired."
   end
 
   def subscribe_team_text
-    "Subscribe your team for $39.99 a year at #{SlackSup::Service.url}/subscribe?team_id=#{team_id}."
+    "Subscribe your team for $39.99 a year at #{SlackRubyBotServer::Service.url}/subscribe?team_id=#{team_id}."
   end
 
   INSTALLED_TEXT =
@@ -278,55 +293,12 @@ class Team
 
   def subscribed!
     return unless subscribed? && subscribed_changed?
+
     inform! SUBSCRIBED_TEXT
-    signup_to_mailing_list!
   end
 
   def activated!
     return unless active? && activated_user_id && bot_user_id
     return unless active_changed? || activated_user_id_changed?
-    signup_to_mailing_list!
-  end
-
-  # mailing list management
-
-  def mailchimp_client
-    return unless ENV.key?('MAILCHIMP_API_KEY')
-    @mailchimp_client ||= Mailchimp.connect(ENV['MAILCHIMP_API_KEY'])
-  end
-
-  def mailchimp_list
-    return unless mailchimp_client
-    rerurn unless ENV.key?('MAILCHIMP_LIST_ID')
-    @mailchimp_list ||= mailchimp_client.lists(ENV['MAILCHIMP_LIST_ID'])
-  end
-
-  def signup_to_mailing_list!
-    return unless activated_user_id
-    profile ||= Hashie::Mash.new(slack_client.users_info(user: activated_user_id)).user.profile
-    return unless profile
-    return unless mailchimp_list
-    tags = ['supbot', subscribed? ? 'subscribed' : 'trial', stripe_customer_id? ? 'paid' : nil].compact
-    member = mailchimp_list.members.where(email_address: profile.email).first
-    if member
-      member_tags = member.tags.map { |tag| tag['name'] }.sort
-      tags = (member_tags + tags).uniq
-      return if tags == member_tags
-    end
-    mailchimp_list.members.create_or_update(
-      name: profile.name,
-      email_address: profile.email,
-      unique_email_id: "#{team_id}-#{activated_user_id}",
-      status: member ? member.status : 'pending',
-      tags: tags,
-      merge_fields: {
-        'FNAME' => profile.first_name.to_s,
-        'LNAME' => profile.last_name.to_s,
-        'BOT' => 'Sup'
-      }
-    )
-    logger.info "Subscribed #{profile.email} to #{ENV['MAILCHIMP_LIST_ID']}, #{self}."
-  rescue StandardError => e
-    logger.error "Error subscribing #{self} to #{ENV['MAILCHIMP_LIST_ID']}: #{e.message}, #{e.errors}"
   end
 end

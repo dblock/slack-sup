@@ -17,7 +17,7 @@ describe SlackSup::Commands::Subscription, vcr: { cassette_name: 'user_info' } d
       let!(:team) { Fabricate(:team, subscribed: true, stripe_customer_id: nil) }
       it 'errors' do
         expect(message: "#{SlackRubyBot.config.user} subscription", user: 'user').to respond_with_slack_message(
-          "Not a subscriber. Subscribe your team for $39.99 a year at #{SlackSup::Service.url}/subscribe?team_id=#{team.team_id}."
+          "Not a subscriber. Subscribe your team for $39.99 a year at #{SlackRubyBotServer::Service.url}/subscribe?team_id=#{team.team_id}."
         )
       end
     end

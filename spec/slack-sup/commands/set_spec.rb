@@ -33,7 +33,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       it 'enables API' do
         team.update_attributes!(api: false)
         expect(message: "#{SlackRubyBot.config.user} set api on").to respond_with_slack_message(
-          "Team data access via the API is now on.\n#{SlackSup::Service.api_url}/teams/#{team.id}"
+          "Team data access via the API is now on.\n#{SlackRubyBotServer::Service.api_url}/teams/#{team.id}"
         )
         expect(team.reload.api).to be true
       end

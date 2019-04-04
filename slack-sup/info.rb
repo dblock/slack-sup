@@ -5,7 +5,7 @@ module SlackSup
     © 2017 Daniel Doubrovkine & Contributors, MIT License
     https://twitter.com/dblockdotorg
 
-    Service at #{SlackSup::Service.url}
+    Service at #{SlackRubyBotServer::Service.url}
     Open-Source at https://github.com/dblock/slack-sup
   EOS
 end

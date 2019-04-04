@@ -42,7 +42,7 @@ module SlackSup
 
         More information at https://sup.playplay.io
         ```
-EOS
+      EOS
       def self.call(client, data, _match)
         client.say(channel: data.channel, text: [
           HELP,
