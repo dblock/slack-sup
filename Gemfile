@@ -18,6 +18,7 @@ gem 'slack-ruby-bot-server-mailchimp'
 gem 'slack-ruby-client'
 gem 'stripe', '~> 1.58.0'
 gem 'time_ago_in_words'
+gem 'unicorn'
 gem 'wannabe_bool'
 
 group :development, :test do
