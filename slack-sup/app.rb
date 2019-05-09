@@ -36,12 +36,10 @@ module SlackSup
 
     def invoke!(&_block)
       Team.active.each do |team|
-        begin
-          yield team
-        rescue StandardError => e
-          backtrace = e.backtrace.join("\n")
-          logger.warn "Error in cron for team #{team}, #{e.message}, #{backtrace}."
-        end
+        yield team
+      rescue StandardError => e
+        backtrace = e.backtrace.join("\n")
+        logger.warn "Error in cron for team #{team}, #{e.message}, #{backtrace}."
       end
     end
 
@@ -108,24 +106,22 @@ module SlackSup
 
     def check_subscribed_teams!
       Team.where(subscribed: true, :stripe_customer_id.ne => nil).each do |team|
-        begin
-          customer = Stripe::Customer.retrieve(team.stripe_customer_id)
-          customer.subscriptions.each do |subscription|
-            subscription_name = "#{subscription.plan.name} (#{ActiveSupport::NumberHelper.number_to_currency(subscription.plan.amount.to_f / 100)})"
-            logger.info "Checking #{team} subscription to #{subscription_name}, #{subscription.status}."
-            case subscription.status
-            when 'past_due'
-              logger.warn "Subscription for #{team} is #{subscription.status}, notifying."
-              team.inform! "Your subscription to #{subscription_name} is past due. #{team.update_cc_text}"
-            when 'canceled', 'unpaid'
-              logger.warn "Subscription for #{team} is #{subscription.status}, downgrading."
-              team.inform! "Your subscription to #{subscription.plan.name} (#{ActiveSupport::NumberHelper.number_to_currency(subscription.plan.amount.to_f / 100)}) was canceled and your team has been downgraded. Thank you for being a customer!"
-              team.update_attributes!(subscribed: false)
-            end
+        customer = Stripe::Customer.retrieve(team.stripe_customer_id)
+        customer.subscriptions.each do |subscription|
+          subscription_name = "#{subscription.plan.name} (#{ActiveSupport::NumberHelper.number_to_currency(subscription.plan.amount.to_f / 100)})"
+          logger.info "Checking #{team} subscription to #{subscription_name}, #{subscription.status}."
+          case subscription.status
+          when 'past_due'
+            logger.warn "Subscription for #{team} is #{subscription.status}, notifying."
+            team.inform! "Your subscription to #{subscription_name} is past due. #{team.update_cc_text}"
+          when 'canceled', 'unpaid'
+            logger.warn "Subscription for #{team} is #{subscription.status}, downgrading."
+            team.inform! "Your subscription to #{subscription.plan.name} (#{ActiveSupport::NumberHelper.number_to_currency(subscription.plan.amount.to_f / 100)}) was canceled and your team has been downgraded. Thank you for being a customer!"
+            team.update_attributes!(subscribed: false)
           end
-        rescue StandardError => e
-          logger.warn "Error informing team #{team}, #{e.message}."
         end
+      rescue StandardError => e
+        logger.warn "Error informing team #{team}, #{e.message}."
       end
     end
   end

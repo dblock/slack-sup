@@ -76,11 +76,9 @@ class Round
 
   def dm!
     sups.each do |sup|
-      begin
-        sup.sup!
-      rescue StandardError => e
-        logger.warn "Error DMing sup #{self} #{sup} #{e.message}."
-      end
+      sup.sup!
+    rescue StandardError => e
+      logger.warn "Error DMing sup #{self} #{sup} #{e.message}."
     end
   end
 
