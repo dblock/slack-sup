@@ -22,6 +22,6 @@ S'Up for Slack is made possible with the generous support of team [Artsy](https:
 
 ### Copyright & License
 
-Copyright [Daniel Doubrovkine](http://code.dblock.org), 2017
+Copyright [Daniel Doubrovkine, Vestris LLC](https://www.vestris.com), 2017-2019
 
 [MIT License](LICENSE)
