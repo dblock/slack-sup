@@ -26,7 +26,7 @@ describe SlackSup::Commands::Rounds do
       end
     end
     it 'reports counts' do
-      Timecop.travel(Time.now + 2.years)
+      Timecop.travel(Time.now + 731.days)
       expect(message: "#{SlackRubyBot.config.user} rounds 2").to respond_with_slack_message(
         "Team S'Up facilitated 2 rounds.\n" \
         "* in progress: 1 S'Up for 3 users with 0% positive outcomes from 0% outcomes reported.\n" \
