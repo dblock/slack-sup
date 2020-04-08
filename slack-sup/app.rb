@@ -1,7 +1,6 @@
 module SlackSup
   class App < SlackRubyBotServer::App
     def prepare!
-      migrate_access_token!
       super
       deactivate_asleep_teams!
     end
@@ -78,16 +77,6 @@ module SlackSup
         next unless team.subscription_expired?
 
         team.inform! team.subscribe_text
-      end
-    end
-
-    def migrate_access_token!
-      Team.where(:access_token.ne => nil).each do |team|
-        next if team.activated_user_access_token
-
-        logger.info("Migrating #{team} access_token #{team[:access_token][0..10]} ...")
-        team.set(activated_user_access_token: team[:access_token])
-        team.unset(:access_token)
       end
     end
 
