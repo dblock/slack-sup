@@ -53,15 +53,19 @@ describe SlackSup::Commands::Opt do
         end
       end
       context 'another user' do
-        it 'requires an admin' do
-          expect(message: "#{SlackRubyBot.config.user} opt in #{user.slack_mention}").to respond_with_slack_message(
-            'Only a Slack team admin can opt users in and out, sorry.'
-          )
+        context 'as non admin' do
+          before do
+            allow_any_instance_of(User).to receive(:team_admin?).and_return(false)
+          end
+          it 'requires an admin' do
+            expect(message: "#{SlackRubyBot.config.user} opt in #{user.slack_mention}").to respond_with_slack_message(
+              "Sorry, only <@#{team.activated_user_id}> or a Slack team admin can opt users in and out."
+            )
+          end
         end
         context 'as admin' do
-          let(:admin) { Fabricate(:user, user_name: 'username', is_admin: true) }
           before do
-            expect(User).to receive(:find_create_or_update_by_slack_id!).and_return(admin)
+            allow_any_instance_of(User).to receive(:team_admin?).and_return(true)
           end
           it 'opts a user in' do
             user.update_attributes!(opted_in: false)

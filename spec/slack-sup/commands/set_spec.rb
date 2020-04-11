@@ -358,7 +358,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
     context 'api' do
       it 'cannot set api' do
         expect(message: "#{SlackRubyBot.config.user} set api true").to respond_with_slack_message(
-          'Team data access via the API is on. Only a Slack team admin can change that, sorry.'
+          "Team data access via the API is on. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry."
         )
       end
       it 'can see api value' do
@@ -375,20 +375,20 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       it 'rotate api token' do
         team.update_attributes!(api: true, api_token: 'old')
         expect(message: "#{SlackRubyBot.config.user} rotate api token").to respond_with_slack_message(
-          'Team data access via the API is on with an access token visible to admins. Only a Slack team admin can rotate it, sorry.'
+          "Team data access via the API is on with an access token visible to admins. Only <@#{team.activated_user_id}> or a Slack team admin can rotate it, sorry."
         )
         expect(team.reload.api_token).to eq 'old'
       end
       it 'unsets api token' do
         team.update_attributes!(api: true, api_token: 'old')
         expect(message: "#{SlackRubyBot.config.user} unset api token").to respond_with_slack_message(
-          'Team data access via the API is on with an access token visible to admins. Only a Slack team admin can unset it, sorry.'
+          "Team data access via the API is on with an access token visible to admins. Only <@#{team.activated_user_id}> or a Slack team admin can unset it, sorry."
         )
         expect(team.reload.api_token).to eq 'old'
       end
       it 'cannot set day' do
         expect(message: "#{SlackRubyBot.config.user} set day tuesday").to respond_with_slack_message(
-          "Team S'Up is on Monday. Only a Slack team admin can change that, sorry."
+          "Team S'Up is on Monday. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry."
         )
       end
       it 'can see sup day' do
@@ -398,7 +398,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       end
       it 'cannot set time' do
         expect(message: "#{SlackRubyBot.config.user} set time 11:00 AM").to respond_with_slack_message(
-          "Team S'Up is after 9:00 AM. Only a Slack team admin can change that, sorry."
+          "Team S'Up is after 9:00 AM. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry."
         )
       end
       it 'can see time' do
@@ -408,7 +408,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       end
       it 'cannot set weeks' do
         expect(message: "#{SlackRubyBot.config.user} set weeks 2").to respond_with_slack_message(
-          "Team S'Up is every week. Only a Slack team admin can change that, sorry."
+          "Team S'Up is every week. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry."
         )
       end
       it 'can see weeks' do
@@ -418,7 +418,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       end
       it 'cannot set followup day' do
         expect(message: "#{SlackRubyBot.config.user} set followup 2").to respond_with_slack_message(
-          "Team S'Up followup day is on Thursday. Only a Slack team admin can change that, sorry."
+          "Team S'Up followup day is on Thursday. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry."
         )
       end
       it 'can see followup day' do
@@ -428,7 +428,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       end
       it 'cannot set recency' do
         expect(message: "#{SlackRubyBot.config.user} set recency 2").to respond_with_slack_message(
-          'Taking special care to not pair the same people more than every 12 weeks. Only a Slack team admin can change that, sorry.'
+          "Taking special care to not pair the same people more than every 12 weeks. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry."
         )
       end
       it 'can see recency' do
@@ -438,7 +438,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       end
       it 'cannot set size' do
         expect(message: "#{SlackRubyBot.config.user} set size 2").to respond_with_slack_message(
-          "Team S'Up connects groups of 3 people. Only a Slack team admin can change that, sorry."
+          "Team S'Up connects groups of 3 people. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry."
         )
       end
       it 'can see size' do
@@ -448,7 +448,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       end
       it 'cannot set timezone' do
         expect(message: "#{SlackRubyBot.config.user} set tz Hawaii").to respond_with_slack_message(
-          "Team S'Up timezone is #{ActiveSupport::TimeZone.new('Eastern Time (US & Canada)')}. Only a Slack team admin can change that, sorry."
+          "Team S'Up timezone is #{ActiveSupport::TimeZone.new('Eastern Time (US & Canada)')}. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry."
         )
       end
       it 'can see timezone' do
@@ -458,7 +458,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       end
       it 'cannot set custom profile team field' do
         expect(message: "#{SlackRubyBot.config.user} set team field Artsy Team").to respond_with_slack_message(
-          'Custom profile team field is _not set_. Only a Slack team admin can change that, sorry.'
+          "Custom profile team field is _not set_. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry."
         )
       end
       it 'can see custom profile team field' do
@@ -468,7 +468,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       end
       it 'cannot set message' do
         expect(message: "#{SlackRubyBot.config.user} set message Custom message.").to respond_with_slack_message(
-          "Using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_ Only a Slack team admin can change that, sorry."
+          "Using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_ Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry."
         )
       end
       it 'can see custom sup message' do

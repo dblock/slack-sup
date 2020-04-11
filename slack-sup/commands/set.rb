@@ -5,7 +5,7 @@ module SlackSup
 
       class << self
         def set_api(client, team, data, user, v = nil)
-          if user.is_admin? && v
+          if user.team_admin? && v
             team.update_attributes!(api: v.to_b)
             message = [
               team_data_access_message(user, true),
@@ -15,7 +15,7 @@ module SlackSup
           elsif v
             message = [
               team_data_access_message(user),
-              'Only a Slack team admin can change that, sorry.'
+              "Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry."
             ].join(' ')
             client.say(channel: data.channel, text: message)
           else
@@ -31,14 +31,14 @@ module SlackSup
         def set_api_token(client, team, data, user)
           if !team.api?
             set_api(client, team, data, user)
-          elsif user.is_admin? && !team.api_token
+          elsif user.team_admin? && !team.api_token
             team.update_attributes!(api_token: SecureRandom.hex)
             message = [
               team_data_access_message(user, false, true),
               team.api_url
             ].compact.join("\n")
             client.say(channel: data.channel, text: message)
-          elsif user.is_admin? && team.api_token
+          elsif user.team_admin? && team.api_token
             message = [
               team_data_access_message(user),
               team.api_url
@@ -47,7 +47,7 @@ module SlackSup
           elsif !team.api_token
             message = [
               team_data_access_message(user),
-              'Only a Slack team admin can change that, sorry.'
+              "Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry."
             ].join(' ')
             client.say(channel: data.channel, text: message)
           else
@@ -63,14 +63,14 @@ module SlackSup
         def unset_api_token(client, team, data, user)
           if !team.api?
             set_api(client, team, data, user)
-          elsif user.is_admin? && team.api_token
+          elsif user.team_admin? && team.api_token
             team.update_attributes!(api_token: nil)
             message = [
               team_data_access_message(user, true),
               team.api_url
             ].compact.join("\n")
             client.say(channel: data.channel, text: message)
-          elsif user.is_admin? && !team.api_token
+          elsif user.team_admin? && !team.api_token
             message = [
               team_data_access_message(user),
               team.api_url
@@ -79,7 +79,7 @@ module SlackSup
           else
             message = [
               team_data_access_message(user),
-              'Only a Slack team admin can unset it, sorry.'
+              "Only <@#{team.activated_user_id}> or a Slack team admin can unset it, sorry."
             ].join(' ')
             client.say(channel: data.channel, text: message)
           end
@@ -89,7 +89,7 @@ module SlackSup
         def rotate_api_token(client, team, data, user)
           if !team.api?
             set_api(client, team, data, user)
-          elsif user.is_admin?
+          elsif user.team_admin?
             team.update_attributes!(api_token: SecureRandom.hex)
             message = [
               team_data_access_message(user, false, true),
@@ -99,7 +99,7 @@ module SlackSup
           else
             message = [
               team_data_access_message(user),
-              'Only a Slack team admin can rotate it, sorry.'
+              "Only <@#{team.activated_user_id}> or a Slack team admin can rotate it, sorry."
             ].join(' ')
             client.say(channel: data.channel, text: message)
           end
@@ -107,11 +107,11 @@ module SlackSup
         end
 
         def set_day(client, team, data, user, v = nil)
-          if user.is_admin? && v
+          if user.team_admin? && v
             team.update_attributes(sup_wday: Date.parse(v).wday)
             client.say(channel: data.channel, text: "Team S'Up is now on #{team.sup_day}.")
           elsif v
-            client.say(channel: data.channel, text: "Team S'Up is on #{team.sup_day}. Only a Slack team admin can change that, sorry.")
+            client.say(channel: data.channel, text: "Team S'Up is on #{team.sup_day}. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry.")
           else
             client.say(channel: data.channel, text: "Team S'Up is on #{team.sup_day}.")
           end
@@ -121,11 +121,11 @@ module SlackSup
         end
 
         def set_time(client, team, data, user, v = nil)
-          if user.is_admin? && v
+          if user.team_admin? && v
             team.update_attributes!(sup_time_of_day: DateTime.parse(v).seconds_since_midnight)
             client.say(channel: data.channel, text: "Team S'Up is now after #{team.sup_time_of_day_s}.")
           elsif v
-            client.say(channel: data.channel, text: "Team S'Up is after #{team.sup_time_of_day_s}. Only a Slack team admin can change that, sorry.")
+            client.say(channel: data.channel, text: "Team S'Up is after #{team.sup_time_of_day_s}. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry.")
           else
             client.say(channel: data.channel, text: "Team S'Up is after #{team.sup_time_of_day_s}.")
           end
@@ -135,11 +135,11 @@ module SlackSup
         end
 
         def set_followup_day(client, team, data, user, v = nil)
-          if user.is_admin? && v
+          if user.team_admin? && v
             team.update_attributes(sup_followup_wday: Date.parse(v).wday)
             client.say(channel: data.channel, text: "Team S'Up followup day is now on #{team.sup_followup_day}.")
           elsif v
-            client.say(channel: data.channel, text: "Team S'Up followup day is on #{team.sup_followup_day}. Only a Slack team admin can change that, sorry.")
+            client.say(channel: data.channel, text: "Team S'Up followup day is on #{team.sup_followup_day}. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry.")
           else
             client.say(channel: data.channel, text: "Team S'Up followup day is on #{team.sup_followup_day}.")
           end
@@ -149,11 +149,11 @@ module SlackSup
         end
 
         def set_weeks(client, team, data, user, v = nil)
-          if user.is_admin? && v
+          if user.team_admin? && v
             team.update_attributes!(sup_every_n_weeks: v.to_i)
             client.say(channel: data.channel, text: "Team S'Up is now every #{team.sup_every_n_weeks_s}.")
           elsif v
-            client.say(channel: data.channel, text: "Team S'Up is every #{team.sup_every_n_weeks_s}. Only a Slack team admin can change that, sorry.")
+            client.say(channel: data.channel, text: "Team S'Up is every #{team.sup_every_n_weeks_s}. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry.")
           else
             client.say(channel: data.channel, text: "Team S'Up is every #{team.sup_every_n_weeks_s}.")
           end
@@ -163,11 +163,11 @@ module SlackSup
         end
 
         def set_size(client, team, data, user, v = nil)
-          if user.is_admin? && v
+          if user.team_admin? && v
             team.update_attributes!(sup_size: v.to_i)
             client.say(channel: data.channel, text: "Team S'Up now connects groups of #{team.sup_size} people.")
           elsif v
-            client.say(channel: data.channel, text: "Team S'Up connects groups of #{team.sup_size} people. Only a Slack team admin can change that, sorry.")
+            client.say(channel: data.channel, text: "Team S'Up connects groups of #{team.sup_size} people. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry.")
           else
             client.say(channel: data.channel, text: "Team S'Up connects groups of #{team.sup_size} people.")
           end
@@ -177,14 +177,14 @@ module SlackSup
         end
 
         def set_timezone(client, team, data, user, v = nil)
-          if user.is_admin? && v
+          if user.team_admin? && v
             timezone = ActiveSupport::TimeZone.new(v)
             raise SlackSup::Error, "TimeZone _#{v}_ is invalid, see https://github.com/rails/rails/blob/5.1.3/activesupport/lib/active_support/values/time_zone.rb#L30 for a list. Team S'Up timezone is currently #{team.sup_tzone}." unless timezone
 
             team.update_attributes!(sup_tz: timezone.name)
             client.say(channel: data.channel, text: "Team S'Up timezone is now #{team.sup_tzone}.")
           elsif v
-            client.say(channel: data.channel, text: "Team S'Up timezone is #{team.sup_tzone}. Only a Slack team admin can change that, sorry.")
+            client.say(channel: data.channel, text: "Team S'Up timezone is #{team.sup_tzone}. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry.")
           else
             client.say(channel: data.channel, text: "Team S'Up timezone is #{team.sup_tzone}.")
           end
@@ -192,11 +192,11 @@ module SlackSup
         end
 
         def set_custom_profile_team_field(client, team, data, user, v = nil)
-          if user.is_admin? && v
+          if user.team_admin? && v
             team.update_attributes!(team_field_label: v)
             client.say(channel: data.channel, text: "Custom profile team field is now _#{team.team_field_label}_.")
           elsif v
-            client.say(channel: data.channel, text: "Custom profile team field is _#{team.team_field_label || 'not set'}_. Only a Slack team admin can change that, sorry.")
+            client.say(channel: data.channel, text: "Custom profile team field is _#{team.team_field_label || 'not set'}_. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry.")
           else
             client.say(channel: data.channel, text: "Custom profile team field is _#{team.team_field_label || 'not set'}_.")
           end
@@ -204,23 +204,23 @@ module SlackSup
         end
 
         def unset_custom_profile_team_field(client, team, data, user)
-          if user.is_admin?
+          if user.team_admin?
             team.update_attributes!(team_field_label: nil)
             client.say(channel: data.channel, text: 'Custom profile team field is now _not set_.')
           else
-            client.say(channel: data.channel, text: "Custom profile team field is _#{team.team_field_label || 'not set'}_. Only a Slack team admin can change that, sorry.")
+            client.say(channel: data.channel, text: "Custom profile team field is _#{team.team_field_label || 'not set'}_. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry.")
           end
           logger.info "UNSET: #{team}, user=#{user.user_name}, team_field_label=#{team.team_field_label || '(not set)'}."
         end
 
         def set_message(client, team, data, user, v = nil)
-          if user.is_admin? && v
+          if user.team_admin? && v
             team.update_attributes!(sup_message: v.to_s)
             client.say(channel: data.channel, text: "Now using a custom S'Up message. _#{team.sup_message}_")
           elsif v && team.sup_message
-            client.say(channel: data.channel, text: "Using a custom S'Up message. _#{team.sup_message}_ Only a Slack team admin can change that, sorry.")
+            client.say(channel: data.channel, text: "Using a custom S'Up message. _#{team.sup_message}_ Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry.")
           elsif v && !team.sup_message
-            client.say(channel: data.channel, text: "Using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_ Only a Slack team admin can change that, sorry.")
+            client.say(channel: data.channel, text: "Using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_ Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry.")
           elsif team.sup_message
             client.say(channel: data.channel, text: "Using a custom S'Up message. _#{team.sup_message}_")
           else
@@ -230,23 +230,23 @@ module SlackSup
         end
 
         def unset_message(client, team, data, user)
-          if user.is_admin?
+          if user.team_admin?
             team.update_attributes!(sup_message: nil)
             client.say(channel: data.channel, text: "Now using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_")
           elsif team.sup_message
-            client.say(channel: data.channel, text: "Using a custom S'Up message. _#{team.sup_message}_ Only a Slack team admin can change that, sorry.")
+            client.say(channel: data.channel, text: "Using a custom S'Up message. _#{team.sup_message}_ Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry.")
           else
-            client.say(channel: data.channel, text: "Using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_ Only a Slack team admin can change that, sorry.")
+            client.say(channel: data.channel, text: "Using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_ Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry.")
           end
           logger.info "UNSET: #{team}, user=#{user.user_name}, sup_message=#{team.sup_message || '(not set)'}."
         end
 
         def set_recency(client, team, data, user, v = nil)
-          if user.is_admin? && v
+          if user.team_admin? && v
             team.update_attributes!(sup_recency: v.to_i)
             client.say(channel: data.channel, text: "Now taking special care to not pair the same people more than every #{team.sup_recency_s}.")
           elsif v
-            client.say(channel: data.channel, text: "Taking special care to not pair the same people more than every #{team.sup_recency_s}. Only a Slack team admin can change that, sorry.")
+            client.say(channel: data.channel, text: "Taking special care to not pair the same people more than every #{team.sup_recency_s}. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry.")
           else
             client.say(channel: data.channel, text: "Taking special care to not pair the same people more than every #{team.sup_recency_s}.")
           end
@@ -314,9 +314,9 @@ module SlackSup
         end
 
         def team_data_access_message(user, updated_api = false, updated_token = false)
-          if user.team.api? && user.is_admin? && user.team.api_token
+          if user.team.api? && user.team_admin? && user.team.api_token
             "Team data access via the API is #{updated_api ? 'now ' : nil}on with a#{updated_token ? ' new' : 'n'} access token `#{user.team.api_token}`."
-          elsif user.team.api? && !user.is_admin? && user.team.api_token
+          elsif user.team.api? && !user.team_admin? && user.team.api_token
             "Team data access via the API is #{updated_api ? 'now ' : nil}on with a#{updated_token ? ' new' : 'n'} access token visible to admins."
           else
             "Team data access via the API is #{updated_api ? 'now ' : nil}#{user.team.api_s}."

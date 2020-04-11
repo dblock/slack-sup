@@ -166,10 +166,6 @@ class Team
     (created_at + 2.weeks) < Time.now
   end
 
-  def subscribe_text
-    [trial_expired_text, subscribe_team_text].compact.join(' ')
-  end
-
   def update_cc_text
     "Update your credit card info at #{SlackRubyBotServer::Service.url}/update_cc?team_id=#{team_id}."
   end
@@ -211,6 +207,81 @@ class Team
 
   def slack_client
     @client ||= Slack::Web::Client.new(token: token)
+  end
+
+  def stripe_customer
+    return unless stripe_customer_id
+
+    @stripe_customer ||= Stripe::Customer.retrieve(stripe_customer_id)
+  end
+
+  def active_stripe_subscription?
+    !active_stripe_subscription.nil?
+  end
+
+  def active_stripe_subscription
+    return unless stripe_customer
+
+    stripe_customer.subscriptions.detect do |subscription|
+      subscription.status == 'active' && !subscription.cancel_at_period_end
+    end
+  end
+
+  def stripe_customer_text
+    "Customer since #{Time.at(stripe_customer.created).strftime('%B %d, %Y')}."
+  end
+
+  def subscriber_text
+    return unless subscribed_at
+
+    "Subscriber since #{subscribed_at.strftime('%B %d, %Y')}."
+  end
+
+  def stripe_customer_subscriptions_info(with_unsubscribe = false)
+    stripe_customer.subscriptions.map do |subscription|
+      amount = ActiveSupport::NumberHelper.number_to_currency(subscription.plan.amount.to_f / 100)
+      current_period_end = Time.at(subscription.current_period_end).strftime('%B %d, %Y')
+      [
+        "Subscribed to #{subscription.plan.name} (#{amount}), will#{subscription.cancel_at_period_end ? ' not' : ''} auto-renew on #{current_period_end}.",
+        !subscription.cancel_at_period_end && with_unsubscribe ? "Send `unsubscribe #{subscription.id}` to unsubscribe." : nil
+      ].compact.join("\n")
+    end
+  end
+
+  def stripe_customer_invoices_info
+    stripe_customer.invoices.map do |invoice|
+      amount = ActiveSupport::NumberHelper.number_to_currency(invoice.amount_due.to_f / 100)
+      "Invoice for #{amount} on #{Time.at(invoice.date).strftime('%B %d, %Y')}, #{invoice.paid ? 'paid' : 'unpaid'}."
+    end
+  end
+
+  def stripe_customer_sources_info
+    stripe_customer.sources.map do |source|
+      "On file #{source.brand} #{source.object}, #{source.name} ending with #{source.last4}, expires #{source.exp_month}/#{source.exp_year}."
+    end
+  end
+
+  def trial_ends_at
+    raise 'Team is subscribed.' if subscribed?
+
+    created_at + 2.weeks
+  end
+
+  def remaining_trial_days
+    raise 'Team is subscribed.' if subscribed?
+
+    [0, (trial_ends_at.to_date - Time.now.utc.to_date).to_i].max
+  end
+
+  def trial_message
+    [
+      remaining_trial_days.zero? ? 'Your trial subscription has expired.' : "Your trial subscription expires in #{remaining_trial_days} day#{remaining_trial_days == 1 ? '' : 's'}.",
+      subscribe_text
+    ].join(' ')
+  end
+
+  def subscribe_text
+    "Subscribe your team for $39.99 a year at #{SlackRubyBotServer::Service.url}/subscribe?team_id=#{team_id}."
   end
 
   private
@@ -268,16 +339,6 @@ class Team
     return if sup_size >= 2
 
     errors.add(:sup_size, "S'Up for _#{sup_size}_ is invalid, requires at least 2 people to meet.")
-  end
-
-  def trial_expired_text
-    return unless subscription_expired?
-
-    "Your S'Up bot trial subscription has expired."
-  end
-
-  def subscribe_team_text
-    "Subscribe your team for $39.99 a year at #{SlackRubyBotServer::Service.url}/subscribe?team_id=#{team_id}."
   end
 
   INSTALLED_TEXT =

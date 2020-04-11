@@ -7,7 +7,7 @@ module SlackSup
         user = ::User.find_create_or_update_by_slack_id!(client, data.user)
         expression, mention = match['expression'].split(/[\s]+/, 2) if match['expression']
         if mention
-          raise SlackSup::Error, 'Only a Slack team admin can opt users in and out, sorry.' unless user.is_admin?
+          raise SlackSup::Error, "Sorry, only <@#{user.team.activated_user_id}> or a Slack team admin can opt users in and out." unless user.team_admin?
 
           user = User.find_by_slack_mention!(client.owner, mention) if mention
         end

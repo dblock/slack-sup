@@ -6,7 +6,9 @@ describe SlackSup::Commands::Help do
   context 'subscribed team' do
     let!(:team) { Fabricate(:team, subscribed: true) }
     it 'help' do
-      expect(message: "#{SlackRubyBot.config.user} help").to respond_with_slack_message(SlackSup::Commands::Help::HELP)
+      expect(message: "#{SlackRubyBot.config.user} help").to respond_with_slack_message(
+        SlackSup::Commands::Help::HELP
+      )
     end
   end
   context 'non-subscribed team after trial' do
@@ -14,7 +16,7 @@ describe SlackSup::Commands::Help do
     it 'help' do
       expect(message: "#{SlackRubyBot.config.user} help").to respond_with_slack_message([
         SlackSup::Commands::Help::HELP,
-        [team.send(:trial_expired_text), team.send(:subscribe_team_text)].join(' ')
+        team.trial_message
       ].join("\n"))
     end
   end
@@ -23,7 +25,7 @@ describe SlackSup::Commands::Help do
     it 'help' do
       expect(message: "#{SlackRubyBot.config.user} help").to respond_with_slack_message([
         SlackSup::Commands::Help::HELP,
-        team.send(:subscribe_team_text)
+        team.trial_message
       ].join("\n"))
     end
   end

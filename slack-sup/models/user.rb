@@ -6,6 +6,7 @@ class User
   field :user_name, type: String
   field :email, type: String
   field :custom_team_name, type: String
+  field :is_owner, type: Boolean, default: false
   field :is_admin, type: Boolean, default: false
   field :real_name, type: String
 
@@ -26,6 +27,14 @@ class User
 
   index({ user_id: 1, team_id: 1 }, unique: true)
   index(user_name: 1, team_id: 1)
+
+  def activated_user?
+    team.activated_user_id && team.activated_user_id == user_id
+  end
+
+  def team_admin?
+    activated_user? || is_admin? || is_owner?
+  end
 
   def slack_mention
     "<@#{user_id}>"
@@ -54,6 +63,7 @@ class User
     instance = User.where(team: client.owner, user_id: slack_id).first
     instance_info = Hashie::Mash.new(client.web_client.users_info(user: slack_id)).user
     instance.update_attributes!(is_admin: instance_info.is_admin) if instance && instance.is_admin != instance_info.is_admin
+    instance.update_attributes!(is_owner: instance_info.is_owner) if instance && instance.is_owner != instance_info.is_owner
     instance.update_attributes!(user_name: instance_info.name) if instance && instance.user_name != instance_info.name
     instance ||= User.create!(team: client.owner, user_id: slack_id, user_name: instance_info.name)
     instance

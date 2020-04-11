@@ -39,6 +39,7 @@ module SlackSup
         unset message              - reset the message users see when creating a S'Up DM to the default one
         opt [in|out] [@mention]    - opt a user in/out of S'Up by @mention
         subscription               - show team subscription info
+        unsubscribe                - cancel auto-renew, unsubscribe
 
         More information at https://sup.playplay.io
         ```
@@ -46,7 +47,7 @@ module SlackSup
       def self.call(client, data, _match)
         client.say(channel: data.channel, text: [
           HELP,
-          client.owner.reload.subscribed? ? nil : client.owner.subscribe_text
+          client.owner.reload.subscribed? ? nil : client.owner.trial_message
         ].compact.join("\n"))
         logger.info "HELP: #{client.owner}, user=#{data.user}"
       end
