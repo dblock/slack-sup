@@ -102,7 +102,7 @@ module SlackSup
           case subscription.status
           when 'past_due'
             logger.warn "Subscription for #{team} is #{subscription.status}, notifying."
-            team.inform! "Your subscription to #{subscription_name} is past due. #{team.update_cc_text}"
+            team.inform! "Your subscription to #{subscription_name} is past due. #{team.send(:update_cc_text)}"
           when 'canceled', 'unpaid'
             logger.warn "Subscription for #{team} is #{subscription.status}, downgrading."
             team.inform! "Your subscription to #{subscription.plan.name} (#{ActiveSupport::NumberHelper.number_to_currency(subscription.plan.amount.to_f / 100)}) was canceled and your team has been downgraded. Thank you for being a customer!"

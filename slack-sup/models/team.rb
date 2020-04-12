@@ -22,17 +22,12 @@ class Team
   field :team_field_label, type: String
   field :team_field_label_id, type: String
 
-  field :stripe_customer_id, type: String
-  field :subscribed, type: Boolean, default: false
-  field :subscribed_at, type: DateTime
-
   scope :api, -> { where(api: true) }
 
   has_many :users, dependent: :destroy
   has_many :rounds, dependent: :destroy
   has_many :sups, dependent: :destroy
 
-  after_update :subscribed!
   after_save :activated!
 
   before_validation :validate_team_field_label
@@ -41,13 +36,6 @@ class Team
   before_validation :validate_sup_every_n_weeks
   before_validation :validate_sup_size
   before_validation :validate_sup_recency
-
-  def tags
-    [
-      subscribed? ? 'subscribed' : 'trial',
-      stripe_customer_id? ? 'paid' : nil
-    ].compact
-  end
 
   def bot_name
     client = server.send(:client) if server
@@ -160,16 +148,6 @@ class Team
     end
   end
 
-  def subscription_expired?
-    return false if subscribed?
-
-    (created_at + 2.weeks) < Time.now
-  end
-
-  def update_cc_text
-    "Update your credit card info at #{SlackRubyBotServer::Service.url}/update_cc?team_id=#{team_id}."
-  end
-
   # synchronize users with slack
   def sync!
     members = slack_client.paginate(:users_list, presence: false).map(&:members).flatten
@@ -207,77 +185,6 @@ class Team
 
   def slack_client
     @client ||= Slack::Web::Client.new(token: token)
-  end
-
-  def stripe_customer
-    return unless stripe_customer_id
-
-    @stripe_customer ||= Stripe::Customer.retrieve(stripe_customer_id)
-  end
-
-  def active_stripe_subscription?
-    !active_stripe_subscription.nil?
-  end
-
-  def active_stripe_subscription
-    return unless stripe_customer
-
-    stripe_customer.subscriptions.detect do |subscription|
-      subscription.status == 'active' && !subscription.cancel_at_period_end
-    end
-  end
-
-  def stripe_customer_text
-    "Customer since #{Time.at(stripe_customer.created).strftime('%B %d, %Y')}."
-  end
-
-  def subscriber_text
-    return unless subscribed_at
-
-    "Subscriber since #{subscribed_at.strftime('%B %d, %Y')}."
-  end
-
-  def stripe_customer_subscriptions_info(with_unsubscribe = false)
-    stripe_customer.subscriptions.map do |subscription|
-      amount = ActiveSupport::NumberHelper.number_to_currency(subscription.plan.amount.to_f / 100)
-      current_period_end = Time.at(subscription.current_period_end).strftime('%B %d, %Y')
-      [
-        "Subscribed to #{subscription.plan.name} (#{amount}), will#{subscription.cancel_at_period_end ? ' not' : ''} auto-renew on #{current_period_end}.",
-        !subscription.cancel_at_period_end && with_unsubscribe ? "Send `unsubscribe #{subscription.id}` to unsubscribe." : nil
-      ].compact.join("\n")
-    end
-  end
-
-  def stripe_customer_invoices_info
-    stripe_customer.invoices.map do |invoice|
-      amount = ActiveSupport::NumberHelper.number_to_currency(invoice.amount_due.to_f / 100)
-      "Invoice for #{amount} on #{Time.at(invoice.date).strftime('%B %d, %Y')}, #{invoice.paid ? 'paid' : 'unpaid'}."
-    end
-  end
-
-  def stripe_customer_sources_info
-    stripe_customer.sources.map do |source|
-      "On file #{source.brand} #{source.object}, #{source.name} ending with #{source.last4}, expires #{source.exp_month}/#{source.exp_year}."
-    end
-  end
-
-  def trial_ends_at
-    raise 'Team is subscribed.' if subscribed?
-
-    created_at + 2.weeks
-  end
-
-  def remaining_trial_days
-    raise 'Team is subscribed.' if subscribed?
-
-    [0, (trial_ends_at.to_date - Time.now.utc.to_date).to_i].max
-  end
-
-  def trial_message
-    [
-      remaining_trial_days.zero? ? 'Your trial subscription has expired.' : "Your trial subscription expires in #{remaining_trial_days} day#{remaining_trial_days == 1 ? '' : 's'}.",
-      subscribe_text
-    ].join(' ')
   end
 
   def subscribe_text
@@ -352,10 +259,12 @@ class Team
     'Follow us on Twitter at https://twitter.com/playplayio for news and updates. ' \
     'Thanks for being a customer!'.freeze
 
-  def subscribed!
-    return unless subscribed? && subscribed_changed?
+  def subscribed_text
+    SUBSCRIBED_TEXT
+  end
 
-    inform! SUBSCRIBED_TEXT
+  def inform_everyone!(message)
+    inform!(message)
   end
 
   def activated!

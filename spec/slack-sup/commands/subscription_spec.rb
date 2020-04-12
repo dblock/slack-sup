@@ -20,19 +20,26 @@ describe SlackSup::Commands::Subscription do
         before do
           team.update_attributes!(subscribed: true, stripe_customer_id: customer['id'])
         end
-        let(:active_subscription) { team.active_stripe_subscription }
+        let(:active_subscription) { team.send(:active_stripe_subscription) }
         let(:current_period_end) { Time.at(active_subscription.current_period_end).strftime('%B %d, %Y') }
         it 'displays subscription info' do
           customer_info = "Customer since #{Time.at(customer.created).strftime('%B %d, %Y')}."
           customer_info += "\nSubscribed to StripeMock Default Plan ID ($39.99), will auto-renew on #{current_period_end}."
           card = customer.sources.first
           customer_info += "\nOn file Visa card, #{card.name} ending with #{card.last4}, expires #{card.exp_month}/#{card.exp_year}."
-          customer_info += "\n#{team.update_cc_text}"
+          customer_info += "\n#{team.send(:update_cc_text)}"
           expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message customer_info
         end
-        it 'requires an admin user' do
-          allow_any_instance_of(User).to receive(:team_admin?).and_return(false)
-          expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message "Only <@#{team.activated_user_id}> or a Slack team admin can get subscription details, sorry."
+        context 'not admin' do
+          before do
+            allow_any_instance_of(User).to receive(:team_admin?).and_return(false)
+          end
+          it 'does not return cc info' do
+            expect(message: "#{SlackRubyBot.config.user} subscription").to_not respond_with_slack_message(/Visa/)
+          end
+          it 'returns subscription info' do
+            expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message(/Customer since/)
+          end
         end
       end
     end
@@ -59,7 +66,7 @@ describe SlackSup::Commands::Subscription do
         end
         it 'reports subscribed' do
           expect(message: "#{SlackRubyBot.config.user} subscription", user: 'user').to respond_with_slack_message(
-            'Team is subscribed.'
+            /Subscriber since/
           )
         end
       end

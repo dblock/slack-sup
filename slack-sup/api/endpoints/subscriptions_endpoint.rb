@@ -16,19 +16,8 @@ module Api
           Api::Middleware.logger.info "Creating a subscription for team #{team}."
           error!('Already Subscribed', 400) if team.subscribed?
           error!('Customer Already Registered', 400) if team.stripe_customer_id
-          customer = Stripe::Customer.create(
-            source: params[:stripe_token],
-            plan: 'slack-sup-yearly',
-            email: params[:stripe_email],
-            metadata: {
-              id: team._id,
-              team_id: team.team_id,
-              name: team.name,
-              domain: team.domain
-            }
-          )
+          customer = team.subscribe!(params)
           Api::Middleware.logger.info "Subscription for team #{team} created, stripe_customer_id=#{customer['id']}."
-          team.update_attributes!(subscribed: true, subscribed_at: Time.now.utc, stripe_customer_id: customer['id'])
           present team, with: Api::Presenters::TeamPresenter
         end
       end

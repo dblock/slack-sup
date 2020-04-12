@@ -14,14 +14,15 @@ module SlackSup
           subscription_id = match['expression']
           active_subscription = team.active_stripe_subscription
           if active_subscription && active_subscription.id == subscription_id
-            active_subscription.delete(at_period_end: true)
+            team.unsubscribe!
             amount = ActiveSupport::NumberHelper.number_to_currency(active_subscription.plan.amount.to_f / 100)
             subscription_info << "Successfully canceled auto-renew for #{active_subscription.plan.name} (#{amount})."
             logger.info "UNSUBSCRIBE: #{client.owner} - #{data.user}, canceled #{subscription_id}"
           elsif subscription_id
             subscription_info << "Sorry, I cannot find a subscription with \"#{subscription_id}\"."
           else
-            subscription_info.concat(team.stripe_customer_subscriptions_info(true))
+            subscription_info << team.send(:stripe_customer_subscriptions_info)
+            subscription_info << "Send `unsubscribe #{active_subscription.id}` to unsubscribe."
           end
           client.say(channel: data.channel, text: subscription_info.compact.join("\n"))
           logger.info "UNSUBSCRIBE: #{client.owner} - #{data.user}"
