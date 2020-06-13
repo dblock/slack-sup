@@ -18,7 +18,6 @@ describe Round do
         end.to change(Sup, :count).by(1)
         sup = Sup.first
         expect(sup.users).to eq([user1, user2, user3])
-        round = sup.round
       end
       it 'updates counts' do
         expect do
@@ -43,6 +42,24 @@ describe Round do
             team.sup!
           end.to change(Sup, :count).by(3)
           expect(Sup.all.all? { |sup| sup.users.count == 2 })
+        end
+      end
+      context 'with one extra user' do
+        let!(:user4) { Fabricate(:user, team: team) }
+        it 'adds the user to an existing sup' do
+          round = team.sup!
+          expect(round.sups.count).to eq 1
+          expect(round.sups.first.users.count).to eq 4
+        end
+        context 'with sup_odd set to false' do
+          before do
+            team.update_attributes!(sup_odd: false)
+          end
+          it 'does not add a user to the existing round' do
+            round = team.sup!
+            expect(round.sups.count).to eq 1
+            expect(round.sups.first.users.count).to eq 3
+          end
         end
       end
       context 'with a number of users not divisible by sup_size' do

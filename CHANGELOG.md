@@ -1,6 +1,8 @@
 ### Changelog
 
-* 6/13/2020: Added `set odd`, generate an additional S'Up if number of users not divisible by size - [@dblock](https://github.com/dblock).
+* 6/13/2020: Added `set odd` to toggle odd user behavior - [@dblock](https://github.com/dblock).
+* 6/13/2020: Add odd remaining user to an existing S'Up - [@dblock](https://github.com/dblock).
+* 6/13/2020: Generate an additional S'Up if number of users not divisible by size - [@dblock](https://github.com/dblock).
 * 6/13/2020: Show opt in and missed numbers in rounds - [@dblock](https://github.com/dblock).
 * 4/11/2020: Added unsubscribe - [@dblock](https://github.com/dblock).
 * 7/2/2018: Added stats per round - [@dblock](https://github.com/dblock).

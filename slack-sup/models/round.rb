@@ -110,13 +110,22 @@ class Round
   end
 
   def solve_remaining(remaining_users)
-    # other reasons not to meet than just number divisible by sup_size
-    return if remaining_users.count <= 1
-    return if remaining_users.count >= team.sup_size
-    return if met_recently?(remaining_users)
+    if remaining_users.count == 1
+      # find a sup to add this user to
+      sups.each do |sup|
+        next if met_recently?(sup.users.concat(remaining_users))
 
-    # pair remaining
-    Sup.create!(round: self, team: team, users: remaining_users)
+        sup.users << remaining_users
+        sup.save!
+        break
+      end
+    elsif remaining_users.count > 0 &&
+          remaining_users.count < team.sup_size &&
+          !met_recently?(remaining_users)
+
+      # pair remaining
+      Sup.create!(round: self, team: team, users: remaining_users)
+    end
   end
 
   def group(remaining_users, combination = [])
