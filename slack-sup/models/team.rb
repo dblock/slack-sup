@@ -5,6 +5,8 @@ class Team
 
   # sup size
   field :sup_size, type: Integer, default: 3
+  # sup remaining odd users
+  field :sup_odd, type: Boolean, default: true
   # sup frequency in weeks
   field :sup_time_of_day, type: Integer, default: 9 * 60 * 60
   field :sup_every_n_weeks, type: Integer, default: 1

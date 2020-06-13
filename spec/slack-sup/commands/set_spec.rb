@@ -11,7 +11,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
     end
     it 'displays all settings' do
       expect(message: "#{SlackRubyBot.config.user} set").to respond_with_slack_message(
-        "Team S'Up connects groups of 3 people on Monday after 9:00 AM every week in (GMT-05:00) Eastern Time (US & Canada), taking special care to not pair the same people more frequently than every 12 weeks.\n" \
+        "Team S'Up connects groups of max 3 people on Monday after 9:00 AM every week in (GMT-05:00) Eastern Time (US & Canada), taking special care to not pair the same people more frequently than every 12 weeks.\n" \
         "Custom profile team field is _not set_.\n" \
         "Team data access via the API is on.\n" \
         "#{team.api_url}"
@@ -256,6 +256,34 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
         expect(message: "#{SlackRubyBot.config.user} set size foobar").to respond_with_slack_message(
           "Number _foobar_ is invalid. Team S'Up connects groups of 3 people."
         )
+      end
+    end
+    context 'odd' do
+      it 'shows current value of odd on' do
+        team.update_attributes!(sup_odd: true)
+        expect(message: "#{SlackRubyBot.config.user} set odd").to respond_with_slack_message(
+          "Team S'Up connects groups of max 3 people."
+        )
+      end
+      it 'shows current value of odd off' do
+        team.update_attributes!(sup_odd: false)
+        expect(message: "#{SlackRubyBot.config.user} set odd").to respond_with_slack_message(
+          "Team S'Up connects groups of 3 people."
+        )
+      end
+      it 'enables odd' do
+        team.update_attributes!(sup_odd: false)
+        expect(message: "#{SlackRubyBot.config.user} set odd true").to respond_with_slack_message(
+          "Team S'Up now connects groups of max 3 people."
+        )
+        expect(team.reload.sup_odd).to be true
+      end
+      it 'disables odd with set' do
+        team.update_attributes!(sup_odd: true)
+        expect(message: "#{SlackRubyBot.config.user} set odd false").to respond_with_slack_message(
+          "Team S'Up now connects groups of 3 people."
+        )
+        expect(team.reload.sup_odd).to be false
       end
     end
     context 'timezone' do

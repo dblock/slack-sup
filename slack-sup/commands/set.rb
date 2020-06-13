@@ -176,6 +176,18 @@ module SlackSup
           raise SlackSup::Error, "Number _#{v}_ is invalid. Team S'Up connects groups of #{team.reload.sup_size} people."
         end
 
+        def set_odd(client, team, data, user, v = nil)
+          if user.team_admin? && !v.nil?
+            team.update_attributes!(sup_odd: v.to_b)
+            client.say(channel: data.channel, text: "Team S'Up now connects groups of #{team.sup_odd ? 'max ' : ''}#{team.sup_size} people.")
+          elsif !v.nil?
+            client.say(channel: data.channel, text: "Team S'Up connects groups of #{team.sup_odd ? 'max ' : ''}#{team.sup_size} people. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry.")
+          else
+            client.say(channel: data.channel, text: "Team S'Up connects groups of #{team.sup_odd ? 'max ' : ''}#{team.sup_size} people.")
+          end
+          logger.info "SET: #{team}, user=#{user.user_name}, sup_odd=#{team.sup_odd}."
+        end
+
         def set_timezone(client, team, data, user, v = nil)
           if user.team_admin? && v
             timezone = ActiveSupport::TimeZone.new(v)
@@ -277,6 +289,8 @@ module SlackSup
             set_time client, team, data, user, v
           when 'size' then
             set_size client, team, data, user, v
+          when 'odd' then
+            set_odd client, team, data, user, v
           when 'message' then
             set_message client, team, data, user, v
           else
@@ -329,7 +343,7 @@ module SlackSup
         if !match['expression']
           team = client.owner
           message = [
-            "Team S'Up connects groups of #{team.sup_size} people on #{team.sup_day} after #{team.sup_time_of_day_s} every #{team.sup_every_n_weeks_s} in #{team.sup_tzone}, taking special care to not pair the same people more frequently than every #{team.sup_recency_s}.",
+            "Team S'Up connects groups of #{team.sup_odd ? 'max ' : ''}#{team.sup_size} people on #{team.sup_day} after #{team.sup_time_of_day_s} every #{team.sup_every_n_weeks_s} in #{team.sup_tzone}, taking special care to not pair the same people more frequently than every #{team.sup_recency_s}.",
             "Custom profile team field is _#{team.team_field_label || 'not set'}_.",
             team_data_access_message(user),
             team.api_url

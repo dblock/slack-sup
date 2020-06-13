@@ -45,6 +45,45 @@ describe Round do
           expect(Sup.all.all? { |sup| sup.users.count == 2 })
         end
       end
+      context 'with a number of users not divisible by sup_size' do
+        let!(:user4) { Fabricate(:user, team: team) }
+        let!(:user5) { Fabricate(:user, team: team) }
+        it 'generates a sup for the remaining users' do
+          expect do
+            team.sup!
+          end.to change(Sup, :count).by(2)
+        end
+        context 'with sup_odd set to false' do
+          before do
+            team.update_attributes!(sup_odd: false)
+          end
+          it 'does not generate a sup for the remaining users' do
+            expect do
+              team.sup!
+            end.to change(Sup, :count).by(1)
+          end
+        end
+      end
+      context 'with a recent sup and new users' do
+        let!(:first_round) { team.sup! }
+        before do
+          Fabricate(:user, team: team)
+          Fabricate(:user, team: team)
+        end
+        it 'generates a sup with new users and one old one' do
+          expect(first_round.total_users_count).to eq 3
+          expect(first_round.opted_in_users_count).to eq 3
+          expect(first_round.opted_out_users_count).to eq 0
+          expect(first_round.paired_users_count).to eq 3
+          expect(first_round.missed_users_count).to eq 0
+          second_round = team.sup!
+          expect(second_round.total_users_count).to eq 5
+          expect(second_round.opted_in_users_count).to eq 5
+          expect(second_round.opted_out_users_count).to eq 0
+          expect(second_round.paired_users_count).to eq 3
+          expect(second_round.missed_users_count).to eq 2
+        end
+      end
       context 'opted out' do
         let!(:user4) { Fabricate(:user, team: team) }
         before do

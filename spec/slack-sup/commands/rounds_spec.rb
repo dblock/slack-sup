@@ -42,6 +42,7 @@ describe SlackSup::Commands::Rounds do
     let!(:user6) { Fabricate(:user, team: team) }
     let!(:user7) { Fabricate(:user, team: team) }
     before do
+      team.update_attributes!(sup_odd: false)
       allow(team).to receive(:sync!)
       allow_any_instance_of(Sup).to receive(:dm!)
       team.sup!

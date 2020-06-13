@@ -23,6 +23,7 @@ module SlackSup
         Team Admins
         -----------
         set size [number]          - set the number of people for each S'Up, default is 3
+        set odd [yes/no]           - generate an additional S'Up if the number of users isn't divisible by size
         set day [day of week]      - set the day to S'Up, default is Monday
         set time [time of day]     - set the earliest time to S'Up, default is 9 AM
         set timezone [tz]          - set team timezone, default is Eastern Time (US & Canada)

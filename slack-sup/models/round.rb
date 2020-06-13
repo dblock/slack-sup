@@ -76,7 +76,7 @@ class Round
       solve(all_users)
       Ambit.fail!
     rescue Ambit::ChoicesExhausted
-      # missed_users = all_users - sups.map(&:users).flatten
+      solve_remaining(all_users - sups.map(&:users).flatten) if team.sup_odd?
       paired_count = sups.distinct(:user_ids).count
       update_attributes!(
         total_users_count: team.users.enabled.count,
@@ -107,6 +107,16 @@ class Round
     logger.info "   Creating sup for #{combination.map(&:user_name)}, #{sups.count * team.sup_size} out of #{team.users.suppable.count}."
     Ambit.clear! if sups.count * team.sup_size == team.users.suppable.count
     solve(remaining_users - combination)
+  end
+
+  def solve_remaining(remaining_users)
+    # other reasons not to meet than just number divisible by sup_size
+    return if remaining_users.count <= 1
+    return if remaining_users.count >= team.sup_size
+    return if met_recently?(remaining_users)
+
+    # pair remaining
+    Sup.create!(round: self, team: team, users: remaining_users)
   end
 
   def group(remaining_users, combination = [])
