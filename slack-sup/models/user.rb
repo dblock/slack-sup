@@ -13,8 +13,8 @@ class User
   field :introduced_sup_at, type: DateTime
 
   field :opted_in, type: Boolean, default: true
-  scope :opted_in, -> { where(opted_in: true) }
-  scope :opted_out, -> { where(opted_in: false) }
+  scope :opted_in, -> { where(enabled: true, opted_in: true) }
+  scope :opted_out, -> { where(enabled: true, opted_in: false) }
 
   field :enabled, type: Boolean, default: true
   scope :enabled, -> { where(enabled: true) }

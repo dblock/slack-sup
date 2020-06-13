@@ -6,6 +6,11 @@ module Api
       include Grape::Roar::Representer
 
       property :id, type: String, desc: 'Round ID.'
+      property :total_users_count, desc: 'Total users.'
+      property :opted_in_users_count, desc: 'Total users opted in.'
+      property :opted_out_users_count, desc: 'Total users opted out'
+      property :paired_users_count, desc: 'Total users paired.'
+      property :missed_users_count, desc: 'Total users not paired.'
       property :ran_at, type: DateTime, desc: 'Date/time when the round was run.'
       property :asked_at, type: DateTime, desc: 'Date/time when outcomes were collected.'
       property :created_at, type: DateTime, desc: 'Date/time when the round was created.'

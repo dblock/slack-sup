@@ -18,6 +18,18 @@ describe Round do
         end.to change(Sup, :count).by(1)
         sup = Sup.first
         expect(sup.users).to eq([user1, user2, user3])
+        round = sup.round
+      end
+      it 'updates counts' do
+        expect do
+          team.sup!
+        end.to change(Round, :count).by(1)
+        round = Round.first
+        expect(round.total_users_count).to eq 3
+        expect(round.opted_in_users_count).to eq 3
+        expect(round.opted_out_users_count).to eq 0
+        expect(round.paired_users_count).to eq 3
+        expect(round.missed_users_count).to eq 0
       end
       context 'with sup_size of 2' do
         let!(:user4) { Fabricate(:user, team: team) }
@@ -45,6 +57,17 @@ describe Round do
           sup = Sup.first
           expect(sup.users).to eq([user1, user2, user4])
         end
+        it 'updates counts' do
+          expect do
+            team.sup!
+          end.to change(Round, :count).by(1)
+          round = Round.first
+          expect(round.total_users_count).to eq 4
+          expect(round.opted_in_users_count).to eq 3
+          expect(round.opted_out_users_count).to eq 1
+          expect(round.paired_users_count).to eq 3
+          expect(round.missed_users_count).to eq 0
+        end
       end
       context 'disabled' do
         let!(:user4) { Fabricate(:user, team: team) }
@@ -57,6 +80,17 @@ describe Round do
           end.to change(Sup, :count).by(1)
           sup = Sup.first
           expect(sup.users).to eq([user1, user2, user4])
+        end
+        it 'updates counts' do
+          expect do
+            team.sup!
+          end.to change(Round, :count).by(1)
+          round = Round.first
+          expect(round.total_users_count).to eq 3
+          expect(round.opted_in_users_count).to eq 3
+          expect(round.opted_out_users_count).to eq 0
+          expect(round.paired_users_count).to eq 3
+          expect(round.missed_users_count).to eq 0
         end
       end
     end

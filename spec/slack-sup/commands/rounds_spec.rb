@@ -10,7 +10,6 @@ describe SlackSup::Commands::Rounds do
     )
   end
   context 'with outcomes' do
-    let(:team) { Fabricate(:team, subscribed: true) }
     let!(:user1) { Fabricate(:user, team: team) }
     let!(:user2) { Fabricate(:user, team: team) }
     let!(:user3) { Fabricate(:user, team: team) }
@@ -29,8 +28,28 @@ describe SlackSup::Commands::Rounds do
       Timecop.travel(Time.now + 731.days)
       expect(message: "#{SlackRubyBot.config.user} rounds 2").to respond_with_slack_message(
         "Team S'Up facilitated 2 rounds.\n" \
-        "* in progress: 1 S'Up for 3 users with 0% positive outcomes from 0% outcomes reported.\n" \
-        "* 731 days ago: 1 S'Up for 3 users with 100% positive outcomes from 100% outcomes reported."
+        "* in progress: 1 S'Up paired 3 users and no outcomes reported.\n" \
+        "* 731 days ago: 1 S'Up paired 3 users, 100% positive outcomes and 100% outcomes reported."
+      )
+    end
+  end
+  context 'with opt outs and misses' do
+    let!(:user1) { Fabricate(:user, team: team) }
+    let!(:user2) { Fabricate(:user, team: team) }
+    let!(:user3) { Fabricate(:user, team: team) }
+    let!(:user4) { Fabricate(:user, team: team, opted_in: false) }
+    let!(:user5) { Fabricate(:user, team: team, enabled: false) }
+    let!(:user6) { Fabricate(:user, team: team) }
+    let!(:user7) { Fabricate(:user, team: team) }
+    before do
+      allow(team).to receive(:sync!)
+      allow_any_instance_of(Sup).to receive(:dm!)
+      team.sup!
+    end
+    it 'reports counts' do
+      expect(message: "#{SlackRubyBot.config.user} rounds 2").to respond_with_slack_message(
+        "Team S'Up facilitated 1 round.\n" \
+        "* in progress: 1 S'Up paired 3 users, no outcomes reported, 1 opt out and 2 missed users."
       )
     end
   end

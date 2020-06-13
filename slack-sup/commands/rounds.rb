@@ -28,6 +28,11 @@ module SlackSup
         max
       end
 
+      def self.percent_s(count, total, no = 'no')
+        pc = count * 100 / total
+        pc > 0 ? "#{pc}%" : no
+      end
+
       subscribe_command 'rounds' do |client, data, match|
         max = parse_arg(match)
         team = client.owner
@@ -42,11 +47,13 @@ module SlackSup
                    else
                      'scheduled'
                    end
-          messages << "* #{ran_at}: " \
-            "#{pluralize(stats.sups_count, 'S\'Up')} " \
-            "for #{pluralize(stats.users_in_sups_count, 'user')} " \
-            "with #{stats.positive_outcomes_count * 100 / stats.sups_count}% positive outcomes " \
-            "from #{stats.reported_outcomes_count * 100 / stats.sups_count}% outcomes reported."
+          messages << "* #{ran_at}: #{pluralize(stats.sups_count, 'S\'Up')} " + [
+            "paired #{pluralize(stats.users_in_sups_count, 'user')}",
+            stats.sups_count > 0 && stats.reported_outcomes_count > 0 ? percent_s(stats.positive_outcomes_count, stats.sups_count) + ' positive outcomes' : nil,
+            stats.sups_count > 0 ? percent_s(stats.reported_outcomes_count, stats.sups_count) + ' outcomes reported' : nil,
+            stats.round.opted_out_users_count > 0 ? pluralize(stats.round.opted_out_users_count, 'opt out').to_s : nil,
+            stats.round.missed_users_count > 0 ? pluralize(stats.round.missed_users_count, 'missed user').to_s : nil
+          ].compact.and + '.'
         end
         client.say(channel: data.channel, text: messages.join("\n"))
         logger.info "STATS: #{client.owner} - #{data.user}"

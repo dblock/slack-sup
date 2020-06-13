@@ -13,6 +13,12 @@ class Round
   validates_presence_of :team
   has_many :sups, dependent: :destroy
 
+  field :total_users_count
+  field :opted_in_users_count
+  field :opted_out_users_count
+  field :paired_users_count
+  field :missed_users_count
+
   after_create :run!
 
   index(round_id: 1, user_ids: 1, created_at: 1)
@@ -65,12 +71,21 @@ class Round
 
     update_attributes!(ran_at: Time.now.utc)
     logger.info "Generating sups for #{team} of #{team.users.suppable.count} users."
-    remaining_users = team.users.suppable.to_a.shuffle
+    all_users = team.users.suppable.to_a.shuffle
     begin
-      solve(remaining_users)
+      solve(all_users)
       Ambit.fail!
     rescue Ambit::ChoicesExhausted
-      logger.info "Finished round for #{team}."
+      # missed_users = all_users - sups.map(&:users).flatten
+      paired_count = sups.distinct(:user_ids).count
+      update_attributes!(
+        total_users_count: team.users.enabled.count,
+        opted_in_users_count: team.users.opted_in.count,
+        opted_out_users_count: team.users.opted_out.count,
+        paired_users_count: paired_count,
+        missed_users_count: all_users.count - paired_count
+      )
+      logger.info "Finished round for team #{team}, users=#{total_users_count}, opted out=#{opted_out_users_count}, paired=#{paired_users_count}, missed=#{missed_users_count}."
     end
   end
 

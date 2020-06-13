@@ -9,7 +9,7 @@ class RoundStats
   def initialize(round = nil)
     @round = round
     @sups_count = round.sups.count
-    @users_in_sups_count = round.sups.distinct(:user_ids).count
+    @users_in_sups_count = round.paired_users_count || round.sups.distinct(:user_ids).count
     @outcomes = Hash[
       Sup.collection.aggregate(
         [
