@@ -153,6 +153,18 @@ class Team
     (last_round_at || time_limit) <= time_limit
   end
 
+  def next_sup_at
+    now_in_tz = Time.now.utc.in_time_zone(sup_tzone)
+    loop do
+      time_limit = now_in_tz.end_of_day - sup_every_n_weeks.weeks
+
+      return now_in_tz.beginning_of_day + sup_time_of_day if (now_in_tz.wday == sup_wday) &&
+                                                             ((last_round_at || time_limit) <= time_limit)
+
+      now_in_tz = now_in_tz.beginning_of_day + 1.day
+    end
+  end
+
   def inform!(message)
     members = slack_client.paginate(:users_list, presence: false).map(&:members).flatten
     members.select(&:is_admin).each do |admin|

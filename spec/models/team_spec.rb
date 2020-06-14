@@ -70,21 +70,30 @@ describe Team do
     end
   end
   context 'team sup on monday 3pm' do
-    let(:team) { Fabricate(:team, sup_wday: 1, sup_tz: 'Eastern Time (US & Canada)') }
+    let(:tz) { 'Eastern Time (US & Canada)' }
+    let(:team) { Fabricate(:team, sup_wday: 1, sup_tz: tz) }
     let(:monday) { DateTime.parse('2017/1/2 3:00 PM EST').utc }
     before do
       Timecop.travel(monday)
     end
-    it 'sups' do
-      expect(team.sup?).to be true
+    context 'sup?' do
+      it 'sups' do
+        expect(team.sup?).to be true
+      end
+      it 'in a different timezone' do
+        team.update_attributes!(sup_tz: 'Samoa') # Samoa is UTC-11, at 3pm in EST it's Tuesday 10AM
+        expect(team.sup?).to be false
+      end
     end
-    it 'in a different timezone' do
-      team.update_attributes!(sup_tz: 'Samoa') # Samoa is UTC-11, at 3pm in EST it's Tuesday 10AM
-      expect(team.sup?).to be false
+    context 'next_sup_at' do
+      it 'today' do
+        expect(team.next_sup_at).to eq DateTime.parse('2017/1/2 9:00 AM EST')
+      end
     end
   end
   context 'team sup on monday before 9am' do
-    let(:team) { Fabricate(:team, sup_wday: 1, sup_tz: 'Eastern Time (US & Canada)') }
+    let(:tz) { 'Eastern Time (US & Canada)' }
+    let(:team) { Fabricate(:team, sup_wday: 1, sup_tz: tz) }
     let(:monday) { DateTime.parse('2017/1/2 8:00 AM EST').utc }
     before do
       Timecop.travel(monday)
@@ -92,20 +101,36 @@ describe Team do
     it 'does not sup' do
       expect(team.sup?).to be false
     end
+    context 'next_sup_at' do
+      it 'today' do
+        expect(team.next_sup_at).to eq DateTime.parse('2017/1/2 9:00 AM EST')
+      end
+    end
   end
   context 'with a custom sup_time_of_day' do
-    let(:team) { Fabricate(:team, sup_wday: 1, sup_time_of_day: 7 * 60 * 60, sup_tz: 'Eastern Time (US & Canada)') }
+    let(:tz) { 'Eastern Time (US & Canada)' }
+    let(:team) { Fabricate(:team, sup_wday: 1, sup_time_of_day: 7 * 60 * 60, sup_tz: tz) }
     let(:monday) { DateTime.parse('2017/1/2 8:00 AM EST').utc }
     before do
       Timecop.travel(monday)
     end
-    it 'does not sup' do
-      expect(team.sup?).to be true
+    context 'sup?' do
+      it 'sups' do
+        expect(team.sup?).to be true
+      end
+    end
+    context 'next_sup_at' do
+      it 'overdue, one hour ago' do
+        expect(team.next_sup_at).to eq DateTime.parse('2017/1/2 7:00 AM EST')
+      end
     end
   end
   context 'team' do
-    let(:wday) { Time.now.utc.in_time_zone('Eastern Time (US & Canada)').wday }
-    let(:team) { Fabricate(:team, sup_wday: wday, sup_time_of_day: 1) }
+    let(:tz) { 'Eastern Time (US & Canada)' }
+    let(:t_in_time_zone) { Time.now.utc.in_time_zone(tz) }
+    let(:wday) { t_in_time_zone.wday }
+    let(:beginning_of_day) { t_in_time_zone.beginning_of_day }
+    let(:team) { Fabricate(:team, sup_wday: wday, sup_time_of_day: 7 * 60 * 60 + 1, sup_tz: tz) }
     context '#sync!' do
       let(:member_default_attr) do
         {
