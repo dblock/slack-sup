@@ -1,5 +1,6 @@
 ### Changelog
 
+* 6/26/2020: Toggle opt in state for new users with `set opt in` and `out` - [@dblock](https://github.com/dblock).
 * 6/14/2020: Added `next` to show next sup - [@dblock](https://github.com/dblock).
 * 6/13/2020: Added `set odd` to toggle odd user behavior - [@dblock](https://github.com/dblock).
 * 6/13/2020: Add odd remaining user to an existing S'Up - [@dblock](https://github.com/dblock).

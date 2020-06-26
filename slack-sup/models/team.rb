@@ -20,6 +20,8 @@ class Team
 
   field :sup_message, type: String
 
+  field :opt_in, type: Boolean, default: true
+
   # custom team field
   field :team_field_label, type: String
   field :team_field_label_id, type: String
@@ -77,6 +79,10 @@ class Team
 
   def api_s
     api? ? 'on' : 'off'
+  end
+
+  def opt_in_s
+    opt_in? ? 'in' : 'out'
   end
 
   def asleep?(dt = 3.weeks)
@@ -189,7 +195,7 @@ class Team
     members = slack_client.paginate(:users_list, presence: false).map(&:members).flatten
     humans = members.select { |member| active_member?(member) }.map do |member|
       existing_user = User.where(user_id: member.id).first
-      existing_user ||= User.new(user_id: member.id, team: self)
+      existing_user ||= User.new(user_id: member.id, team: self, opted_in: opt_in)
       existing_user.user_name = member.name
       existing_user.real_name = member.real_name
       existing_user.email = member.profile.email if member.profile

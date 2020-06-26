@@ -4,6 +4,24 @@ module SlackSup
       include SlackSup::Commands::Mixins::Subscribe
 
       class << self
+        def set_opt_in(client, team, data, user, v = nil)
+          raise ArgumentError, "Invalid value: #{v}." unless ['in', 'out', nil].include?(v)
+
+          if user.team_admin? && v
+            team.update_attributes!(opt_in: v == 'in')
+            client.say(channel: data.channel, text: "Users are now opted #{v} by default.")
+          elsif v
+            message = [
+              "Users are opted #{team.opt_in_s} by default.",
+              "Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry."
+            ].join(' ')
+            client.say(channel: data.channel, text: message)
+          else
+            client.say(channel: data.channel, text: "Users are opted #{team.opt_in_s} by default.")
+          end
+          logger.info "SET: #{team}, user=#{user.user_name}, opt_in=#{team.opt_in}"
+        end
+
         def set_api(client, team, data, user, v = nil)
           if user.team_admin? && v
             team.update_attributes!(api: v.to_b)
@@ -269,6 +287,8 @@ module SlackSup
 
         def set(client, team, data, user, k, v)
           case k
+          when 'opt' then
+            set_opt_in client, team, data, user, v
           when 'api' then
             set_api client, team, data, user, v
           when 'apitoken' then
@@ -344,6 +364,7 @@ module SlackSup
           team = client.owner
           message = [
             "Team S'Up connects groups of #{team.sup_odd ? 'max ' : ''}#{team.sup_size} people on #{team.sup_day} after #{team.sup_time_of_day_s} every #{team.sup_every_n_weeks_s} in #{team.sup_tzone}, taking special care to not pair the same people more frequently than every #{team.sup_recency_s}.",
+            "Users are _opted #{team.opt_in_s}_ by default.",
             "Custom profile team field is _#{team.team_field_label || 'not set'}_.",
             team_data_access_message(user),
             team.api_url

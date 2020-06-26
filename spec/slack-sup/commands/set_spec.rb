@@ -12,10 +12,45 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
     it 'displays all settings' do
       expect(message: "#{SlackRubyBot.config.user} set").to respond_with_slack_message(
         "Team S'Up connects groups of max 3 people on Monday after 9:00 AM every week in (GMT-05:00) Eastern Time (US & Canada), taking special care to not pair the same people more frequently than every 12 weeks.\n" \
+        "Users are _opted in_ by default.\n" \
         "Custom profile team field is _not set_.\n" \
         "Team data access via the API is on.\n" \
         "#{team.api_url}"
       )
+    end
+    context 'opt' do
+      it 'shows current value when opted in' do
+        team.update_attributes!(opt_in: true)
+        expect(message: "#{SlackRubyBot.config.user} set opt").to respond_with_slack_message(
+          'Users are opted in by default.'
+        )
+      end
+      it 'shows current value when opted out' do
+        team.update_attributes!(opt_in: false)
+        expect(message: "#{SlackRubyBot.config.user} set opt").to respond_with_slack_message(
+          'Users are opted out by default.'
+        )
+      end
+      it 'opts in' do
+        team.update_attributes!(opt_in: false)
+        expect(message: "#{SlackRubyBot.config.user} set opt in").to respond_with_slack_message(
+          'Users are now opted in by default.'
+        )
+        expect(team.reload.opt_in).to be true
+      end
+      it 'outs out' do
+        team.update_attributes!(opt_in: true)
+        expect(message: "#{SlackRubyBot.config.user} set opt out").to respond_with_slack_message(
+          'Users are now opted out by default.'
+        )
+        expect(team.reload.opt_in).to be false
+      end
+      it 'fails on an invalid opt value' do
+        expect(message: "#{SlackRubyBot.config.user} set opt invalid").to respond_with_slack_message(
+          'Invalid value: invalid.'
+        )
+        expect(team.reload.opt_in).to be true
+      end
     end
     context 'api' do
       it 'shows current value of API on' do
@@ -384,6 +419,11 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
   end
   context 'not admin' do
     context 'api' do
+      it 'cannot set opt' do
+        expect(message: "#{SlackRubyBot.config.user} set opt out").to respond_with_slack_message(
+          "Users are opted in by default. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry."
+        )
+      end
       it 'cannot set api' do
         expect(message: "#{SlackRubyBot.config.user} set api true").to respond_with_slack_message(
           "Team data access via the API is on. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry."

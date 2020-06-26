@@ -160,7 +160,14 @@ describe Team do
         expect { team.sync! }.to change(User, :count).by(1)
         new_user = User.last
         expect(new_user.user_id).to eq 'member-id'
+        expect(new_user.opted_in).to be true
         expect(new_user.user_name).to eq 'Forrest Gump'
+      end
+      it 'adds new opted out users' do
+        team.opt_in = false
+        expect { team.sync! }.to change(User, :count).by(1)
+        new_user = User.last
+        expect(new_user.opted_in).to be false
       end
       it 'disables dead users' do
         available_user = Fabricate(:user, team: team, user_id: available_member.id, enabled: true)

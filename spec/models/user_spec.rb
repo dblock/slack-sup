@@ -33,6 +33,17 @@ describe User do
           expect(user.user_name).to eq 'username'
         end.to change(User, :count).by(1)
       end
+      it 'creates an opted in user' do
+        user = User.find_create_or_update_by_slack_id!(client, 'U42')
+        expect(user).to_not be_nil
+        expect(user.opted_in).to be true
+      end
+      it 'creates an opted out user' do
+        team.opt_in = false
+        user = User.find_create_or_update_by_slack_id!(client, 'U42')
+        expect(user).to_not be_nil
+        expect(user.opted_in).to be false
+      end
     end
     context 'with a user' do
       let!(:user) { Fabricate(:user, team: team) }

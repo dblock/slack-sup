@@ -65,7 +65,7 @@ class User
     instance.update_attributes!(is_admin: instance_info.is_admin) if instance && instance.is_admin != instance_info.is_admin
     instance.update_attributes!(is_owner: instance_info.is_owner) if instance && instance.is_owner != instance_info.is_owner
     instance.update_attributes!(user_name: instance_info.name) if instance && instance.user_name != instance_info.name
-    instance ||= User.create!(team: client.owner, user_id: slack_id, user_name: instance_info.name)
+    instance ||= User.create!(team: client.owner, user_id: slack_id, user_name: instance_info.name, opted_in: client.owner.opt_in)
     instance
   end
 
