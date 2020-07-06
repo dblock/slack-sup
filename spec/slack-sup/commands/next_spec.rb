@@ -14,7 +14,7 @@ describe SlackSup::Commands::Next do
   end
   it 'no sup' do
     expect(message: "#{SlackRubyBot.config.user} next").to respond_with_slack_message(
-      'Next round is overdue Monday, January 2, 2017 at 7:00 AM EST (7 hours and 59 minutes ago).'
+      'Next round is overdue Monday, January 2, 2017 at 7:00 AM EST (7 hours ago).'
     )
   end
   context 'supped' do

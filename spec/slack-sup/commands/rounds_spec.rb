@@ -29,7 +29,7 @@ describe SlackSup::Commands::Rounds do
       expect(message: "#{SlackRubyBot.config.user} rounds 2").to respond_with_slack_message(
         "Team S'Up facilitated 2 rounds.\n" \
         "* in progress: 1 S'Up paired 3 users and no outcomes reported.\n" \
-        "* 731 days ago: 1 S'Up paired 3 users, 100% positive outcomes and 100% outcomes reported."
+        "* 2 years ago: 1 S'Up paired 3 users, 100% positive outcomes and 100% outcomes reported."
       )
     end
   end
