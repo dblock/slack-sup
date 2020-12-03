@@ -1,0 +1,43 @@
+GIT
+  remote: https://github.com/dblock/hyperclient.git
+  revision: bac5911fa7f378c1db2aede0f907f5eaabcbcfbb
+  branch: auto-paginate
+  specs:
+    hyperclient (1.0.0)
+      addressable
+      faraday (>= 0.9.0)
+      faraday-digestauth (>= 0.3.0)
+      faraday_hal_middleware
+      faraday_middleware
+      net-http-digest_auth
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    addressable (2.7.0)
+      public_suffix (>= 2.0.2, < 5.0)
+    dotenv (2.7.6)
+    faraday (1.1.0)
+      multipart-post (>= 1.2, < 3)
+      ruby2_keywords
+    faraday-digestauth (0.4.1)
+      faraday (>= 0.7)
+      net-http-digest_auth (~> 1.4)
+    faraday_hal_middleware (0.1.1)
+      faraday_middleware (>= 0.9)
+    faraday_middleware (1.0.0)
+      faraday (~> 1.0)
+    multipart-post (2.1.1)
+    net-http-digest_auth (1.4.1)
+    public_suffix (4.0.6)
+    ruby2_keywords (0.0.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  dotenv
+  hyperclient!
+
+BUNDLED WITH
+   2.1.4
