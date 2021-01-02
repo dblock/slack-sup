@@ -342,6 +342,46 @@ describe Round do
         end
       end
     end
+    context '#ask_again?' do
+      it 'is false within 36 hours even if asked_at' do
+        round.update_attributes!(asked_at: Time.now - 36.hours)
+        expect(round.ask_again?).to be false
+      end
+      it 'is true after 48 hours if asked_at' do
+        round.update_attributes!(asked_at: Time.now - 72.hours)
+        expect(round.ask_again?).to be true
+      end
+      it 'is false immediately after the round' do
+        expect(round.ask_again?).to be false
+      end
+    end
+    context '#ask_again!' do
+      before do
+        round.update_attributes!(asked_at: Time.now - 72.hours)
+      end
+      it 'updates asked_again_at' do
+        expect(round.asked_again_at).to be nil
+        round.ask_again!
+        expect(round.asked_again_at).to_not be nil
+      end
+      context 'with a sup having a later outcome' do
+        let!(:sup) { Fabricate(:sup, team: team, round: round, outcome: 'later') }
+        it 'ask_again every sup' do
+          expect(round.sups).to receive(:where).with(outcome: 'later').and_return([sup])
+          expect(sup).to receive(:ask_again!).once
+          round.ask_again!
+        end
+      end
+      context 'with a sup having a different outcome' do
+        it 'does not ask_again' do
+          expect(round.sups.count).to be >= 0
+          round.sups.each do |sup|
+            expect(sup).to_not receive(:ask_again!)
+          end
+          round.ask_again!
+        end
+      end
+    end
   end
   context '#dm!' do
     pending 'opens a DM channel with users'

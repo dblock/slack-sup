@@ -7,6 +7,7 @@ class Round
 
   field :ran_at, type: DateTime
   field :asked_at, type: DateTime
+  field :asked_again_at, type: DateTime
   field :reminded_at, type: DateTime
 
   belongs_to :team
@@ -25,6 +26,22 @@ class Round
 
   def to_s
     "id=#{id}, #{team}"
+  end
+
+  def ask_again?
+    return false unless asked_at
+    return false if asked_again_at
+    # do not ask within 48 hours since asked_at
+    return false if Time.now.utc < (asked_at + 48.hours)
+
+    true
+  end
+
+  def ask_again!
+    return if asked_again_at
+
+    update_attributes!(asked_again_at: Time.now.utc)
+    sups.where(outcome: 'later').each(&:ask_again!)
   end
 
   def ask?

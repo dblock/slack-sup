@@ -105,6 +105,14 @@ class Team
     round
   end
 
+  def ask_again!
+    round = last_round
+    return unless round&.ask_again?
+
+    round.ask_again!
+    round
+  end
+
   def remind!
     round = last_round
     return unless round&.remind?

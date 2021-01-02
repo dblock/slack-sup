@@ -59,6 +59,45 @@ class Sup
           },
           {
             name: 'outcome',
+            text: "We Haven't Met Yet",
+            type: 'button',
+            value: 'later',
+            style: 'danger'
+          },
+          {
+            name: 'outcome',
+            text: "We Couldn't Meet",
+            type: 'button',
+            value: 'none',
+            style: 'danger'
+          }
+        ]
+      }
+    ]
+  }.freeze
+
+  ASK_WHO_SUP_AGAIN_MESSAGE = {
+    text: 'I just wanted to check in one last time, how did it go?',
+    attachments: [
+      {
+        text: '',
+        attachment_type: 'default',
+        actions: [
+          {
+            name: 'outcome',
+            text: 'We All Met',
+            type: 'button',
+            value: 'all',
+            style: 'primary'
+          },
+          {
+            name: 'outcome',
+            text: 'Some of Us Met',
+            type: 'button',
+            value: 'some'
+          },
+          {
+            name: 'outcome',
             text: "We Couldn't Meet",
             type: 'button',
             value: 'none',
@@ -73,6 +112,13 @@ class Sup
     message = ASK_WHO_SUP_MESSAGE.dup
     message[:attachments].first[:callback_id] = id.to_s
     logger.info "Asking for outcome on a DM channel with #{users.map(&:user_name)}."
+    dm!(message)
+  end
+
+  def ask_again!
+    message = ASK_WHO_SUP_AGAIN_MESSAGE.dup
+    message[:attachments].first[:callback_id] = id.to_s
+    logger.info "Asking again for outcome on a DM channel with #{users.map(&:user_name)}."
     dm!(message)
   end
 

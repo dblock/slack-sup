@@ -31,7 +31,12 @@ module Api
               action[:style] = action[:value] == sup.outcome ? 'primary' : 'default'
             end
 
-            message[:text] = 'Thanks for letting me know.'
+            message[:text] = case sup.outcome
+                             when 'later'
+                               "Thanks, I'll ask again in a couple of days."
+                             else
+                               'Thanks for letting me know.'
+                             end
 
             {
               as_user: true,

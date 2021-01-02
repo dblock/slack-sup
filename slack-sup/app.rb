@@ -18,6 +18,7 @@ module SlackSup
         once_and_every 60 * 30 do
           remind!
           ask!
+          ask_again!
         end
       end
     end
@@ -48,6 +49,15 @@ module SlackSup
         logger.info "Checking whether to ask #{team}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
         round = team.ask!
         logger.info "Asked about previous sup round #{round}." if round
+      end
+    end
+
+    def ask_again!
+      invoke! do |team|
+        last_round_at = team.last_round_at
+        logger.info "Checking whether to ask again #{team}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
+        round = team.ask_again!
+        logger.info "Asked again about previous sup round #{round}." if round
       end
     end
 

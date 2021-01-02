@@ -9,6 +9,12 @@ describe Sup do
       expect(sup).to receive(:dm!).with(message)
       sup.ask!
     end
+    it 'asks again for outcome' do
+      message = Sup::ASK_WHO_SUP_AGAIN_MESSAGE.dup
+      message[:attachments][0][:callback_id] = sup.id.to_s
+      expect(sup).to receive(:dm!).with(message)
+      sup.ask_again!
+    end
     context '#remind' do
       context 'having not messaged' do
         it 'no reminder' do

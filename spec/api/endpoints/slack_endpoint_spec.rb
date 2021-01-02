@@ -5,20 +5,45 @@ describe Api::Endpoints::SlackEndpoint do
 
   context 'outcome' do
     let(:sup) { Fabricate(:sup) }
-    it 'parses a valid payload and returns updated outcome' do
-      post '/api/slack/action', payload: {
-        'actions': [{ 'name' => 'outcome', 'type' => 'button', 'value' => 'none' }],
+
+    let(:payload) do
+      {
         'callback_id': sup.id.to_s,
         'channel': { 'id' => '424242424', 'name' => 'directmessage' },
         'original_message': {
           'ts': '1467321295.000010'
         }
-      }.to_json
-      expect(last_response.status).to eq 201
-      payload = JSON.parse(last_response.body)
-      expect(payload['text']).to eq 'Thanks for letting me know.'
-      expect(payload['attachments'].first['actions'].map { |a| a['style'] }).to eq(%w[default default primary])
-      expect(sup.reload.outcome).to eq 'none'
+      }
+    end
+
+    context 'none' do
+      it 'updates outcome' do
+        post '/api/slack/action', payload: payload.merge(
+          'actions': [
+            { 'name' => 'outcome', 'type' => 'button', 'value' => 'none' }
+          ]
+        ).to_json
+        expect(last_response.status).to eq 201
+        payload = JSON.parse(last_response.body)
+        expect(payload['text']).to eq 'Thanks for letting me know.'
+        expect(payload['attachments'].first['actions'].map { |a| a['style'] }).to eq(%w[default default default primary])
+        expect(sup.reload.outcome).to eq 'none'
+      end
+    end
+
+    context 'later' do
+      it 'delays reminding by 48 hours' do
+        post '/api/slack/action', payload: payload.merge(
+          'actions': [
+            { 'name' => 'outcome', 'type' => 'button', 'value' => 'later' }
+          ]
+        ).to_json
+        expect(last_response.status).to eq 201
+        payload = JSON.parse(last_response.body)
+        expect(payload['text']).to eq "Thanks, I'll ask again in a couple of days."
+        expect(payload['attachments'].first['actions'].map { |a| a['style'] }).to eq(%w[default default primary default])
+        expect(sup.reload.outcome).to eq 'later'
+      end
     end
   end
 
