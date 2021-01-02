@@ -52,7 +52,9 @@ class User
   def self.find_by_slack_mention!(team, user_name)
     user_match = user_name.match(/^<@(.*)>$/)
     query = user_match ? { user_id: user_match[1] } : { user_name: ::Regexp.new("^#{user_name}$", 'i') }
+    team.sync_user!(user_match ? user_match[1] : user_name)
     user = User.where(query.merge(team: team)).first
+
     raise SlackSup::Error, "I don't know who #{user_name} is!" unless user
 
     user

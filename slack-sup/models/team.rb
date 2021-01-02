@@ -198,21 +198,28 @@ class Team
     "Update your credit card info at #{SlackRubyBotServer::Service.url}/update_cc?team_id=#{team_id}."
   end
 
+  def sync_user!(id)
+    member = slack_client.users_info(user: id).user
+    return unless active_member?(member)
+
+    human = sync_member_from_slack!(member)
+    state = if human.persisted?
+              human.enabled? ? 'active' : 'back'
+            else
+              'new'
+            end
+    logger.info "Team #{self}: #{human} is #{state}."
+    human.enabled = true
+    human.save!
+  rescue StandardError => e
+    logger.warn "Error synchronizing user for #{self}, id=#{id}: #{e.message}."
+  end
+
   # synchronize users with slack
   def sync!
     members = slack_client.paginate(:users_list, presence: false).map(&:members).flatten
     humans = members.select { |member| active_member?(member) }.map do |member|
-      existing_user = User.where(user_id: member.id).first
-      existing_user ||= User.new(user_id: member.id, team: self, opted_in: opt_in)
-      existing_user.user_name = member.name
-      existing_user.real_name = member.real_name
-      existing_user.email = member.profile.email if member.profile
-      begin
-        existing_user.update_custom_profile
-      rescue StandardError => e
-        logger.warn "Error updating custom profile for #{existing_user}: #{e.message}."
-      end
-      existing_user
+      sync_member_from_slack!(member)
     end
     humans.each do |human|
       state = if human.persisted?
@@ -313,6 +320,20 @@ class Team
   end
 
   private
+
+  def sync_member_from_slack!(member)
+    existing_user = User.where(user_id: member.id).first
+    existing_user ||= User.new(user_id: member.id, team: self, opted_in: opt_in)
+    existing_user.user_name = member.name
+    existing_user.real_name = member.real_name
+    existing_user.email = member.profile.email if member.profile
+    begin
+      existing_user.update_custom_profile
+    rescue StandardError => e
+      logger.warn "Error updating custom profile for #{existing_user}: #{e.message}."
+    end
+    existing_user
+  end
 
   def active_member?(member)
     !member.is_bot &&

@@ -3,6 +3,9 @@ require 'spec_helper'
 describe User do
   context '#find_by_slack_mention!' do
     let(:user) { Fabricate(:user) }
+    before do
+      allow(user.team).to receive(:sync_user!)
+    end
     it 'finds by slack id' do
       expect(User.find_by_slack_mention!(user.team, "<@#{user.user_id}>")).to eq user
     end

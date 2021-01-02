@@ -9,7 +9,7 @@ module SlackSup
         if mention
           raise SlackSup::Error, "Sorry, only <@#{user.team.activated_user_id}> or a Slack team admin can opt users in and out." unless user.team_admin?
 
-          user = User.find_by_slack_mention!(client.owner, mention) if mention
+          user = User.find_by_slack_mention!(client.owner, mention)
         end
         case expression
         when 'in' then
