@@ -1,4 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'actionview'
 gem 'dotenv'
 gem 'hyperclient', '~> 1.0'
+gem 'time_ago_in_words'

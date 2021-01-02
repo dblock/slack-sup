@@ -26,4 +26,4 @@ puts "sup time of day: #{team.sup_time_of_day_s}"
 puts "sup every N weeks: #{team.sup_every_n_weeks}"
 puts "sup size: #{team.sup_size}"
 
-puts "sup team users: #{team.users.take(3).map(&:real_name).to_a.join(', ')}, ..."
+puts "sup team users (#{team.users.count}): #{team.users.take(3).map(&:real_name).to_a.join(', ')}, ..."
