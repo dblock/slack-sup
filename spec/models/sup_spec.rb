@@ -27,7 +27,7 @@ describe Sup do
           sup.update_attributes!(channel_id: 'channel')
         end
         it 'reminds for outcome' do
-          expect(sup.send(:slack_client)).to receive(:mpim_history).and_return(Hashie::Mash.new(messages: []))
+          expect(sup.send(:slack_client)).to receive(:conversations_history).and_return(Hashie::Mash.new(messages: []))
           expect(sup).to receive(:dm!).with(text: 'Bumping myself on top of your list.')
           sup.remind!
         end
@@ -37,13 +37,13 @@ describe Sup do
             sup.update_attributes!(captain: captain)
           end
           it 'pings captain' do
-            expect(sup.send(:slack_client)).to receive(:mpim_history).and_return(Hashie::Mash.new(messages: []))
+            expect(sup.send(:slack_client)).to receive(:conversations_history).and_return(Hashie::Mash.new(messages: []))
             expect(sup).to receive(:dm!).with(text: "Bumping myself on top of your list, #{captain.slack_mention}.")
             sup.remind!
           end
         end
         it 'does not remind if a conversation has been had' do
-          expect(sup.send(:slack_client)).to receive(:mpim_history).and_return(Hashie::Mash.new(messages: [1, 2]))
+          expect(sup.send(:slack_client)).to receive(:conversations_history).and_return(Hashie::Mash.new(messages: [1, 2]))
           expect(sup).to_not receive(:dm!)
           sup.remind!
         end

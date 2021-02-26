@@ -125,7 +125,7 @@ class Sup
   def remind!
     return unless channel_id
 
-    messages = slack_client.mpim_history(channel: channel_id, count: 3).messages
+    messages = slack_client.conversations_history(channel: channel_id, limit: 3).messages
     return unless messages.size <= 1
 
     dm!(text: captain ? "Bumping myself on top of your list, #{captain.slack_mention}." : 'Bumping myself on top of your list.')
@@ -183,8 +183,8 @@ class Sup
   # creates a DM between all the parties involved
   def dm!(message)
     unless channel_id
-      channel = slack_client.mpim_open(users: users.map(&:user_id).join(','))
-      update_attributes!(channel_id: channel.group.id)
+      channel = slack_client.conversations_open(users: users.map(&:user_id).join(','))
+      update_attributes!(channel_id: channel.channel.id)
     end
     slack_client.chat_postMessage(message.merge(channel: channel_id, as_user: true))
   end
