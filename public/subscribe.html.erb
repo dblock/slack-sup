@@ -28,7 +28,7 @@
 
           var team = {
             id: '<%= team && team.team_id %>',
-            name: '<%= team && team.name %>',
+            name: '<%= team && team.name.gsub("'", '&#x27;') %>',
             subscribed: <%= !!(team && team.subscribed) %>,
           }
 
