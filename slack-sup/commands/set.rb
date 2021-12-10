@@ -26,7 +26,7 @@ module SlackSup
           if user.team_admin? && v
             team.update_attributes!(api: v.to_b)
             message = [
-              team_data_access_message(user, true),
+              team_data_access_message(user.reload, true),
               team.api_url
             ].compact.join("\n")
             client.say(channel: data.channel, text: message)
@@ -52,7 +52,7 @@ module SlackSup
           elsif user.team_admin? && !team.api_token
             team.update_attributes!(api_token: SecureRandom.hex)
             message = [
-              team_data_access_message(user, false, true),
+              team_data_access_message(user.reload, false, true),
               team.api_url
             ].compact.join("\n")
             client.say(channel: data.channel, text: message)
@@ -84,7 +84,7 @@ module SlackSup
           elsif user.team_admin? && team.api_token
             team.update_attributes!(api_token: nil)
             message = [
-              team_data_access_message(user, true),
+              team_data_access_message(user.reload, true),
               team.api_url
             ].compact.join("\n")
             client.say(channel: data.channel, text: message)
@@ -110,7 +110,7 @@ module SlackSup
           elsif user.team_admin?
             team.update_attributes!(api_token: SecureRandom.hex)
             message = [
-              team_data_access_message(user, false, true),
+              team_data_access_message(user.reload, false, true),
               team.api_url
             ].compact.join("\n")
             client.say(channel: data.channel, text: message)
