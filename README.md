@@ -1,7 +1,7 @@
 S'Up for Slack
 ==============
 
-[![Build Status](https://travis-ci.org/dblock/slack-sup.svg?branch=master)](https://travis-ci.org/dblock/slack-sup)
+[![Tests](https://github.com/dblock/slack-sup/actions/workflows/test.yml/badge.svg)](https://github.com/dblock/slack-sup/actions/workflows/test.yml)
 [![Code Climate](https://codeclimate.com/github/dblock/slack-sup.svg)](https://codeclimate.com/github/dblock/slack-sup)
 
 ### What's This?
