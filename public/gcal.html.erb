@@ -13,13 +13,12 @@
     </p>
     <p id='messages' />
     <p>
-      <button id='createEvent' type="button" class="btn btn-success hidden" onclick="gapi.auth2.getAuthInstance().signIn();">Create Event</button>
+      <button id='createEvent' type="button" class="btn btn-success hidden" onclick="prepareCreateEvent();">Create Event</button>
     </p>
 
     <script type="text/javascript">
 
       var CLIENT_ID = '<%= ENV['GOOGLE_API_CLIENT_ID'] %>';
-      var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
       var SCOPES = "https://www.googleapis.com/auth/calendar";
 
       <% sup = Sup.where(id: request['sup_id']).first %>
@@ -42,7 +41,7 @@
           SlackSup.errorMessage("Missing GOOGLE_API_CLIENT_ID.");
         } else if (sup.id && sup.dt && sup.access_token_valid) {
           SlackSup.message("Adding S'Up calendar for <b>" + sup.with + "</b> on " + sup.dt_s + " ...");
-          gapi.load('client:auth2', initClient);
+          gisInit();
         } else if (!sup.id) {
           SlackSup.errorMessage("Missing or invalid S'Up ID.");
         } else if (!sup.dt) {
@@ -54,45 +53,55 @@
         }
       }
 
-      function initClient() {
+      let tokenClient;
+      let gapiInited;
+      let gisInited;
 
+      function checkBeforeStart() {
+        if (gapiInited && gisInited){
+          prepareCreateEvent()
+        }
+      }
+
+      function gapiInit() {
         gapi.client.init({
-          discoveryDocs: DISCOVERY_DOCS,
-          clientId: CLIENT_ID,
-          scope: SCOPES
-        }).then(function () {
 
-          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-
-          if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
-            Promise.resolve(gapi.auth2.getAuthInstance().signIn()).then(function() {
-              SlackSup.message("Creating S'Up calendar for <b>" + sup.with + "</b> on " + sup.dt_s + " ...");
-            }).catch(function(error) {
-              $('#createEvent').removeClass('hidden');
-              if (error && error.error == 'popup_blocked_by_browser') {
-                SlackSup.errorMessage("A popup has been blocked by the browser. Click on the button below.");
-                $('#createEvent').removeClass('hidden');
-              } else if (error && error.error == 'popup_closed_by_user') {
-                SlackSup.errorMessage("A popup was closed. You must sign into Google Calendar for this to work. Click on the button below.");
-              } else {
-                SlackSup.errorMessage("There was an error signing into GCal: " + error.error + ". Click on the button below.");
-              }
-            });
-          } else {
-            createEvent();
-          }
-        }, function(error) {
-          if (error && error.error) {
-            SlackSup.errorMessage(error.error);
-          } else {
-            SlackSup.errorMessage("Unexpected error.");
-          }
+        })
+        .then(function() {
+          gapi.client.load('https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest');
+          gapiInited = true;
+          checkBeforeStart();
         });
       }
 
-      function updateSigninStatus(signedIn) {
-        if (signedIn) {
-          createEvent()
+      function gapiLoad() {
+        gapi.load('client', gapiInit)
+      }
+
+      function gisInit() {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: CLIENT_ID,
+          scope: SCOPES,
+          callback: this.createEvent, 
+        });
+
+        gisInited = true;
+        checkBeforeStart();
+      }
+
+      function prepareCreateEvent() {
+        tokenClient.callback = (resp) => {
+          if (resp.error !== undefined) {
+            throw(resp);
+          }
+          // console.log('gapi.client access token: ' + JSON.stringify(gapi.client.getToken()));
+          createEvent();
+        }
+
+        if (gapi.client.getToken() === null) {
+          tokenClient.requestAccessToken({prompt: 'consent'});
+        } else {
+          tokenClient.requestAccessToken({prompt: ''});
         }
       }
 
@@ -150,7 +159,8 @@
 
     </script>
 
-    <script async defer src="https://apis.google.com/js/api.js"
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoad()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client"
       onload="this.onload=function(){};handleClientLoad()"
       onreadystatechange="if (this.readyState === 'complete') this.onload()">
     </script>
