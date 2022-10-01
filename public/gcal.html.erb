@@ -12,9 +12,6 @@
       <h3>S'Up for Slack Teams: Creating a Calendar Event</h3>
     </p>
     <p id='messages' />
-    <p>
-      <button id='createEvent' type="button" class="btn btn-success hidden" onclick="prepareCreateEvent();">Create Event</button>
-    </p>
 
     <script type="text/javascript">
 
@@ -99,9 +96,9 @@
         }
 
         if (gapi.client.getToken() === null) {
-          tokenClient.requestAccessToken({prompt: 'consent'});
+          tokenClient.requestAccessToken({ prompt: 'consent' });
         } else {
-          tokenClient.requestAccessToken({prompt: ''});
+          tokenClient.requestAccessToken({ prompt: '' });
         }
       }
 
