@@ -347,6 +347,29 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
         )
       end
     end
+    context 'time and time zone together' do
+      it 'sets time together with a timezone' do
+        expect(message: "#{SlackRubyBot.config.user} set time 10AM Hawaii").to respond_with_slack_message(
+          "Team S'Up is now after 10:00 AM #{Time.now.in_time_zone(ActiveSupport::TimeZone.new('Hawaii')).strftime('%Z')}."
+        )
+        expect(team.reload.sup_time_of_day).to eq 10 * 60 * 60
+        expect(team.reload.sup_tz).to eq 'Hawaii'
+      end
+      it 'sets time together with a timezone' do
+        expect(message: "#{SlackRubyBot.config.user} set time 10 AM Hawaii").to respond_with_slack_message(
+          "Team S'Up is now after 10:00 AM #{Time.now.in_time_zone(ActiveSupport::TimeZone.new('Hawaii')).strftime('%Z')}."
+        )
+        expect(team.reload.sup_time_of_day).to eq 10 * 60 * 60
+        expect(team.reload.sup_tz).to eq 'Hawaii'
+      end
+      it 'sets time together with a timezone' do
+        expect(message: "#{SlackRubyBot.config.user} set time 10:00 AM Pacific Time (US & Canada)").to respond_with_slack_message(
+          "Team S'Up is now after 10:00 AM #{Time.now.in_time_zone(ActiveSupport::TimeZone.new('America/Los_Angeles')).strftime('%Z')}."
+        )
+        expect(team.reload.sup_time_of_day).to eq 10 * 60 * 60
+        expect(team.reload.sup_tz).to eq 'Pacific Time (US & Canada)'
+      end
+    end
     context 'custom profile team field', vcr: { cassette_name: 'team_profile_get' } do
       it 'is not set by default' do
         expect(message: "#{SlackRubyBot.config.user} set team field").to respond_with_slack_message(

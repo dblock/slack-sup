@@ -140,6 +140,15 @@ module SlackSup
 
         def set_time(client, team, data, user, v = nil)
           if user.team_admin? && v
+            # attempt to parse a timezone right to left
+            z = []
+            tz = nil
+            v.split(' ').reverse.each do |part|
+              z << part
+              tz = ActiveSupport::TimeZone.new(z.reverse.join(' '))
+              break if tz
+            end
+            team.update_attributes!(sup_tz: tz.name) if tz
             team.update_attributes!(sup_time_of_day: DateTime.parse(v).seconds_since_midnight)
             client.say(channel: data.channel, text: "Team S'Up is now after #{team.sup_time_of_day_s} #{team.sup_tzone_s}.")
           elsif v
