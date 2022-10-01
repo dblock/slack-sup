@@ -5,6 +5,8 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
   let(:app) { SlackSup::Server.new(team: team) }
   let(:client) { app.send(:client) }
   let(:admin) { Fabricate(:user, team: team, user_name: 'username', is_admin: true) }
+  let(:tz) { ActiveSupport::TimeZone.new('Eastern Time (US & Canada)') }
+  let(:tzs) { Time.now.in_time_zone(tz).strftime('%Z') }
   context 'admin' do
     before do
       expect(User).to receive(:find_create_or_update_by_slack_id!).and_return(admin)
@@ -200,24 +202,24 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
     context 'time' do
       it 'defaults to 9AM' do
         expect(message: "#{SlackRubyBot.config.user} set time").to respond_with_slack_message(
-          "Team S'Up is after 9:00 AM."
+          "Team S'Up is after 9:00 AM #{tzs}."
         )
       end
       it 'shows current value of sup time' do
         team.update_attributes!(sup_time_of_day: 10 * 60 * 60 + 30 * 60)
         expect(message: "#{SlackRubyBot.config.user} set time").to respond_with_slack_message(
-          "Team S'Up is after 10:30 AM."
+          "Team S'Up is after 10:30 AM #{tzs}."
         )
       end
       it 'changes sup time' do
         expect(message: "#{SlackRubyBot.config.user} set time 11:20PM").to respond_with_slack_message(
-          "Team S'Up is now after 11:20 PM."
+          "Team S'Up is now after 11:20 PM #{tzs}."
         )
         expect(team.reload.sup_time_of_day).to eq 23 * 60 * 60 + 20 * 60
       end
       it 'errors set on an invalid time' do
         expect(message: "#{SlackRubyBot.config.user} set time foobar").to respond_with_slack_message(
-          "Time _foobar_ is invalid. Team S'Up is after 9:00 AM."
+          "Time _foobar_ is invalid. Team S'Up is after 9:00 AM #{tzs}."
         )
       end
     end
@@ -466,12 +468,12 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       end
       it 'cannot set time' do
         expect(message: "#{SlackRubyBot.config.user} set time 11:00 AM").to respond_with_slack_message(
-          "Team S'Up is after 9:00 AM. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry."
+          "Team S'Up is after 9:00 AM #{tzs}. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry."
         )
       end
       it 'can see time' do
         expect(message: "#{SlackRubyBot.config.user} set time").to respond_with_slack_message(
-          "Team S'Up is after 9:00 AM."
+          "Team S'Up is after 9:00 AM #{tzs}."
         )
       end
       it 'cannot set weeks' do

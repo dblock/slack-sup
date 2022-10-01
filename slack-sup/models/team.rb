@@ -154,6 +154,10 @@ class Team
     ActiveSupport::TimeZone.new(sup_tz)
   end
 
+  def sup_tzone_s
+    Time.now.in_time_zone(sup_tzone).strftime('%Z')
+  end
+
   # is it time to sup?
   def sup?
     # only sup on a certain day of the week

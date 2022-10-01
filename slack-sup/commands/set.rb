@@ -141,15 +141,15 @@ module SlackSup
         def set_time(client, team, data, user, v = nil)
           if user.team_admin? && v
             team.update_attributes!(sup_time_of_day: DateTime.parse(v).seconds_since_midnight)
-            client.say(channel: data.channel, text: "Team S'Up is now after #{team.sup_time_of_day_s}.")
+            client.say(channel: data.channel, text: "Team S'Up is now after #{team.sup_time_of_day_s} #{team.sup_tzone_s}.")
           elsif v
-            client.say(channel: data.channel, text: "Team S'Up is after #{team.sup_time_of_day_s}. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry.")
+            client.say(channel: data.channel, text: "Team S'Up is after #{team.sup_time_of_day_s} #{team.sup_tzone_s}. Only <@#{team.activated_user_id}> or a Slack team admin can change that, sorry.")
           else
-            client.say(channel: data.channel, text: "Team S'Up is after #{team.sup_time_of_day_s}.")
+            client.say(channel: data.channel, text: "Team S'Up is after #{team.sup_time_of_day_s} #{team.sup_tzone_s}.")
           end
           logger.info "SET: #{team}, user=#{user.user_name}, sup_time_of_day=#{team.sup_time_of_day_s}."
         rescue StandardError
-          raise SlackSup::Error, "Time _#{v}_ is invalid. Team S'Up is after #{team.reload.sup_time_of_day_s}."
+          raise SlackSup::Error, "Time _#{v}_ is invalid. Team S'Up is after #{team.reload.sup_time_of_day_s} #{team.sup_tzone_s}."
         end
 
         def set_followup_day(client, team, data, user, v = nil)

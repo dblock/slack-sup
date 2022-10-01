@@ -1,5 +1,6 @@
 ### Changelog
 
+* 10/1/2022: Display current time zone in `set time` - [@dblock](https://github.com/dblock).
 * 10/1/2022: Migrated to new Google Identity Services library for gcal - [@dblock](https://github.com/dblock).
 * 1/2/2021: Will sync user when opting in/out before an initial sync - [@dblock](https://github.com/dblock).
 * 1/2/2021: Added a "We Haven't Met Yet" option to meeting response - [@dblock](https://github.com/dblock).
