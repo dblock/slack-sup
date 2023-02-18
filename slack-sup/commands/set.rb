@@ -294,6 +294,23 @@ module SlackSup
           raise SlackSup::Error, "Number _#{v}_ is invalid. Taking special care to not pair the same people more than every #{team.reload.sup_recency_s}."
         end
 
+        def set_sync(client, team, data, user, v = nil)
+          if user.team_admin? && v
+            case v
+            when 'now' then
+              team.update_attributes!(sync: true)
+            else
+              raise SlackSup::Error, "The option _#{v}_ is invalid. Use `now` to schedule a user sync in the next hour."
+            end
+            client.say(channel: data.channel, text: "#{team.last_sync_at_text} Come back and run `set sync` or `stats` in a bit.")
+          elsif v
+            client.say(channel: data.channel, text: "#{team.last_sync_at_text} Only <@#{team.activated_user_id}> or a Slack team admin can manually sync, sorry.")
+          else
+            client.say(channel: data.channel, text: team.last_sync_at_text)
+          end
+          logger.info "SET: #{team}, user=#{user.user_name}, sync_users=#{team.sync}, last_sync_at=#{team.last_sync_at}."
+        end
+
         def set(client, team, data, user, k, v)
           case k
           when 'opt' then
@@ -322,6 +339,8 @@ module SlackSup
             set_odd client, team, data, user, v
           when 'message' then
             set_message client, team, data, user, v
+          when 'sync' then
+            set_sync client, team, data, user, v
           else
             raise SlackSup::Error, "Invalid setting _#{k}_, see _help_ for available options."
           end

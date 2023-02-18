@@ -22,6 +22,10 @@ class Team
 
   field :opt_in, type: Boolean, default: true
 
+  # sync
+  field :sync, type: Boolean, default: false
+  field :last_sync_at, type: DateTime
+
   # custom team field
   field :team_field_label, type: String
   field :team_field_label_id, type: String
@@ -221,6 +225,7 @@ class Team
 
   # synchronize users with slack
   def sync!
+    tt = Time.now.utc
     members = slack_client.paginate(:users_list, presence: false).map(&:members).flatten
     humans = members.select { |member| active_member?(member) }.map do |member|
       sync_member_from_slack!(member)
@@ -242,6 +247,7 @@ class Team
       dead_user.enabled = false
       dead_user.save!
     end
+    update_attributes!(sync: false, last_sync_at: tt)
   end
 
   def slack_client
@@ -323,7 +329,44 @@ class Team
     "Subscribe your team for $39.99 a year at #{SlackRubyBotServer::Service.url}/subscribe?team_id=#{team_id}."
   end
 
+  def next_sup_at_text
+    [
+      'Next round is',
+      Time.now > next_sup_at ? 'overdue' : nil,
+      next_sup_at.strftime('%A, %B %e, %Y at %l:%M %p %Z').gsub('  ', ' '),
+      '(' + next_sup_at.to_time.ago_or_future_in_words(highest_measure_only: true) + ').'
+    ].compact.join(' ')
+  end
+
+  def last_sync_at_text
+    tt = last_sync_at || last_round_at
+    messages = []
+    if tt
+      messages << "Last users sync was #{tt.to_time.ago_in_words}."
+      users = self.users.where(:updated_at.gte => last_sync_at)
+      messages << "#{pluralize(users.count, 'user')} updated."
+    end
+    if sync
+      messages << 'Users will sync in the next hour.'
+    else
+      messages << 'Users will sync before the next round.'
+      messages << next_sup_at_text
+    end
+    messages.compact.join(' ')
+  end
+
   private
+
+  def pluralize(count, text)
+    case count
+    when 0
+      "No #{text.pluralize}"
+    when 1
+      "#{count} #{text}"
+    else
+      "#{count} #{text.pluralize}"
+    end
+  end
 
   def sync_member_from_slack!(member)
     existing_user = User.where(user_id: member.id).first
@@ -397,7 +440,8 @@ class Team
   INSTALLED_TEXT =
     "Hi there! I'm your team's S'Up bot. " \
     'Thanks for trying me out. Type `help` for instructions. ' \
-    "I plan to setup some S'Ups via Slack DM next Monday.".freeze
+    "I plan to setup some S'Ups via Slack DM next Monday. " \
+    'You may want to `set size`, `set day`, `set timezone`, or `set sync now` users before then.'.freeze
 
   SUBSCRIBED_TEXT =
     "Hi there! I'm your team's S'Up bot. " \

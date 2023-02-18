@@ -2,15 +2,7 @@ module SlackSup
   module Commands
     class Rounds < SlackRubyBot::Commands::Base
       include SlackSup::Commands::Mixins::Subscribe
-
-      def self.pluralize(count, text)
-        case count
-        when 1
-          "#{count} #{text}"
-        else
-          "#{count} #{text.pluralize}"
-        end
-      end
+      include SlackSup::Commands::Mixins::Pluralize
 
       def self.parse_arg(match)
         max = 3

@@ -32,6 +32,7 @@ module SlackSup
         set followup [day of week] - set the follow up day of S'up, default is Thursday
         set recency [number]       - set the number of weeks during which to avoid pairing the same people, default is 12
         set opt [in|out]           - opt in (default) or opt out new users
+        set sync [now]             - review or schedule a user sync from Slack
         set api [on|off]           - enable/disable API access to your team data
         set api token              - require an access token in the X-Access-Token header for API access
         unset api token            - don't require an access token for API access

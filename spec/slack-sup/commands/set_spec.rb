@@ -441,6 +441,54 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
         )
       end
     end
+    context 'sync' do
+      it 'shows next sync' do
+        team.update_attributes!(sync: true)
+        expect(message: "#{SlackRubyBot.config.user} set sync").to respond_with_slack_message(
+          'Users will sync in the next hour.'
+        )
+      end
+      it 'shows last sync' do
+        team.update_attributes!(sync: false)
+        expect(message: "#{SlackRubyBot.config.user} set sync").to respond_with_slack_message(
+          "Users will sync before the next round. #{team.next_sup_at_text}"
+        )
+      end
+      it 'shows last sync that had user updates' do
+        team.update_attributes!(last_sync_at: Time.now.utc)
+        Fabricate(:user, team: team)
+        expect(message: "#{SlackRubyBot.config.user} set sync").to respond_with_slack_message(
+          "Last users sync was less than 1 second ago. 1 user updated. Users will sync before the next round. #{team.next_sup_at_text}"
+        )
+      end
+      it 'shows last sync that had no user updates' do
+        team.update_attributes!(last_sync_at: Time.now.utc)
+        expect(message: "#{SlackRubyBot.config.user} set sync").to respond_with_slack_message(
+          "Last users sync was less than 1 second ago. No users updated. Users will sync before the next round. #{team.next_sup_at_text}"
+        )
+      end
+      it 'shows last sync that had multiple users updates' do
+        team.update_attributes!(last_sync_at: Time.now.utc)
+        2.times { Fabricate(:user, team: team) }
+        expect(message: "#{SlackRubyBot.config.user} set sync").to respond_with_slack_message(
+          "Last users sync was less than 1 second ago. 2 users updated. Users will sync before the next round. #{team.next_sup_at_text}"
+        )
+      end
+      it 'sets sync' do
+        team.update_attributes!(sup_odd: false)
+        expect(message: "#{SlackRubyBot.config.user} set sync now").to respond_with_slack_message(
+          'Users will sync in the next hour. Come back and run `set sync` or `stats` in a bit.'
+        )
+        expect(team.reload.sync).to be true
+      end
+      it 'errors on invalid sync value' do
+        team.update_attributes!(sync: false)
+        expect(message: "#{SlackRubyBot.config.user} set sync foobar").to respond_with_slack_message(
+          'The option _foobar_ is invalid. Use `now` to schedule a user sync in the next hour.'
+        )
+        expect(team.reload.sync).to be false
+      end
+    end
   end
   context 'not admin' do
     context 'api' do
@@ -567,6 +615,22 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       it 'can see custom sup message' do
         expect(message: "#{SlackRubyBot.config.user} set message").to respond_with_slack_message(
           "Using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_"
+        )
+      end
+      it 'can see sync info' do
+        expect(message: "#{SlackRubyBot.config.user} set sync").to respond_with_slack_message(
+          "Users will sync before the next round. #{team.next_sup_at_text}"
+        )
+      end
+      it 'can see exact sync date' do
+        team.update_attributes!(sync: true)
+        expect(message: "#{SlackRubyBot.config.user} set sync").to respond_with_slack_message(
+          'Users will sync in the next hour.'
+        )
+      end
+      it 'cannot set sync now' do
+        expect(message: "#{SlackRubyBot.config.user} set sync now").to respond_with_slack_message(
+          "Users will sync before the next round. #{team.next_sup_at_text} Only <@#{team.activated_user_id}> or a Slack team admin can manually sync, sorry."
         )
       end
     end

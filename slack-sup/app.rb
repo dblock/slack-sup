@@ -13,6 +13,7 @@ module SlackSup
           check_expired_subscriptions!
         end
         once_and_every 60 * 30 do
+          sync!
           sup!
         end
         once_and_every 60 * 30 do
@@ -34,13 +35,17 @@ module SlackSup
       end
     end
 
-    def invoke!(&_block)
-      Team.active.each do |team|
+    def invoke_with_criteria!(teams, &_block)
+      teams.each do |team|
         yield team
       rescue StandardError => e
         backtrace = e.backtrace.join("\n")
         logger.warn "Error in cron for team #{team}, #{e.message}, #{backtrace}."
       end
+    end
+
+    def invoke!(&_block)
+      invoke_with_criteria!(Team.active, &_block)
     end
 
     def ask!
@@ -67,6 +72,14 @@ module SlackSup
         logger.info "Checking whether to remind #{team}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
         round = team.remind!
         logger.info "Reminded about previous sup round #{round}." if round
+      end
+    end
+
+    def sync!
+      invoke_with_criteria!(Team.active.where(sync: true)) do |team|
+        tt = Time.now.utc
+        team.sync!
+        logger.info "Synched #{team}, #{team.users.where(:updated_at.gte => tt).count} user(s) updated."
       end
     end
 

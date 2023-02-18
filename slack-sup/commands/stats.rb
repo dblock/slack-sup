@@ -2,15 +2,7 @@ module SlackSup
   module Commands
     class Stats < SlackRubyBot::Commands::Base
       include SlackSup::Commands::Mixins::Subscribe
-
-      def self.pluralize(count, text)
-        case count
-        when 1
-          "#{count} #{text}"
-        else
-          "#{count} #{text.pluralize}"
-        end
-      end
+      include SlackSup::Commands::Mixins::Pluralize
 
       subscribe_command 'stats' do |client, data, _match|
         team = client.owner
