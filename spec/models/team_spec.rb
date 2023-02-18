@@ -1,6 +1,97 @@
 require 'spec_helper'
 
 describe Team do
+  context '#join_channel!' do
+    let(:team) { Fabricate(:team) }
+    it 'creates a new channel' do
+      expect do
+        channel = team.join_channel!('C123', 'U123')
+        expect(channel).to_not be nil
+        expect(channel.channel_id).to eq 'C123'
+        expect(channel.inviter_id).to eq 'U123'
+        expect(channel.sync).to be true
+        expect(channel.last_sync_at).to be nil
+      end.to change(Channel, :count).by(1)
+    end
+    context 'with a previously joined channel' do
+      let(:channel) { team.join_channel!('C123', 'U123') }
+      context 'after leaving a channel' do
+        before do
+          team.leave_channel!(channel.channel_id)
+        end
+        context 'after rejoining the channel' do
+          let!(:rejoined_channel) { team.join_channel!(channel.channel_id, 'U456') }
+          it 're-enables channel' do
+            rejoined_channel.reload
+            expect(rejoined_channel.enabled).to be true
+            expect(rejoined_channel.inviter_id).to eq 'U456'
+            expect(rejoined_channel.sync).to be true
+            expect(rejoined_channel.last_sync_at).to be nil
+          end
+        end
+      end
+    end
+    context 'with an existing channel' do
+      let!(:channel) { Fabricate(:channel, team: team) }
+      it 'creates a new channel' do
+        expect do
+          channel = team.join_channel!('C123', 'U123')
+          expect(channel).to_not be nil
+          expect(channel.channel_id).to eq 'C123'
+          expect(channel.inviter_id).to eq 'U123'
+        end.to change(Channel, :count).by(1)
+      end
+      it 'creates a new channel for a different team' do
+        expect do
+          team2 = Fabricate(:team)
+          channel2 = team2.join_channel!(channel.channel_id, 'U123')
+          expect(channel2).to_not be nil
+          expect(channel2.channel_id).to eq channel.channel_id
+          expect(channel2.inviter_id).to eq 'U123'
+        end.to change(Channel, :count).by(1)
+      end
+      it 'updates an existing channel' do
+        expect do
+          channel2 = team.join_channel!(channel.channel_id, 'U123')
+          expect(channel2).to_not be nil
+          expect(channel2).to eq channel
+          expect(channel2.channel_id).to eq channel.channel_id
+          expect(channel2.inviter_id).to eq 'U123'
+        end.to_not change(Channel, :count)
+      end
+    end
+  end
+  context '#leave_channel!' do
+    let(:team) { Fabricate(:team) }
+    it 'ignores a channel the bot is not a member of' do
+      expect do
+        expect(team.leave_channel!('C123')).to be false
+      end.to_not change(Channel, :count)
+    end
+    context 'with an existing channel' do
+      let!(:channel) { Fabricate(:channel, team: team) }
+      context 'after leaving a channel' do
+        before do
+          team.leave_channel!(channel.channel_id)
+        end
+        it 'disables channel' do
+          channel.reload
+          expect(channel.enabled).to be false
+          expect(channel.sync).to be false
+        end
+      end
+      it 'can leave an existing channel twice' do
+        expect do
+          expect(team.leave_channel!(channel.channel_id)).to eq channel
+          expect(team.leave_channel!(channel.channel_id)).to eq channel
+        end.to_not change(Channel, :count)
+      end
+      it 'does not leave channel for the wrong team' do
+        team2 = Fabricate(:team)
+        expect(team2.leave_channel!(channel.channel_id)).to be false
+      end
+    end
+  end
   context '#short_lived_token' do
     let(:team) { Fabricate(:team) }
     it 'create a new token every time' do

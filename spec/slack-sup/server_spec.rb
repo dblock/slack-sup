@@ -12,4 +12,10 @@ describe SlackSup::Server do
       client.send(:callback, Hashie::Mash.new('channel' => { 'id' => 'C12345' }), :channel_joined)
     end
   end
+  context '#member_joined_channel' do
+    pending 'creates a channel when the bot joins a channel'
+  end
+  context '#member_left_channel' do
+    pending 'deactivates a channel when the bot leaves a channel'
+  end
 end

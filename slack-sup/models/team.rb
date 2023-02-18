@@ -36,6 +36,7 @@ class Team
 
   scope :api, -> { where(api: true) }
 
+  has_many :channels, dependent: :destroy
   has_many :users, dependent: :destroy
   has_many :rounds, dependent: :destroy
   has_many :sups, dependent: :destroy
@@ -355,6 +356,19 @@ class Team
     messages.compact.join(' ')
   end
 
+  def join_channel!(channel_id, inviter_id)
+    channel = channels.where(channel_id: channel_id).first
+    channel ||= channels.create!(channel_id: channel_id)
+    channel.update_attributes!(enabled: true, sync: true, inviter_id: inviter_id)
+    channel
+  end
+
+  def leave_channel!(channel_id)
+    channel = channels.where(channel_id: channel_id).first
+    channel&.update_attributes!(enabled: false, sync: false)
+    channel || false
+  end
+
   private
 
   def pluralize(count, text)
@@ -368,12 +382,12 @@ class Team
     end
   end
 
-  def sync_member_from_slack!(member)
-    existing_user = User.where(user_id: member.id).first
-    existing_user ||= User.new(user_id: member.id, team: self, opted_in: opt_in)
-    existing_user.user_name = member.name
-    existing_user.real_name = member.real_name
-    existing_user.email = member.profile.email if member.profile
+  def sync_member_from_slack!(info)
+    existing_user = users.where(user_id: info.id).first
+    existing_user ||= users.create!(user_id: info.id, opted_in: opt_in)
+    existing_user.user_name = info.name
+    existing_user.real_name = info.real_name
+    existing_user.email = info.profile.email if info.profile
     begin
       existing_user.update_custom_profile
     rescue StandardError => e
