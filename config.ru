@@ -9,9 +9,12 @@ require 'slack-ruby-bot-server'
 require 'slack-sup'
 
 SlackRubyBotServer.configure do |config|
-  config.server_class = SlackSup::Server
   config.oauth_version = :v1
   config.oauth_scope = ['bot']
+end
+
+SlackRubyBotServer::RealTime.configure do |config|
+  config.server_class = SlackSup::Server
 end
 
 NewRelic::Agent.manual_start
