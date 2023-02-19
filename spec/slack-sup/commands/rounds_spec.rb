@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe SlackSup::Commands::Rounds do
   let(:team) { Fabricate(:team, subscribed: true) }
+  let(:channel) { Fabricate(:channel, team: team, channel_id: 'channel') }
   let(:app) { SlackSup::Server.new(team: team) }
   let(:client) { app.send(:client) }
   it 'empty stats' do
@@ -10,18 +11,18 @@ describe SlackSup::Commands::Rounds do
     )
   end
   context 'with outcomes' do
-    let!(:user1) { Fabricate(:user, team: team) }
-    let!(:user2) { Fabricate(:user, team: team) }
-    let!(:user3) { Fabricate(:user, team: team) }
+    let!(:user1) { Fabricate(:user, channel: channel) }
+    let!(:user2) { Fabricate(:user, channel: channel) }
+    let!(:user3) { Fabricate(:user, channel: channel) }
     before do
-      allow(team).to receive(:sync!)
+      allow(channel).to receive(:sync!)
       allow_any_instance_of(Sup).to receive(:dm!)
       Timecop.freeze do
-        round = team.sup!
+        round = channel.sup!
         round.ask!
         Sup.asc(:_id).first.update_attributes!(outcome: 'all')
         Timecop.travel(Time.now + 1.year)
-        team.sup!
+        channel.sup!
       end
     end
     it 'reports counts' do
@@ -34,18 +35,18 @@ describe SlackSup::Commands::Rounds do
     end
   end
   context 'with opt outs and misses' do
-    let!(:user1) { Fabricate(:user, team: team) }
-    let!(:user2) { Fabricate(:user, team: team) }
-    let!(:user3) { Fabricate(:user, team: team) }
-    let!(:user4) { Fabricate(:user, team: team, opted_in: false) }
-    let!(:user5) { Fabricate(:user, team: team, enabled: false) }
-    let!(:user6) { Fabricate(:user, team: team) }
-    let!(:user7) { Fabricate(:user, team: team) }
+    let!(:user1) { Fabricate(:user, channel: channel) }
+    let!(:user2) { Fabricate(:user, channel: channel) }
+    let!(:user3) { Fabricate(:user, channel: channel) }
+    let!(:user4) { Fabricate(:user, channel: channel, opted_in: false) }
+    let!(:user5) { Fabricate(:user, channel: channel, enabled: false) }
+    let!(:user6) { Fabricate(:user, channel: channel) }
+    let!(:user7) { Fabricate(:user, channel: channel) }
     before do
-      team.update_attributes!(sup_odd: false)
-      allow(team).to receive(:sync!)
+      channel.update_attributes!(sup_odd: false)
+      allow(channel).to receive(:sync!)
       allow_any_instance_of(Sup).to receive(:dm!)
-      team.sup!
+      channel.sup!
     end
     it 'reports counts' do
       expect(message: "#{SlackRubyBot.config.user} rounds 2").to respond_with_slack_message(

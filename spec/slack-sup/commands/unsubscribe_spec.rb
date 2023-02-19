@@ -70,10 +70,11 @@ describe SlackSup::Commands::Unsubscribe do
   end
   context 'subscribed team' do
     let!(:team) { Fabricate(:team, subscribed: true) }
+    let!(:channel) { Fabricate(:channel, team: team) }
     context 'admin' do
-      let!(:activated_user) { Fabricate(:user, team: team) }
+      let!(:activated_user) { Fabricate(:user, channel: channel) }
       before do
-        expect(User).to receive(:find_create_or_update_by_slack_id!).and_return(activated_user)
+        expect(team).to receive(:find_create_or_update_user_in_channel_by_slack_id!).and_return(activated_user)
         team.update_attributes!(activated_user_id: activated_user.user_id)
       end
       it_behaves_like 'unsubscribe'

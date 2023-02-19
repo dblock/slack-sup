@@ -1,18 +1,17 @@
 module SlackSup
   module Commands
     class Stats < SlackRubyBot::Commands::Base
-      include SlackSup::Commands::Mixins::Subscribe
+      include SlackSup::Commands::Mixins::Channel
       include SlackSup::Commands::Mixins::Pluralize
 
-      subscribe_command 'stats' do |client, data, _match|
-        team = client.owner
-        stats = ::Stats.new(team)
+      channel_command 'stats' do |client, channel, data, _match|
+        stats = ::Stats.new(channel)
         messages = []
-        messages << "Team S'Up connects groups of #{team.sup_size} people on #{team.sup_day} after #{team.sup_time_of_day_s} every #{team.sup_every_n_weeks_s}."
+        messages << "Team S'Up connects groups of #{channel.sup_size} people on #{channel.sup_day} after #{channel.sup_time_of_day_s} every #{channel.sup_every_n_weeks_s}."
         messages << if stats.users_count > 0 && stats.users_opted_in_count > 0
-                      "Team S'Up started #{team.created_at.ago_in_words(highest_measure_only: true)} with #{stats.users_opted_in_count * 100 / stats.users_count}% (#{stats.users_opted_in_count}/#{stats.users_count}) of users opted in."
+                      "Team S'Up started #{channel.created_at.ago_in_words(highest_measure_only: true)} with #{stats.users_opted_in_count * 100 / stats.users_count}% (#{stats.users_opted_in_count}/#{stats.users_count}) of users opted in."
                     else
-                      "Team S'Up started #{team.created_at.ago_in_words(highest_measure_only: true)} with no users (0/#{stats.users_count}) opted in."
+                      "Team S'Up started #{channel.created_at.ago_in_words(highest_measure_only: true)} with no users (0/#{stats.users_count}) opted in."
                     end
         if stats.sups_count > 0
           messages << "Facilitated #{pluralize(stats.sups_count, 'S\'Up')} " \
@@ -21,8 +20,8 @@ module SlackSup
             "with #{stats.positive_outcomes_count * 100 / stats.sups_count}% positive outcomes " \
             "from #{stats.reported_outcomes_count * 100 / stats.sups_count}% outcomes reported."
         end
-        client.say(channel: data.channel, text: messages.join("\n"))
-        logger.info "STATS: #{client.owner} - #{data.user}"
+        client.say(channel: channel.channel_id, text: messages.join("\n"))
+        logger.info "STATS: #{channel} - #{data.user}"
       end
     end
   end

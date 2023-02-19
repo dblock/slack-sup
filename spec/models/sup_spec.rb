@@ -24,7 +24,7 @@ describe Sup do
       end
       context 'with channel' do
         before do
-          sup.update_attributes!(channel_id: 'channel')
+          sup.update_attributes!(conversation_id: 'channel')
         end
         it 'reminds for outcome' do
           expect(sup.send(:slack_client)).to receive(:conversations_history).and_return(Hashie::Mash.new(messages: []))
@@ -32,7 +32,7 @@ describe Sup do
           sup.remind!
         end
         context 'with captain' do
-          let(:captain) { Fabricate(:user, team: sup.team) }
+          let(:captain) { Fabricate(:user, channel: sup.channel) }
           before do
             sup.update_attributes!(captain: captain)
           end
@@ -56,21 +56,21 @@ describe Sup do
         expect(href).to be_a URI::HTTPS
         params = Rack::Utils.parse_nested_query(href.query)
         expect(params['sup_id']).to eq sup.id.to_s
-        expect(sup.team.short_lived_token_valid?(params['access_token'])).to be true
+        expect(sup.channel.short_lived_token_valid?(params['access_token'])).to be true
         expect(params['dt'].to_i).to eq t.to_i
       end
     end
   end
   context 'a round' do
-    let(:team) { Fabricate(:team) }
-    let!(:user1) { Fabricate(:user, team: team) }
-    let!(:user2) { Fabricate(:user, team: team) }
-    let!(:user3) { Fabricate(:user, team: team) }
+    let(:channel) { Fabricate(:channel) }
+    let!(:user1) { Fabricate(:user, channel: channel) }
+    let!(:user2) { Fabricate(:user, channel: channel) }
+    let!(:user3) { Fabricate(:user, channel: channel) }
     before do
-      allow(team).to receive(:sync!)
+      allow(channel).to receive(:sync!)
       allow_any_instance_of(Sup).to receive(:dm!)
     end
-    let!(:round) { team.sup! }
+    let!(:round) { channel.sup! }
     it 'generates sups' do
       expect(round.sups.count).to eq 1
     end
@@ -81,7 +81,7 @@ describe Sup do
           sup.users.each { |u| u.update_attributes!(introduced_sup_at: nil) }
           expect(sup.send(:intro_message)).to eq(
             'The most valuable relationships are not made of 2 people, they’re made of 3. ' \
-            "Team S'Up connects groups of 3 people on Monday every week. " \
+            "channel S'Up connects groups of 3 people from <@#{sup.channel.channel_id}> on Monday every week. " \
             "Welcome #{sup.users.asc(:_id).map(&:slack_mention).and}, excited for your first S'Up!"
           )
         end
@@ -90,7 +90,7 @@ describe Sup do
           users.each { |u| u.update_attributes!(introduced_sup_at: nil) }
           expect(sup.send(:intro_message)).to eq(
             'The most valuable relationships are not made of 2 people, they’re made of 3. ' \
-            "Team S'Up connects groups of 3 people on Monday every week. " \
+            "channel S'Up connects groups of 3 people from <@#{sup.channel.channel_id}> on Monday every week. " \
             "Welcome #{users.map(&:slack_mention).and}, excited for your first S'Up!"
           )
         end
@@ -98,15 +98,15 @@ describe Sup do
           sup.users.first.update_attributes!(introduced_sup_at: nil)
           expect(sup.send(:intro_message)).to eq(
             'The most valuable relationships are not made of 2 people, they’re made of 3. ' \
-            "Team S'Up connects groups of 3 people on Monday every week. " \
+            "channel S'Up connects groups of 3 people from <@#{sup.channel.channel_id}> on Monday every week. " \
             "Welcome #{sup.users.first.slack_mention}, excited for your first S'Up!"
           )
         end
         it 'one is new and sup_size is not 3' do
-          sup.team.update_attributes!(sup_size: 2)
+          sup.channel.update_attributes!(sup_size: 2)
           sup.users.first.update_attributes!(introduced_sup_at: nil)
           expect(sup.send(:intro_message)).to eq(
-            "Team S'Up connects groups of 2 people on Monday every week. " \
+            "channel S'Up connects groups of 2 people from <@#{sup.channel.channel_id}> on Monday every week. " \
             "Welcome #{sup.users.first.slack_mention}, excited for your first S'Up!"
           )
         end
@@ -117,42 +117,42 @@ describe Sup do
     end
   end
   context 'sup!' do
-    let(:team) { Fabricate(:team) }
-    let!(:user1) { Fabricate(:user, team: team) }
-    let!(:user2) { Fabricate(:user, team: team) }
-    let!(:user3) { Fabricate(:user, team: team) }
+    let(:channel) { Fabricate(:channel) }
+    let!(:user1) { Fabricate(:user, channel: channel) }
+    let!(:user2) { Fabricate(:user, channel: channel) }
+    let!(:user3) { Fabricate(:user, channel: channel) }
     before do
-      allow(team).to receive(:sync!)
+      allow(channel).to receive(:sync!)
     end
     it 'uses default message' do
       expect_any_instance_of(Sup).to receive(:dm!).with(
         text: /Please find a time for a quick 20 minute break on the calendar./
       )
-      team.sup!
+      channel.sup!
     end
     it 'includes intro message' do
       expect_any_instance_of(Sup).to receive(:dm!).with(
-        text: /Team S'Up connects groups of 3 people on Monday every week. Welcome #{team.users.asc(:_id).map(&:slack_mention).and}, excited for your first S'Up!/
+        text: /channel S'Up connects groups of 3 people from <@#{channel.channel_id}> on Monday every week. Welcome #{channel.users.asc(:_id).map(&:slack_mention).and}, excited for your first S'Up!/
       )
-      team.sup!
+      channel.sup!
     end
     it 'uses a custom message' do
-      team.update_attributes!(sup_message: 'SUP SUP')
-      allow(team).to receive(:sync!)
+      channel.update_attributes!(sup_message: 'SUP SUP')
+      allow(channel).to receive(:sync!)
       expect_any_instance_of(Sup).to receive(:dm!).with(
         text: /SUP SUP/
       )
-      team.sup!
+      channel.sup!
     end
     it 'mentions SUP captain' do
       expect_any_instance_of(Sup).to receive(:dm!).with(
         text: /(#{user1.slack_mention}|#{user2.slack_mention}|#{user3.slack_mention}), you're in charge this week to make it happen!/
       )
       expect do
-        team.sup!
+        channel.sup!
       end.to change(Sup, :count).by(1)
-      sup = team.sups.first
-      expect(team.users).to include sup.captain
+      sup = channel.sups.first
+      expect(channel.users).to include sup.captain
     end
     context 'chooses captain' do
       before do
@@ -163,7 +163,7 @@ describe Sup do
         Fabricate(:sup, captain: user1, created_at: 4.weeks.ago)
         Fabricate(:sup, captain: user1, created_at: 5.weeks.ago)
         Fabricate(:sup, captain: user2, created_at: 6.weeks.ago)
-        user4 = Fabricate(:user, team: team)
+        user4 = Fabricate(:user, channel: channel)
         sup = Fabricate(:sup, user_ids: [user1.id, user2.id, user4.id])
         sup.sup!
         expect(sup.captain).to eq user4

@@ -35,61 +35,61 @@ module SlackSup
       end
     end
 
-    def invoke_with_criteria!(teams, &_block)
-      teams.each do |team|
-        yield team
+    def invoke_with_criteria!(obj, &_block)
+      obj.each do |obj|
+        yield obj
       rescue StandardError => e
         backtrace = e.backtrace.join("\n")
-        logger.warn "Error in cron for team #{team}, #{e.message}, #{backtrace}."
+        logger.warn "Error in cron for #{obj}, #{e.message}, #{backtrace}."
       end
     end
 
     def invoke!(&_block)
-      invoke_with_criteria!(Team.active, &_block)
+      invoke_with_criteria!(Channel.enabled, &_block)
     end
 
     def ask!
-      invoke! do |team|
-        last_round_at = team.last_round_at
-        logger.info "Checking whether to ask #{team}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
-        round = team.ask!
+      invoke! do |channel|
+        last_round_at = channel.last_round_at
+        logger.info "Checking whether to ask #{channel}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
+        round = channel.ask!
         logger.info "Asked about previous sup round #{round}." if round
       end
     end
 
     def ask_again!
-      invoke! do |team|
-        last_round_at = team.last_round_at
-        logger.info "Checking whether to ask again #{team}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
-        round = team.ask_again!
+      invoke! do |channel|
+        last_round_at = channel.last_round_at
+        logger.info "Checking whether to ask again #{channel}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
+        round = channel.ask_again!
         logger.info "Asked again about previous sup round #{round}." if round
       end
     end
 
     def remind!
-      invoke! do |team|
-        last_round_at = team.last_round_at
-        logger.info "Checking whether to remind #{team}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
-        round = team.remind!
+      invoke! do |channel|
+        last_round_at = channel.last_round_at
+        logger.info "Checking whether to remind #{channel}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
+        round = channel.remind!
         logger.info "Reminded about previous sup round #{round}." if round
       end
     end
 
     def sync!
-      invoke_with_criteria!(Team.active.where(sync: true)) do |team|
+      invoke_with_criteria!(Channel.enabled.where(sync: true)) do |channel|
         tt = Time.now.utc
-        team.sync!
-        logger.info "Synched #{team}, #{team.users.where(:updated_at.gte => tt).count} user(s) updated."
+        channel.sync!
+        logger.info "Synched #{channel}, #{channel.users.where(:updated_at.gte => tt).count} user(s) updated."
       end
     end
 
     def sup!
-      invoke! do |team|
-        last_round_at = team.last_round_at
-        logger.info "Checking whether to sup #{team}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
-        next unless team.sup?
+      invoke! do |channel|
+        last_round_at = channel.last_round_at
+        logger.info "Checking whether to sup #{channel}, #{last_round_at ? 'last round ' + last_round_at.ago_in_words : 'first time sup'}."
+        next unless channel.sup?
 
-        round = team.sup!
+        round = channel.sup!
         logger.info "Created sup round #{round}."
       end
     end

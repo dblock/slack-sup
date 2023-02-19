@@ -14,19 +14,19 @@ module Api
         end
         get ':id' do
           user = User.find(params[:id]) || error!('Not Found', 404)
-          authorize! user.team
+          authorize! user.channel
           present user, with: Api::Presenters::UserPresenter
         end
 
-        desc 'Get all the users for a team.'
+        desc 'Get all the users for a channel.'
         params do
-          requires :team_id, type: String, desc: 'Team ID.'
+          requires :channel_id, type: String, desc: 'Channel ID.'
           use :pagination
         end
         get do
-          team = Team.find(params[:team_id]) || error!('Not Found', 404)
-          authorize! team
-          users = paginate_and_sort_by_cursor(team.users, default_sort_order: '-_id')
+          channel = Channel.find(params[:channel_id]) || error!('Not Found', 404)
+          authorize! channel
+          users = paginate_and_sort_by_cursor(channel.users, default_sort_order: '-_id')
           present users, with: Api::Presenters::UsersPresenter
         end
       end

@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe SlackSup::Commands::Stats do
   let(:team) { Fabricate(:team, subscribed: true) }
+  let!(:channel) { Fabricate(:channel, team: team, channel_id: 'channel') }
   let(:app) { SlackSup::Server.new(team: team) }
   let(:client) { app.send(:client) }
   it 'empty stats' do
@@ -12,18 +13,20 @@ describe SlackSup::Commands::Stats do
   end
   context 'with outcomes' do
     let(:team) { Fabricate(:team, subscribed: true) }
-    let!(:user1) { Fabricate(:user, team: team) }
-    let!(:user2) { Fabricate(:user, team: team) }
-    let!(:user3) { Fabricate(:user, team: team) }
+    let!(:user1) { Fabricate(:user, channel: channel) }
+    let!(:user2) { Fabricate(:user, channel: channel) }
+    let!(:user3) { Fabricate(:user, channel: channel) }
     before do
-      allow(team).to receive(:sync!)
+      allow(channel).to receive(:sync!)
       allow_any_instance_of(Sup).to receive(:dm!)
       Timecop.freeze do
-        team.sup!
+        channel.sup!
         Timecop.travel(Time.now + 1.year)
-        team.sup!
+        channel.sup!
       end
-      Sup.first.update_attributes!(outcome: 'all')
+      sup = Sup.first
+      expect(sup).to_not be nil
+      sup.update_attributes!(outcome: 'all')
       user2.update_attributes!(opted_in: false)
     end
     it 'reports counts' do

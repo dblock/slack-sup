@@ -2,10 +2,14 @@ class User
   include Mongoid::Document
   include Mongoid::Timestamps
 
+  field :sync, type: Boolean, default: false
+  field :last_sync_at, type: DateTime
+
   field :user_id, type: String
   field :user_name, type: String
   field :email, type: String
   field :custom_team_name, type: String
+  field :is_organizer, type: Boolean, default: false
   field :is_owner, type: Boolean, default: false
   field :is_admin, type: Boolean, default: false
   field :real_name, type: String
@@ -20,20 +24,28 @@ class User
   scope :enabled, -> { where(enabled: true) }
 
   scope :suppable, -> { where(enabled: true, opted_in: true) }
-  index(team_id: 1, enabled: 1, opted_in: 1)
+  index(channel_id: 1, enabled: 1, opted_in: 1)
 
-  belongs_to :team, index: true
-  validates_presence_of :team
+  belongs_to :channel, index: true
+  validates_presence_of :channel
 
-  index({ user_id: 1, team_id: 1 }, unique: true)
-  index(user_name: 1, team_id: 1)
+  index({ user_id: 1, channel_id: 1 }, unique: true)
+  index(user_name: 1, channel_id: 1)
+
+  def slack_client
+    channel.slack_client
+  end
 
   def activated_user?
-    team.activated_user_id && team.activated_user_id == user_id
+    channel.team.activated_user_id && channel.team.activated_user_id == user_id
   end
 
   def team_admin?
     activated_user? || is_admin? || is_owner?
+  end
+
+  def channel_admin?
+    user_id == channel.inviter_id || team_admin?
   end
 
   def slack_mention
@@ -45,43 +57,57 @@ class User
   end
 
   def last_captain_at
-    last_captain_sup = team.sups.where(captain_id: id).desc(:created_at).limit(1).first
+    last_captain_sup = channel.sups.where(captain_id: id).desc(:created_at).limit(1).first
     last_captain_sup&.created_at
   end
 
-  def self.find_by_slack_mention!(team, user_name)
-    user_match = user_name.match(/^<@(.*)>$/)
-    query = user_match ? { user_id: user_match[1] } : { user_name: ::Regexp.new("^#{user_name}$", 'i') }
-    team.sync_user!(user_match ? user_match[1] : user_name)
-    user = User.where(query.merge(team: team)).first
-
-    raise SlackSup::Error, "I don't know who #{user_name} is!" unless user
-
-    user
+  def update_info_attributes!(info)
+    update_attributes!(
+      is_organizer: channel.inviter_id == user_id,
+      is_admin: info.is_admin,
+      is_owner: info.is_owner,
+      user_name: info.name,
+      real_name: info.real_name,
+      email: info.profile&.email,
+      sync: false,
+      last_sync_at: Time.now.utc,
+      custom_team_name: get_team_name
+    )
   end
 
-  # Find an existing record, update the username if necessary, otherwise create a user record.
-  def self.find_create_or_update_by_slack_id!(client, slack_id)
-    instance = User.where(team: client.owner, user_id: slack_id).first
-    instance_info = Hashie::Mash.new(client.web_client.users_info(user: slack_id)).user
-    instance.update_attributes!(is_admin: instance_info.is_admin) if instance && instance.is_admin != instance_info.is_admin
-    instance.update_attributes!(is_owner: instance_info.is_owner) if instance && instance.is_owner != instance_info.is_owner
-    instance.update_attributes!(user_name: instance_info.name) if instance && instance.user_name != instance_info.name
-    instance ||= User.create!(team: client.owner, user_id: slack_id, user_name: instance_info.name, opted_in: client.owner.opt_in)
-    instance
+  def sync!
+    tt = Time.now.utc
+    info = slack_client.users_info(user: user_id).user
+    update_info_attributes!(info)
   end
 
   def to_s
     "user_name=#{user_name}, user_id=#{user_id}, email=#{email}, real_name=#{real_name}, custom_team_name=#{custom_team_name}"
   end
 
-  def update_custom_profile
-    self.custom_team_name = nil
-    return unless team.team_field_label_id
+  def self.suppable_user?(user_info)
+    !user_info.is_bot &&
+      !user_info.deleted &&
+      !user_info.is_restricted &&
+      !user_info.is_ultra_restricted &&
+      !on_vacation?(user_info) &&
+      user_info.id != 'USLACKBOT'
+  end
 
-    client = Slack::Web::Client.new(token: team.activated_user_access_token)
-    fields = client.users_profile_get(user: user_id).profile.fields
-    custom_field_value = fields[team.team_field_label_id] if fields&.is_a?(::Slack::Messages::Message)
-    self.custom_team_name = custom_field_value.value if custom_field_value
+  def self.on_vacation?(user_info)
+    [user_info.name, user_info.real_name, user_info&.profile&.status_text].compact.join =~ /(ooo|vacationing)/i
+  end
+
+  private
+
+  def get_team_name
+    return unless channel.team_field_label_id
+
+    fields = channel.team.slack_client_with_activated_user_access.users_profile_get(user: user_id).profile.fields
+    custom_field_value = fields[channel.team_field_label_id] if fields&.is_a?(::Slack::Messages::Message)
+    custom_field_value&.value
+  rescue Exception => e
+    logger.warn "Error getting custom team name for #{self}, #{e.message}."
+    nil
   end
 end

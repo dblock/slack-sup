@@ -1,79 +1,67 @@
 require 'spec_helper'
 
 describe User do
-  context '#find_by_slack_mention!' do
-    let(:user) { Fabricate(:user) }
-    before do
-      allow(user.team).to receive(:sync_user!)
+  context '#sync!', vcr: { cassette_name: 'user_info' } do
+    let(:channel) { Fabricate(:channel) }
+    let(:user) { Fabricate(:user, channel: channel) }
+    it 'updates user fields' do
+      user.sync!
+      expect(user.sync).to be false
+      expect(user.last_sync_at).to_not be nil
+      expect(user.is_organizer).to be false
+      expect(user.is_admin).to be true
+      expect(user.is_owner).to be true
+      expect(user.user_name).to eq 'username'
+      expect(user.real_name).to eq 'Real Name'
+      expect(user.email).to eq 'user@example.com'
     end
-    it 'finds by slack id' do
-      expect(User.find_by_slack_mention!(user.team, "<@#{user.user_id}>")).to eq user
-    end
-    it 'finds by username' do
-      expect(User.find_by_slack_mention!(user.team, user.user_name)).to eq user
-    end
-    it 'finds by username is case-insensitive' do
-      expect(User.find_by_slack_mention!(user.team, user.user_name.capitalize)).to eq user
-    end
-    it 'requires a known user' do
-      expect do
-        User.find_by_slack_mention!(user.team, '<@nobody>')
-      end.to raise_error SlackSup::Error, "I don't know who <@nobody> is!"
+    context 'with team field label' do
+      before do
+        # avoid validation that would attempt to fetch profile
+        channel.set(team_field_label_id: 'Xf6QJY0DS8')
+      end
+      it 'fetches custom profile information from slack', vcr: { cassette_name: 'user_profile_get' } do
+        user.reload.sync!
+        expect(user.custom_team_name).to eq 'Engineering'
+      end
     end
   end
-  context '#find_create_or_update_by_slack_id!', vcr: { cassette_name: 'user_info' } do
-    let!(:team) { Fabricate(:team) }
-    let(:client) { SlackRubyBot::Client.new }
-    before do
-      client.owner = team
-    end
+  context '#find_or_create_user!' do
+    let!(:channel) { Fabricate(:channel) }
     context 'without a user' do
+      context 'with opted out channel by default' do
+        before do
+          channel.update_attributes!(opt_in: false)
+        end
+        it 'creates an opted out user' do
+          user = channel.find_or_create_user!('user_id')
+          expect(user).to_not be_nil
+          expect(user.opted_in).to be false
+        end
+      end
       it 'creates a user' do
         expect do
-          user = User.find_create_or_update_by_slack_id!(client, 'U42')
+          user = channel.find_or_create_user!('user_id')
           expect(user).to_not be_nil
-          expect(user.user_id).to eq 'U42'
-          expect(user.user_name).to eq 'username'
+          expect(user.user_id).to eq 'user_id'
+          expect(user.sync).to be true
         end.to change(User, :count).by(1)
       end
-      it 'creates an opted in user' do
-        user = User.find_create_or_update_by_slack_id!(client, 'U42')
-        expect(user).to_not be_nil
-        expect(user.opted_in).to be true
-      end
-      it 'creates an opted out user' do
-        team.opt_in = false
-        user = User.find_create_or_update_by_slack_id!(client, 'U42')
-        expect(user).to_not be_nil
-        expect(user.opted_in).to be false
-      end
     end
-    context 'with a user' do
-      let!(:user) { Fabricate(:user, team: team) }
+    context 'with an existing user' do
+      let!(:user) { Fabricate(:user, channel: channel) }
       it 'creates another user' do
         expect do
-          User.find_create_or_update_by_slack_id!(client, 'U42')
+          channel.find_or_create_user!('user_id')
         end.to change(User, :count).by(1)
       end
-      it 'updates the username of the existing user' do
+      it 'returns the existing user' do
         expect do
-          User.find_create_or_update_by_slack_id!(client, user.user_id)
+          channel.find_or_create_user!(user.user_id)
         end.to_not change(User, :count)
-        expect(user.reload.user_name).to eq 'username'
       end
     end
   end
-  context '#update_custom_profile' do
-    let(:user) { Fabricate(:user) }
-    before do
-      user.team.team_field_label_id = 'Xf6QJY0DS8'
-    end
-    it 'fetches custom profile information from slack', vcr: { cassette_name: 'user_profile_get' } do
-      user.update_custom_profile
-      expect(user.custom_team_name).to eq 'Engineering'
-    end
-  end
-
   context '#last_captain_at' do
     let(:user) { Fabricate(:user) }
     it 'retuns nil when user has never been a captain' do
@@ -94,6 +82,38 @@ describe User do
       it 'returns most recent sup' do
         expect(user.last_captain_at).to eq sup1.reload.created_at
       end
+    end
+  end
+  context '#suppable_user?' do
+    let(:member_default_attr) do
+      {
+        id: 'id',
+        is_bot: false,
+        deleted: false,
+        is_restricted: false,
+        is_ultra_restricted: false,
+        name: 'Forrest Gump',
+        real_name: 'Real Forrest Gump',
+        profile: double(email: nil, status: nil, status_text: nil)
+      }
+    end
+    it 'is_bot' do
+      expect(User.suppable_user?(Hashie::Mash.new(member_default_attr.merge(is_bot: true)))).to be false
+    end
+    it 'deleted' do
+      expect(User.suppable_user?(Hashie::Mash.new(member_default_attr.merge(deleted: true)))).to be false
+    end
+    it 'restricted' do
+      expect(User.suppable_user?(Hashie::Mash.new(member_default_attr.merge(is_restricted: true)))).to be false
+    end
+    it 'ultra_restricted' do
+      expect(User.suppable_user?(Hashie::Mash.new(member_default_attr.merge(is_ultra_restricted: true)))).to be false
+    end
+    it 'ooo' do
+      expect(User.suppable_user?(Hashie::Mash.new(member_default_attr.merge(name: 'member-name-on-ooo')))).to be false
+    end
+    it 'default' do
+      expect(User.suppable_user?(Hashie::Mash.new(member_default_attr))).to be true
     end
   end
 end

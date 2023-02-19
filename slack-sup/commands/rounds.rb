@@ -1,7 +1,7 @@
 module SlackSup
   module Commands
     class Rounds < SlackRubyBot::Commands::Base
-      include SlackSup::Commands::Mixins::Subscribe
+      include SlackSup::Commands::Mixins::Channel
       include SlackSup::Commands::Mixins::Pluralize
 
       def self.parse_arg(match)
@@ -25,12 +25,11 @@ module SlackSup
         pc > 0 ? "#{pc}%" : no
       end
 
-      subscribe_command 'rounds' do |client, data, match|
+      channel_command 'rounds' do |client, channel, data, match|
         max = parse_arg(match)
-        team = client.owner
         messages = []
-        messages << "Team S'Up facilitated #{pluralize(team.rounds.count, 'round')}."
-        team.rounds.desc(:_id).take(max).each do |round|
+        messages << "Team S'Up facilitated #{pluralize(channel.rounds.count, 'round')}."
+        channel.rounds.desc(:_id).take(max).each do |round|
           stats = RoundStats.new(round)
           ran_at = if round.ran_at && round.asked_at
                      round.ran_at.to_time.ago_in_words(highest_measure_only: true)
@@ -48,7 +47,7 @@ module SlackSup
           ].compact.and + '.'
         end
         client.say(channel: data.channel, text: messages.join("\n"))
-        logger.info "STATS: #{client.owner} - #{data.user}"
+        logger.info "STATS: #{channel} - #{data.user}"
       end
     end
   end

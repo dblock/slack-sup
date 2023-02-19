@@ -13,6 +13,7 @@ module Api
 
       mount Api::Endpoints::StatusEndpoint
       mount Api::Endpoints::TeamsEndpoint
+      mount Api::Endpoints::ChannelsEndpoint
       mount Api::Endpoints::UsersEndpoint
       mount Api::Endpoints::RoundsEndpoint
       mount Api::Endpoints::SupsEndpoint

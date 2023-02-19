@@ -16,9 +16,9 @@ module Api
       property :created_at, type: DateTime, desc: 'Date/time when the round was created.'
       property :updated_at, type: DateTime, desc: 'Date/time when the round was updated.'
 
-      link :team do |opts|
+      link :channel do |opts|
         request = Grape::Request.new(opts[:env])
-        "#{request.base_url}/api/teams/#{team_id}"
+        "#{request.base_url}/api/channels/#{channel_id}"
       end
 
       link :sups do |opts|

@@ -1,12 +1,12 @@
 module Api
   module Presenters
-    module TeamStatsPresenter
+    module ChannelStatsPresenter
       include Roar::JSON::HAL
       include Roar::Hypermedia
       include Grape::Roar::Representer
 
       link :self do |opts|
-        "#{base_url(opts)}/api/stats?team_id=#{team.id}"
+        "#{base_url(opts)}/api/stats?channel_id=#{channel.id}"
       end
 
       property :rounds_count

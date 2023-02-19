@@ -28,16 +28,23 @@ module Api
         }
       end
 
+      link :channels do |opts|
+        {
+          href: "#{base_url(opts)}/api/channels/#{link_params(Api::Helpers::PaginationParameters::ALL, :team_id)}",
+          templated: true
+        }
+      end
+
       link :users do |opts|
         {
-          href: "#{base_url(opts)}/api/users/#{link_params(Api::Helpers::PaginationParameters::ALL, :team_id)}",
+          href: "#{base_url(opts)}/api/users/#{link_params(Api::Helpers::PaginationParameters::ALL, :channel_id)}",
           templated: true
         }
       end
 
       link :rounds do |opts|
         {
-          href: "#{base_url(opts)}/api/rounds/#{link_params(Api::Helpers::PaginationParameters::ALL, :team_id)}",
+          href: "#{base_url(opts)}/api/rounds/#{link_params(Api::Helpers::PaginationParameters::ALL, :channel_id)}",
           templated: true
         }
       end
@@ -51,12 +58,12 @@ module Api
 
       link :stats do |opts|
         {
-          href: "#{base_url(opts)}/api/stats/{?team_id}",
+          href: "#{base_url(opts)}/api/stats/{?channel_id}",
           templated: true
         }
       end
 
-      %i[user team round sup].each do |model|
+      %i[user channel team round sup].each do |model|
         link model do |opts|
           {
             href: "#{base_url(opts)}/api/#{model.to_s.pluralize}/{id}",

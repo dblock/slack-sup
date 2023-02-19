@@ -10,8 +10,8 @@ class Round
   field :asked_again_at, type: DateTime
   field :reminded_at, type: DateTime
 
-  belongs_to :team
-  validates_presence_of :team
+  belongs_to :channel
+  validates_presence_of :channel
   has_many :sups, dependent: :destroy
 
   field :total_users_count
@@ -25,7 +25,7 @@ class Round
   index(round_id: 1, user_ids: 1, created_at: 1)
 
   def to_s
-    "id=#{id}, #{team}"
+    "id=#{id}, #{channel}"
   end
 
   def ask_again?
@@ -50,8 +50,8 @@ class Round
     return false if Time.now.utc < (ran_at + 24.hours)
 
     # only ask on sup_followup_day
-    now_in_tz = Time.now.utc.in_time_zone(team.sup_tzone)
-    now_in_tz.wday == team.sup_followup_wday
+    now_in_tz = Time.now.utc.in_time_zone(channel.sup_tzone)
+    now_in_tz.wday == channel.sup_followup_wday
   end
 
   def ask!
@@ -87,22 +87,22 @@ class Round
     return if ran_at
 
     update_attributes!(ran_at: Time.now.utc)
-    logger.info "Generating sups for #{team} of #{team.users.suppable.count} users."
-    all_users = team.users.suppable.to_a.shuffle
+    logger.info "Generating sups for #{channel} of #{channel.users.suppable.count} users."
+    all_users = channel.users.suppable.to_a.shuffle
     begin
       solve(all_users)
       Ambit.fail!
     rescue Ambit::ChoicesExhausted
-      solve_remaining(all_users - sups.map(&:users).flatten) if team.sup_odd?
+      solve_remaining(all_users - sups.map(&:users).flatten) if channel.sup_odd?
       paired_count = sups.distinct(:user_ids).count
       update_attributes!(
-        total_users_count: team.users.enabled.count,
-        opted_in_users_count: team.users.opted_in.count,
-        opted_out_users_count: team.users.opted_out.count,
+        total_users_count: channel.users.enabled.count,
+        opted_in_users_count: channel.users.opted_in.count,
+        opted_out_users_count: channel.users.opted_out.count,
         paired_users_count: paired_count,
         missed_users_count: all_users.count - paired_count
       )
-      logger.info "Finished round for team #{team}, users=#{total_users_count}, opted out=#{opted_out_users_count}, paired=#{paired_users_count}, missed=#{missed_users_count}."
+      logger.info "Finished round for #{channel}, users=#{total_users_count}, opted out=#{opted_out_users_count}, paired=#{paired_users_count}, missed=#{missed_users_count}."
     end
   end
 
@@ -120,9 +120,9 @@ class Round
     Ambit.fail! if same_team?(combination)
     Ambit.fail! if met_recently?(combination)
     Ambit.fail! if meeting_already?(combination)
-    Sup.create!(round: self, team: team, users: combination)
-    logger.info "   Creating sup for #{combination.map(&:user_name)}, #{sups.count * team.sup_size} out of #{team.users.suppable.count}."
-    Ambit.clear! if sups.count * team.sup_size == team.users.suppable.count
+    Sup.create!(round: self, channel: channel, users: combination)
+    logger.info "   Creating sup for #{combination.map(&:user_name)}, #{sups.count * channel.sup_size} out of #{channel.users.suppable.count}."
+    Ambit.clear! if sups.count * channel.sup_size == channel.users.suppable.count
     solve(remaining_users - combination)
   end
 
@@ -137,16 +137,16 @@ class Round
         break
       end
     elsif remaining_users.count > 0 &&
-          remaining_users.count < team.sup_size &&
+          remaining_users.count < channel.sup_size &&
           !met_recently?(remaining_users)
 
       # pair remaining
-      Sup.create!(round: self, team: team, users: remaining_users)
+      Sup.create!(round: self, channel: channel, users: remaining_users)
     end
   end
 
   def group(remaining_users, combination = [])
-    if combination.size == team.sup_size
+    if combination.size == channel.sup_size
       combination
     else
       user = Ambit.choose(remaining_users)
@@ -176,7 +176,7 @@ class Round
       Sup.where(
         :round_id.ne => _id,
         :user_ids.in => pair.map(&:id),
-        :created_at.gt => Time.now.utc - team.sup_recency.weeks
+        :created_at.gt => Time.now.utc - channel.sup_recency.weeks
       ).any? do |sup|
         pair.all? do |user|
           sup.user_ids.include?(user.id)

@@ -2,11 +2,12 @@ require 'spec_helper'
 
 describe SlackSup::Commands::Opt do
   let!(:team) { Fabricate(:team) }
-  let!(:user) { Fabricate(:user, team: team) }
+  let!(:channel) { Fabricate(:channel, team: team) }
+  let!(:user) { Fabricate(:user, channel: channel, user_name: 'username') }
   let(:app) { SlackSup::Server.new(team: team) }
   let(:client) { app.send(:client) }
   before do
-    allow(User).to receive(:find_create_or_update_by_slack_id!).and_return(user)
+    allow(team).to receive(:find_create_or_update_user_in_channel_by_slack_id!).and_return(user)
   end
   context 'opt' do
     it 'requires a subscription' do
@@ -55,54 +56,36 @@ describe SlackSup::Commands::Opt do
       context 'another user' do
         context 'as non admin' do
           before do
-            allow_any_instance_of(User).to receive(:team_admin?).and_return(false)
+            allow_any_instance_of(User).to receive(:channel_admin?).and_return(false)
           end
           it 'requires an admin' do
             expect(message: "#{SlackRubyBot.config.user} opt in #{user.slack_mention}").to respond_with_slack_message(
-              "Sorry, only <@#{team.activated_user_id}> or a Slack team admin can opt users in and out."
+              "Sorry, only <@#{channel.inviter_id}> or a Slack team admin can opt users in and out."
             )
           end
         end
         context 'as admin' do
           before do
-            allow_any_instance_of(User).to receive(:team_admin?).and_return(true)
+            allow_any_instance_of(User).to receive(:channel_admin?).and_return(true)
           end
-          context 'ignoring sync_user' do
-            before do
-              allow(team).to receive(:sync_user!)
-            end
-            it 'opts a user in' do
-              user.update_attributes!(opted_in: false)
-              expect(message: "#{SlackRubyBot.config.user} opt in #{user.slack_mention}").to respond_with_slack_message(
-                "User #{user.slack_mention} is now opted into S'Up."
-              )
-              expect(user.reload.opted_in).to be true
-            end
-            it 'opts a user out' do
-              user.update_attributes!(opted_in: true)
-              expect(message: "#{SlackRubyBot.config.user} opt out #{user.slack_mention}").to respond_with_slack_message(
-                "User #{user.slack_mention} is now opted out of S'Up."
-              )
-              expect(user.reload.opted_in).to be false
-            end
-            it 'errors on an invalid user' do
-              expect(message: "#{SlackRubyBot.config.user} opt in foobar").to respond_with_slack_message(
-                "I don't know who foobar is!"
-              )
-            end
+          it 'opts a user in' do
+            user.update_attributes!(opted_in: false)
+            expect(message: "#{SlackRubyBot.config.user} opt in #{user.slack_mention}").to respond_with_slack_message(
+              "User #{user.slack_mention} is now opted into S'Up."
+            )
+            expect(user.reload.opted_in).to be true
           end
-          context 'with sync_user' do
-            it 'attempts to sync the user opted in' do
-              expect(team).to receive(:sync_user!).with('foobar')
-              expect(message: "#{SlackRubyBot.config.user} opt in foobar").to respond_with_slack_message(
-                "I don't know who foobar is!"
-              )
-            end
-            it 'syncs user being opted in', vcr: { cassette_name: 'user_info' } do
-              expect(message: "#{SlackRubyBot.config.user} opt in username").to respond_with_slack_message(
-                "User <@U007> is now opted into S'Up."
-              )
-            end
+          it 'opts a user out' do
+            user.update_attributes!(opted_in: true)
+            expect(message: "#{SlackRubyBot.config.user} opt out #{user.slack_mention}").to respond_with_slack_message(
+              "User #{user.slack_mention} is now opted out of S'Up."
+            )
+            expect(user.reload.opted_in).to be false
+          end
+          it 'errors on an invalid user' do
+            expect(message: "#{SlackRubyBot.config.user} opt in foobar").to respond_with_slack_message(
+              "I don't know who foobar is!"
+            )
           end
         end
       end

@@ -25,12 +25,12 @@
         with: "<%= sup && sup.users.map(&:real_name).and %>",
         emails: ['<%= sup && sup.users.map(&:email).join("','") %>'],
         access_token: '<%= request["access_token"] %>',
-        access_token_valid: <%= !! (request["access_token"] && sup.team.short_lived_token_valid?(request["access_token"])) %>,
-        dt_time_zone: '<%= sup && sup.team.sup_tzone.tzinfo.identifier %>',
+        access_token_valid: <%= !! (request["access_token"] && sup.channel.short_lived_token_valid?(request["access_token"])) %>,
+        dt_time_zone: '<%= sup && sup.channel.sup_tzone.tzinfo.identifier %>',
         dt_start_iso8601: '<%= Time.at(request['dt'].to_i).strftime('%Y-%m-%dT%H:%M:%S.%L%z') %>',
         dt_end_iso8601: '<%= Time.at(request['dt'].to_i + 20 * 60).strftime('%Y-%m-%dT%H:%M:%S.%L%z') %>',
         dt: <%= request['dt'] ? request['dt'].to_i : "null" %>,
-        dt_s: '<%= dt = Time.at(request['dt'].to_i).in_time_zone(sup && sup.team.sup_tzone); "#{dt.strftime('%A, %B %d, %Y')} at #{dt.strftime('%l:%M %P').strip}" %>'
+        dt_s: '<%= dt = Time.at(request['dt'].to_i).in_time_zone(sup && sup.channel.sup_tzone); "#{dt.strftime('%A, %B %d, %Y')} at #{dt.strftime('%l:%M %P').strip}" %>'
       }
 
       function handleClientLoad() {

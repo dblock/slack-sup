@@ -13,6 +13,8 @@ describe Api do
         '/api/status',
         '/api/teams/{id}',
         '/api/teams',
+        '/api/channels/{id}',
+        '/api/channels',
         '/api/users/{id}',
         '/api/users',
         '/api/rounds/{id}',

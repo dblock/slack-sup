@@ -7,11 +7,11 @@ class Stats
   attr_accessor :users_opted_in_count
   attr_accessor :users_count
   attr_accessor :outcomes
-  attr_accessor :team
+  attr_accessor :channel
 
-  def initialize(team = nil)
-    @team = team
-    team ? initialize_with_team : initialize_without_team
+  def initialize(channel = nil)
+    @channel = channel
+    channel ? initialize_with_channel : initialize_without_channel
   end
 
   def positive_outcomes_count
@@ -24,16 +24,16 @@ class Stats
 
   private
 
-  def initialize_with_team
-    @rounds_count = team.rounds.count
-    @sups_count = team.sups.count
-    @users_in_sups_count = team.sups.distinct(:user_ids).count
-    @users_opted_in_count = team.users.opted_in.count
-    @users_count = team.users.count
+  def initialize_with_channel
+    @rounds_count = channel.rounds.count
+    @sups_count = channel.sups.count
+    @users_in_sups_count = channel.sups.distinct(:user_ids).count
+    @users_opted_in_count = channel.users.opted_in.count
+    @users_count = channel.users.count
     @outcomes = Hash[
       Sup.collection.aggregate(
         [
-          { '$match' => { team_id: team.id } },
+          { '$match' => { channel_id: channel.id } },
           { '$group' => { _id: { outcome: '$outcome' }, count: { '$sum' => 1 } } }
         ]
       ).map do |row|
@@ -42,7 +42,7 @@ class Stats
     ]
   end
 
-  def initialize_without_team
+  def initialize_without_channel
     @rounds_count = Round.count
     @sups_count = Sup.count
     @users_in_sups_count = Sup.distinct(:user_ids).count

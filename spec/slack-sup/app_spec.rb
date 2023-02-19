@@ -59,15 +59,16 @@ describe SlackSup::App do
   end
   context 'sup!' do
     let(:wday) { Time.now.utc.in_time_zone('Eastern Time (US & Canada)').wday }
-    let(:team) { Fabricate(:team, sup_wday: wday, sup_time_of_day: 1) }
+    let(:active_team) { Fabricate(:team) }
+    let!(:active_team_channel) { Fabricate(:channel, team: active_team, sup_wday: wday, sup_time_of_day: 1) }
+    let(:inactive_team) { Fabricate(:team, active: false) }
+    let!(:inactive_team_channel) { Fabricate(:channel, sup_wday: wday, sup_time_of_day: 1, team: inactive_team) }
     it 'sups only active teams' do
-      expect(team.sup?).to be true
-      inactive_team = Fabricate(:team, sup_wday: wday, sup_time_of_day: 1, active: false)
-      expect_any_instance_of(Team).to receive(:sup!).once.and_call_original
-      expect_any_instance_of(Team).to receive(:sync!)
+      expect(inactive_team_channel.sup?).to be false
+      expect(active_team_channel.sup?).to be true
+      expect_any_instance_of(Channel).to receive(:sup!).once.and_call_original
+      expect_any_instance_of(Channel).to receive(:sync!)
       subject.send(:sup!)
-      expect(team.reload.sup?).to be false
-      expect(inactive_team.reload.sup?).to be true
     end
   end
 end

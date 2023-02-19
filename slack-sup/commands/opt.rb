@@ -1,15 +1,14 @@
 module SlackSup
   module Commands
     class Opt < SlackRubyBot::Commands::Base
-      include SlackSup::Commands::Mixins::Subscribe
+      include SlackSup::Commands::Mixins::User
 
-      subscribe_command 'opt' do |client, data, match|
-        user = ::User.find_create_or_update_by_slack_id!(client, data.user)
+      user_command 'opt' do |client, channel, user, data, match|
         expression, mention = match['expression'].split(/[\s]+/, 2) if match['expression']
         if mention
-          raise SlackSup::Error, "Sorry, only <@#{user.team.activated_user_id}> or a Slack team admin can opt users in and out." unless user.team_admin?
+          raise SlackSup::Error, "Sorry, only <@#{channel.inviter_id}> or a Slack team admin can opt users in and out." unless user.channel_admin?
 
-          user = User.find_by_slack_mention!(client.owner, mention)
+          user = channel.find_user_by_slack_mention!(mention)
         end
         case expression
         when 'in' then
@@ -27,7 +26,7 @@ module SlackSup
         else
           client.say(channel: data.channel, text: "Hi there #{user.slack_mention}, you're #{expression ? 'now ' : ''}opted #{user.opted_in? ? 'into' : 'out of'} S'Up.")
         end
-        logger.info "OPT: #{client.owner}, user=#{data.user}, #{user}, opted=#{user.opted_in? ? 'in' : 'out'}"
+        logger.info "OPT: #{channel}, user=#{data.user}, #{user}, opted=#{user.opted_in? ? 'in' : 'out'}"
       end
     end
   end

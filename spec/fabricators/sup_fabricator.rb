@@ -1,4 +1,4 @@
 Fabricator(:sup) do
   round { Round.first || Fabricate(:round) }
-  team { Team.first || Fabricate(:team) }
+  channel { Team.first&.channels&.first || Fabricate(:channel) }
 end

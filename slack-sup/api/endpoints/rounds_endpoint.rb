@@ -14,19 +14,19 @@ module Api
         end
         get ':id' do
           round = Round.find(params[:id]) || error!('Not Found', 404)
-          authorize! round.team
+          authorize! round.channel
           present round, with: Api::Presenters::RoundPresenter
         end
 
-        desc "Get all the S'Up rounds for a team."
+        desc "Get all the S'Up rounds for a channel."
         params do
-          requires :team_id, type: String, desc: 'Team ID.'
+          requires :channel_id, type: String, desc: 'Channel ID.'
           use :pagination
         end
         get do
-          team = Team.find(params[:team_id]) || error!('Not Found', 404)
-          authorize! team
-          rounds = paginate_and_sort_by_cursor(team.rounds, default_sort_order: '_id')
+          channel = Channel.find(params[:channel_id]) || error!('Not Found', 404)
+          authorize! channel
+          rounds = paginate_and_sort_by_cursor(channel.rounds, default_sort_order: '_id')
           present rounds, with: Api::Presenters::RoundsPresenter
         end
       end

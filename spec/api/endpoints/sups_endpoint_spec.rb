@@ -3,15 +3,15 @@ require 'spec_helper'
 describe Api::Endpoints::SupsEndpoint do
   include Api::Test::EndpointTest
 
-  let!(:team) { Fabricate(:team, api: true) }
-  let!(:round) { Fabricate(:round, team: team) }
+  let!(:channel) { Fabricate(:channel, api: true) }
+  let!(:round) { Fabricate(:round, channel: channel) }
 
   before do
     @cursor_params = { round_id: round.id.to_s }
   end
 
   it_behaves_like 'a cursor api', Sup
-  it_behaves_like 'a team token api', Sup
+  it_behaves_like 'a channel token api', Sup
 
   context 'sup' do
     let(:existing_sup) { Fabricate(:sup, round: round) }
@@ -30,7 +30,7 @@ describe Api::Endpoints::SupsEndpoint do
     end
     it 'updates a sup html link and DMs sup' do
       expect_any_instance_of(Sup).to receive(:dm!).with(text: "I've added this S'Up to your Google Calendar: updated")
-      client.headers.update('X-Access-Token' => team.short_lived_token)
+      client.headers.update('X-Access-Token' => channel.short_lived_token)
       client.sup(id: existing_sup.id)._put(gcal_html_link: 'updated')
       expect(existing_sup.reload.gcal_html_link).to eq 'updated'
     end
