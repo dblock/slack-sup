@@ -28,6 +28,15 @@ class Team
     "@#{name}"
   end
 
+  def is_admin?(user_id)
+    return true if activated_user_id == user_id
+
+    user_info = slack_client.users_info(user: user_id).user
+    return true if user_info.is_admin? || user_info.is_owner?
+
+    false
+  end
+
   def asleep?(dt = 3.weeks)
     return false unless subscription_expired?
 
@@ -90,6 +99,17 @@ class Team
     "Subscriber since #{subscribed_at.strftime('%B %d, %Y')}."
   end
 
+  def enabled_channels_text
+    enabled_channels = channels.enabled.to_a
+    if enabled_channels.count == 0
+      "S'Up is not enabled in any channels."
+    elsif enabled_channels.count == 1
+      "S'Up is enabled in #{enabled_channels.first.slack_mention}."
+    else
+      "S'Up is enabled in #{enabled_channels.count} channels (#{enabled_channels.map(&:slack_mention).and})."
+    end
+  end
+
   def stripe_customer_subscriptions_info(with_unsubscribe = false)
     stripe_customer.subscriptions.map do |subscription|
       amount = ActiveSupport::NumberHelper.number_to_currency(subscription.plan.amount.to_f / 100)
@@ -138,6 +158,9 @@ class Team
   end
 
   def find_create_or_update_channel_by_channel_id!(channel_id, user_id)
+    raise 'missing channel_id' unless channel_id
+    return nil if channel_id[0] == 'D'
+
     channel = channels.where(channel_id: channel_id).first
     channel ||= channels.create!(channel_id: channel_id, enabled: true, sync: true, inviter_id: user_id)
     channel
@@ -145,7 +168,7 @@ class Team
 
   def find_create_or_update_user_in_channel_by_slack_id!(channel_id, user_id)
     channel = find_create_or_update_channel_by_channel_id!(channel_id, user_id)
-    channel.find_or_create_user!(user_id)
+    channel ? channel.find_or_create_user!(user_id) : user_id
   end
 
   def join_channel!(channel_id, inviter_id)
@@ -175,9 +198,9 @@ class Team
 
   INSTALLED_TEXT =
     "Hi there! I'm your team's S'Up bot. " \
-    'Thanks for trying me out. Type `help` for instructions. ' \
-    "I plan to setup some S'Ups via Slack DM next Monday. " \
-    'You may want to `set size`, `set day`, `set timezone`, or `set sync now` users before then.'.freeze
+    'Thanks for trying me out. ' \
+    'To start, invite me to a channel. ' \
+    'You can always DM me `help` for instructions.'.freeze
 
   SUBSCRIBED_TEXT =
     "Hi there! I'm your team's S'Up bot. " \

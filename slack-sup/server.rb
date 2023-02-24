@@ -5,7 +5,14 @@ module SlackSup
 
       logger.info "#{client.owner.name}: bot joined ##{data.channel}."
       client.owner.join_channel!(data.channel, data.inviter)
-      client.say(channel: data.channel, text: "Hi there! I'm your team's S'Up bot. Type `#{client.owner.bot_name} help` for instructions on setting up S'Up in this channel.")
+
+      text =
+        "Hi there! I'm your team's S'Up bot. " \
+        "Thanks for trying me out. Type `#{client.owner.bot_name} help` for instructions. " \
+        "I plan to setup some S'Ups via Slack DM for all users in this channel next Monday. " \
+        'You may want to `set size`, `set day`, `set timezone`, or `set sync now` users before then.'.freeze
+
+      client.say(channel: data.channel, text: text)
     end
 
     on :member_left_channel do |client, data|

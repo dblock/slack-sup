@@ -10,6 +10,12 @@ describe Team do
         expect(channel.inviter_id).to eq 'U123'
       end.to change(Channel, :count).by(1)
     end
+    it 'does not create a new channel for DMs' do
+      expect do
+        channel = team.find_create_or_update_channel_by_channel_id!('D123', 'U123')
+        expect(channel).to be nil
+      end.to_not change(Channel, :count)
+    end
     context 'with an existing channel' do
       let!(:channel) { Fabricate(:channel, team: team) }
       it 'reuses an existing channel' do
@@ -30,6 +36,14 @@ describe Team do
           expect(user.channel.channel_id).to eq 'C123'
         end.to change(Channel, :count).by(1)
       end.to change(User, :count).by(1)
+    end
+    it 'does not create a new channel or user for a DM' do
+      expect do
+        expect do
+          user_id = team.find_create_or_update_user_in_channel_by_slack_id!('D123', 'U123')
+          expect(user_id).to eq 'U123'
+        end.to_not change(Channel, :count)
+      end.to_not change(User, :count)
     end
     context 'with an existing channel' do
       let!(:channel) { Fabricate(:channel, team: team) }
@@ -203,4 +217,32 @@ describe Team do
       expect(team.api_url).to eq "https://sup.playplay.io/api/teams/#{team._id}"
     end
   end
+  context '#is_admin?' do
+    let!(:team) { Fabricate(:team) }
+    it 'activated_user_id' do
+      expect(team.is_admin?(team.activated_user_id)).to be true
+    end
+    it 'is_admin or is_owner', vcr: { cassette_name: 'user_info' } do
+      expect(team.is_admin?('username')).to be true
+    end
+    it 'is_admin' do
+      allow_any_instance_of(Slack::Web::Client).to receive(:users_info).and_return(
+        Hashie::Mash.new(user: { is_admin: true, is_owner: false })
+      )
+      expect(team.is_admin?('username')).to be true
+    end
+    it 'is_owner' do
+      allow_any_instance_of(Slack::Web::Client).to receive(:users_info).and_return(
+        Hashie::Mash.new(user: { is_admin: false, is_owner: true })
+      )
+      expect(team.is_admin?('username')).to be true
+    end
+    it 'invalid' do
+      allow_any_instance_of(Slack::Web::Client).to receive(:users_info).and_return(
+        Hashie::Mash.new(user: { is_admin: false, is_owner: false })
+      )
+      expect(team.is_admin?('username')).to be false
+    end
+  end
+  pending '#enabled_channels_text'
 end

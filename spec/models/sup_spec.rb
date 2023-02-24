@@ -81,7 +81,7 @@ describe Sup do
           sup.users.each { |u| u.update_attributes!(introduced_sup_at: nil) }
           expect(sup.send(:intro_message)).to eq(
             'The most valuable relationships are not made of 2 people, they’re made of 3. ' \
-            "channel S'Up connects groups of 3 people from <@#{sup.channel.channel_id}> on Monday every week. " \
+            "Channel S'Up connects groups of 3 people from <##{sup.channel.channel_id}> on Monday every week. " \
             "Welcome #{sup.users.asc(:_id).map(&:slack_mention).and}, excited for your first S'Up!"
           )
         end
@@ -90,7 +90,7 @@ describe Sup do
           users.each { |u| u.update_attributes!(introduced_sup_at: nil) }
           expect(sup.send(:intro_message)).to eq(
             'The most valuable relationships are not made of 2 people, they’re made of 3. ' \
-            "channel S'Up connects groups of 3 people from <@#{sup.channel.channel_id}> on Monday every week. " \
+            "Channel S'Up connects groups of 3 people from <##{sup.channel.channel_id}> on Monday every week. " \
             "Welcome #{users.map(&:slack_mention).and}, excited for your first S'Up!"
           )
         end
@@ -98,7 +98,7 @@ describe Sup do
           sup.users.first.update_attributes!(introduced_sup_at: nil)
           expect(sup.send(:intro_message)).to eq(
             'The most valuable relationships are not made of 2 people, they’re made of 3. ' \
-            "channel S'Up connects groups of 3 people from <@#{sup.channel.channel_id}> on Monday every week. " \
+            "Channel S'Up connects groups of 3 people from <##{sup.channel.channel_id}> on Monday every week. " \
             "Welcome #{sup.users.first.slack_mention}, excited for your first S'Up!"
           )
         end
@@ -106,7 +106,7 @@ describe Sup do
           sup.channel.update_attributes!(sup_size: 2)
           sup.users.first.update_attributes!(introduced_sup_at: nil)
           expect(sup.send(:intro_message)).to eq(
-            "channel S'Up connects groups of 2 people from <@#{sup.channel.channel_id}> on Monday every week. " \
+            "Channel S'Up connects groups of 2 people from <##{sup.channel.channel_id}> on Monday every week. " \
             "Welcome #{sup.users.first.slack_mention}, excited for your first S'Up!"
           )
         end
@@ -132,7 +132,7 @@ describe Sup do
     end
     it 'includes intro message' do
       expect_any_instance_of(Sup).to receive(:dm!).with(
-        text: /channel S'Up connects groups of 3 people from <@#{channel.channel_id}> on Monday every week. Welcome #{channel.users.asc(:_id).map(&:slack_mention).and}, excited for your first S'Up!/
+        text: /Channel S'Up connects groups of 3 people from <##{channel.channel_id}> on Monday every week. Welcome #{channel.users.asc(:_id).map(&:slack_mention).and}, excited for your first S'Up!/
       )
       channel.sup!
     end

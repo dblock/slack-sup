@@ -88,7 +88,7 @@ class Channel
   end
 
   def slack_mention
-    "<@#{channel_id}>"
+    "<##{channel_id}>"
   end
 
   def slack_client
