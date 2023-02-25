@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe SlackSup::Commands::Stats do
   context 'global' do
-    include_context :team
+    include_context :subscribed_team
 
     it 'returns global team stats' do
       expect(message: "#{SlackRubyBot.config.user} stats", channel: 'DM').to respond_with_slack_message(

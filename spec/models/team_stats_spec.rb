@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Stats do
-  include_context :team
+  include_context :subscribed_team
   let(:stats) { TeamStats.new(team) }
   it 'reports counts' do
     expect(stats.rounds_count).to eq 0
@@ -15,7 +15,7 @@ describe Stats do
     expect(stats.to_s).to eq "Team S'Up connects no users in no channels."
   end
   context 'with outcomes' do
-    include_context :team
+    include_context :subscribed_team
 
     let!(:channel1) { Fabricate(:channel, team: team) }
     let!(:channel1_user1) { Fabricate(:user, channel: channel1) }

@@ -116,4 +116,12 @@ describe User do
       expect(User.suppable_user?(Hashie::Mash.new(member_default_attr))).to be true
     end
   end
+  context '#parse_slack_mention!' do
+    it 'valid' do
+      expect(User.parse_slack_mention!('<@user_id>')).to eq 'user_id'
+    end
+    it 'invalid' do
+      expect { User.parse_slack_mention!('invalid') }.to raise_error SlackSup::Error, 'Invalid user mention invalid.'
+    end
+  end
 end

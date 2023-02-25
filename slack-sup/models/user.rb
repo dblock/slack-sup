@@ -52,6 +52,15 @@ class User
     "<@#{user_id}>"
   end
 
+  def self.parse_slack_mention!(mention)
+    user_match = mention.match(/^<@(.*)>$/)
+    if user_match
+      user_match[1]
+    else
+      raise SlackSup::Error, "Invalid user mention #{mention}."
+    end
+  end
+
   def introduced_sup?
     !introduced_sup_at.nil?
   end

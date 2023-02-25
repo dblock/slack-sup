@@ -4,7 +4,7 @@ describe SlackSup::Commands::GCal do
   include_context :client
 
   context 'DM' do
-    include_context :team
+    include_context :subscribed_team
 
     before do
       ENV['GOOGLE_API_CLIENT_ID'] = 'client-id'

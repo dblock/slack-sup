@@ -1,20 +1,59 @@
 require 'spec_helper'
 
 describe SlackSup::Commands::Opt do
-  let!(:team) { Fabricate(:team) }
-  let!(:channel) { Fabricate(:channel, team: team) }
-  let!(:user) { Fabricate(:user, channel: channel, user_name: 'username') }
-  let(:app) { SlackSup::Server.new(team: team) }
-  let(:client) { app.send(:client) }
-  before do
-    allow(team).to receive(:find_create_or_update_user_in_channel_by_slack_id!).and_return(user)
-  end
-  context 'opt' do
+  context 'team' do
+    include_context :team
+
     it 'requires a subscription' do
-      expect(message: "#{SlackRubyBot.config.user} opt", user: user.user_id).to respond_with_slack_message(team.subscribe_text)
+      expect(message: "#{SlackRubyBot.config.user} opt").to respond_with_slack_message(team.subscribe_text)
     end
-    context 'subscribed team' do
-      let(:team) { Fabricate(:team, subscribed: true) }
+  end
+
+  context 'subscribed team' do
+    include_context :subscribed_team
+
+    context 'on a DM' do
+      context 'as an admin' do
+        before do
+          allow_any_instance_of(Team).to receive(:is_admin?).and_return(true)
+        end
+        it "shows user's current opt status" do
+          expect(message: "#{SlackRubyBot.config.user} opt", channel: 'DM').to respond_with_slack_message(
+            'You were not found in any channels.'
+          )
+        end
+        it "shows another user's current opt status" do
+          expect(message: "#{SlackRubyBot.config.user} opt <@some_user>", channel: 'DM').to respond_with_slack_message(
+            'User <@some_user> was not found in any channels.'
+          )
+        end
+        context 'with a channel' do
+          let!(:channel1) { Fabricate(:channel, team: team) }
+          let!(:user1) { Fabricate(:user, channel: channel1) }
+          let!(:channel2) { Fabricate(:channel, team: team) }
+          let!(:user2) { Fabricate(:user, channel: channel2, user_id: user1.user_id, opted_in: false) }
+          it 'shows opt in status' do
+            expect(message: "#{SlackRubyBot.config.user} opt <@#{user1.user_id}>", channel: 'DM').to respond_with_slack_message(
+              "User #{user1.slack_mention} is opted in to #{channel1.slack_mention} and opted out of #{channel2.slack_mention}."
+            )
+          end
+        end
+      end
+      context 'as a non-admin' do
+        before do
+          allow_any_instance_of(Team).to receive(:is_admin?).and_return(false)
+        end
+        it 'requires an admin' do
+          expect(message: "#{SlackRubyBot.config.user} opt <@someone>", channel: 'DM').to respond_with_slack_message([
+            "Sorry, only <@#{team.activated_user_id}> or a Slack team admin can see whether users are opted in or out."
+          ].join("\n"))
+        end
+      end
+    end
+
+    context 'channel' do
+      include_context :user
+
       context 'current user' do
         it 'shows current value of opt' do
           expect(message: "#{SlackRubyBot.config.user} opt", user: user.user_id).to respond_with_slack_message(

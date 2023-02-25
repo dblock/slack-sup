@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe SlackSup::Commands::Next do
-  include_context :team
+  include_context :subscribed_team
 
   let(:tz) { 'Eastern Time (US & Canada)' }
   let(:t_in_time_zone) { Time.now.utc.in_time_zone(tz) }
