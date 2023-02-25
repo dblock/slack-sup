@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe SlackSup::Commands::Help do
-  let(:app) { SlackSup::Server.new(team: team) }
-  let(:client) { app.send(:client) }
+  include_context :client
+
   context 'subscribed team' do
     let!(:team) { Fabricate(:team, subscribed: true) }
     it 'help' do

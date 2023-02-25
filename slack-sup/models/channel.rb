@@ -1,6 +1,7 @@
 class Channel
   include Mongoid::Document
   include Mongoid::Timestamps
+  include SlackSup::Models::Mixins::Pluralize
 
   field :channel_id, type: String
   field :inviter_id, type: String
@@ -260,9 +261,8 @@ class Channel
     tt = last_sync_at || last_round_at
     messages = []
     if tt
-      messages << "Last users sync was #{tt.to_time.ago_in_words}."
       updated_users_count = users.where(:updated_at.gte => last_sync_at).count
-      messages << "#{pluralize(updated_users_count, 'user')} updated."
+      messages << "Last users sync was #{tt.to_time.ago_in_words}, #{pluralize(updated_users_count, 'user')} updated."
     end
     if sync
       messages << 'Users will sync in the next hour.'
@@ -274,17 +274,6 @@ class Channel
   end
 
   private
-
-  def pluralize(count, text)
-    case count
-    when 0
-      "No #{text.pluralize}"
-    when 1
-      "#{count} #{text}"
-    else
-      "#{count} #{text.pluralize}"
-    end
-  end
 
   def validate_team_field_label
     return unless team_field_label && team_field_label_changed?

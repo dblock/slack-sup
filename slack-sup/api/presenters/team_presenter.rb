@@ -20,6 +20,11 @@ module Api
         "#{request.base_url}/api/channels?team_id=#{id}"
       end
 
+      link :stats do |opts|
+        request = Grape::Request.new(opts[:env])
+        "#{request.base_url}/api/stats?team_id=#{id}"
+      end
+
       link :self do |opts|
         request = Grape::Request.new(opts[:env])
         "#{request.base_url}/api/teams/#{id}"

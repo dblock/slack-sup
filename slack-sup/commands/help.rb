@@ -7,22 +7,28 @@ module SlackSup
 
         The most valuable relationships are not made of two people, they’re made of three.
 
-        User
-        ----
-        opt [in|out]              - opt in/out of S'Up
-        gcal [date/time]          - help me create a GCal (works inside a S'Up, eg. @sup gcal tomorrow 5pm)
-
-        General
+        In a DM
         -------
-        stats                     - team stats
-        rounds [n]                - team stats for the last n rounds, default is 3
-        next                      - time of next round
-        help                      - this helpful message
-        about                     - more helpful info about this bot
-        set                       - show all settings
+        help                       - this helpful message
+        about                      - more helpful info about this bot
+        stats                      - team stats
+        set                        - team settings
+        subscription               - show team subscription info
+        unsubscribe                - cancel auto-renew, unsubscribe
+        set api [on|off]           - enable/disable API access to your team data
+        set api token              - require an access token in the X-Access-Token header for API access
+        unset api token            - don't require an access token for API access
+        rotate api token           - rotate the token required for API access
 
-        Team Admins
-        -----------
+        In a Channel
+        ------------
+        stats                      - channel stats
+        rounds [n]                 - channel stats for the last n rounds, default is 3
+        next                       - time of next round
+        set                        - show all channel settings
+
+        Channel Admins
+        --------------
         set size [number]          - set the number of people for each S'Up, default is 3
         set odd [yes/no]           - add one odd user to an existing S'Up and/or generate an additional smaller S'Up
         set day [day of week]      - set the day to S'Up, default is Monday
@@ -33,7 +39,7 @@ module SlackSup
         set recency [number]       - set the number of weeks during which to avoid pairing the same people, default is 12
         set opt [in|out]           - opt in (default) or opt out new users
         set sync [now]             - review or schedule a user sync from Slack
-        set api [on|off]           - enable/disable API access to your team data
+        set api [on|off]           - enable/disable API access to your channel data
         set api token              - require an access token in the X-Access-Token header for API access
         unset api token            - don't require an access token for API access
         rotate api token           - rotate the token required for API access
@@ -42,8 +48,11 @@ module SlackSup
         set message [message]      - set the message users see when creating a S'Up DM
         unset message              - reset the message users see when creating a S'Up DM to the default one
         opt [in|out] [@mention]    - opt a user in/out of S'Up by @mention
-        subscription               - show team subscription info
-        unsubscribe                - cancel auto-renew, unsubscribe
+
+        User
+        ----
+        opt [in|out]               - opt in/out of S'Up in this channel
+        gcal [date/time]           - help me create a GCal (works inside a S'Up, eg. @sup gcal tomorrow 5pm)
 
         More information at https://sup.playplay.io
         ```

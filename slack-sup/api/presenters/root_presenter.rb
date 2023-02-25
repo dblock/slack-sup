@@ -58,7 +58,7 @@ module Api
 
       link :stats do |opts|
         {
-          href: "#{base_url(opts)}/api/stats/{?channel_id}",
+          href: "#{base_url(opts)}/api/stats/{?channel_id,team_id}",
           templated: true
         }
       end

@@ -17,4 +17,4 @@ module SlackSup
       end
     end
   end
-  end
+end
