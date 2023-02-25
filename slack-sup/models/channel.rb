@@ -250,7 +250,7 @@ class Channel
 
   def next_sup_at_text
     [
-      'Next round is',
+      "Next round in #{slack_mention} is",
       Time.now > next_sup_at ? 'overdue' : nil,
       next_sup_at.strftime('%A, %B %e, %Y at %l:%M %p %Z').gsub('  ', ' '),
       '(' + next_sup_at.to_time.ago_or_future_in_words(highest_measure_only: true) + ').'

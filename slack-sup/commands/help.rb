@@ -13,6 +13,7 @@ module SlackSup
         about                      - more helpful info about this bot
         stats                      - team stats
         set                        - team settings
+        next                       - time of all next rounds
         subscription               - show team subscription info
         unsubscribe                - cancel auto-renew, unsubscribe
         set api [on|off]           - enable/disable API access to your team data
