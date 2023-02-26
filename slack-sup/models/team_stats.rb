@@ -44,7 +44,7 @@ class TeamStats
 
   def to_s
     messages = []
-    messages << "Team S'Up connects #{pluralize(users_opted_in_count, 'user')} in #{pluralize(channels_enabled_count, 'channel')}."
+    messages << "Team S'Up connects #{pluralize(users_opted_in_count, 'user')} in #{pluralize(channels_count, 'channel')}."
     if users_count > 0 && users_opted_in_count > 0
       messages << "Team S'Up has #{users_opted_in_count_percent}% (#{users_opted_in_count}/#{users_count}) of users opted in."
     elsif users_count > 0

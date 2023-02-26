@@ -14,6 +14,14 @@ class Team
   after_update :subscribed!
   after_save :activated!
 
+  def rounds
+    Round.where(:channel_id.in => channels.distinct(:_id))
+  end
+
+  def sups
+    Sup.where(:channel_id.in => channels.distinct(:_id))
+  end
+
   def tags
     [
       subscribed? ? 'subscribed' : 'trial',

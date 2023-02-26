@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe SlackSup::Commands::Stats do
-  context 'global' do
+  context 'dm' do
     include_context :subscribed_team
 
     it 'returns global team stats' do

@@ -12,7 +12,7 @@ describe SlackSup::Commands::Opt do
   context 'subscribed team' do
     include_context :subscribed_team
 
-    context 'on a DM' do
+    context 'dm' do
       context 'as an admin' do
         before do
           allow_any_instance_of(Team).to receive(:is_admin?).and_return(true)
