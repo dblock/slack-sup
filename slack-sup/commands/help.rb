@@ -12,6 +12,7 @@ module SlackSup
         help                       - this helpful message
         about                      - more helpful info about this bot
         stats                      - team stats
+        opt [in|out] [#channel]    - opt in/out
         set                        - team settings
         next                       - time of all next rounds
         subscription               - show team subscription info
@@ -49,11 +50,10 @@ module SlackSup
         unset team field           - unset the name of the custom profile team field
         set message [message]      - set the message users see when creating a S'Up DM
         unset message              - reset the message users see when creating a S'Up DM to the default one
-        opt [in|out] [@mention]    - opt a user in/out of S'Up by @mention
+        opt [in|out] [@mention]    - opt users in/out by @mention
 
-        User
+        S'Up
         ----
-        opt [in|out]               - opt in/out of S'Up in this channel
         gcal [date/time]           - help me create a GCal (works inside a S'Up, eg. @sup gcal tomorrow 5pm)
 
         More information at https://sup.playplay.io

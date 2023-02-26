@@ -109,6 +109,15 @@ class Channel
     user
   end
 
+  def self.parse_slack_mention(mention)
+    channel_match = mention.match(/^<#(.*)>$/)
+    channel_match[1] if channel_match
+  end
+
+  def self.parse_slack_mention!(mention)
+    parse_slack_mention(mention) || raise(SlackSup::Error, "Invalid channel mention #{mention}.")
+  end
+
   def find_or_create_user!(user_id)
     user = users.where(user_id: user_id).first
     user || users.create!(user_id: user_id, sync: true, opted_in: opt_in)

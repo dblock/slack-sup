@@ -353,4 +353,20 @@ describe Channel do
       expect(channel.short_lived_token_valid?(token)).to be false
     end
   end
+  context '#parse_slack_mention' do
+    it 'valid' do
+      expect(Channel.parse_slack_mention('<#channel_id>')).to eq 'channel_id'
+    end
+    it 'invalid' do
+      expect(Channel.parse_slack_mention('invalid')).to be nil
+    end
+  end
+  context '#parse_slack_mention!' do
+    it 'valid' do
+      expect(Channel.parse_slack_mention!('<#channel_id>')).to eq 'channel_id'
+    end
+    it 'invalid' do
+      expect { Channel.parse_slack_mention!('invalid') }.to raise_error SlackSup::Error, 'Invalid channel mention invalid.'
+    end
+  end
 end
