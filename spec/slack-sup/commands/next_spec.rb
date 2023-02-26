@@ -13,7 +13,7 @@ describe SlackSup::Commands::Next do
     Timecop.travel(monday)
   end
 
-  context 'DM' do
+  context 'dm' do
     let!(:channel1) { Fabricate(:channel, team: team, sup_wday: wday, sup_time_of_day: 7 * 60 * 60 + 1, sup_tz: tz) }
     let!(:channel2) { Fabricate(:channel, team: team, sup_wday: wday, sup_time_of_day: 9 * 60 * 60 + 1, sup_tz: tz) }
     it 'returns all the next rounds' do

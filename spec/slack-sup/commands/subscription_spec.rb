@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe SlackSup::Commands::Subscription do
-  let(:app) { SlackSup::Server.new(team: team) }
-  let(:client) { app.send(:client) }
+  include_context :client
+
   shared_examples_for 'subscription' do
     include_context :stripe_mock
     context 'with a plan' do
@@ -28,38 +28,36 @@ describe SlackSup::Commands::Subscription do
           card = customer.sources.first
           customer_info += "\nOn file Visa card, #{card.name} ending with #{card.last4}, expires #{card.exp_month}/#{card.exp_year}."
           customer_info += "\n#{team.update_cc_text}"
-          expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message customer_info
+          expect(message: "#{SlackRubyBot.config.user} subscription", channel: 'DM').to respond_with_slack_message customer_info
         end
         it 'requires an admin user' do
-          allow_any_instance_of(User).to receive(:team_admin?).and_return(false)
-          expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message "Only <@#{team.activated_user_id}> or a Slack team admin can get subscription details, sorry."
+          allow_any_instance_of(Team).to receive(:is_admin?).and_return(false)
+          expect(message: "#{SlackRubyBot.config.user} subscription", channel: 'DM').to respond_with_slack_message "Only <@#{team.activated_user_id}> or a Slack team admin can get subscription details, sorry."
         end
       end
     end
   end
-  context 'unsubscribed team', vcr: { cassette_name: 'user_info' } do
-    let!(:team) { Fabricate(:team) }
+  context 'unsubscribed team' do
+    include_context :team
+
     it 'is a subscription feature' do
-      expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message(
+      expect(message: "#{SlackRubyBot.config.user} subscription", channel: 'DM').to respond_with_slack_message(
         "Subscribe your team for $39.99 a year at #{SlackRubyBotServer::Service.url}/subscribe?team_id=#{team.team_id}."
       )
     end
   end
   context 'subscribed team' do
     let!(:team) { Fabricate(:team, subscribed: true) }
-    let!(:channel) { Fabricate(:channel, team: team) }
-    let!(:activated_user) { Fabricate(:user, channel: channel) }
     context 'as admin' do
       before do
-        expect(team).to receive(:find_create_or_update_user_in_channel_by_slack_id!).and_return(activated_user)
-        team.update_attributes!(activated_user_id: activated_user.user_id)
+        allow_any_instance_of(Team).to receive(:is_admin?).and_return(true)
       end
       context 'subscribed team without a customer ID' do
         before do
           team.update_attributes!(subscribed: true, stripe_customer_id: nil)
         end
         it 'reports subscribed' do
-          expect(message: "#{SlackRubyBot.config.user} subscription", user: 'user').to respond_with_slack_message(
+          expect(message: "#{SlackRubyBot.config.user} subscription", channel: 'DM').to respond_with_slack_message(
             'Team is subscribed.'
           )
         end

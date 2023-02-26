@@ -648,7 +648,7 @@ describe SlackSup::Commands::Set do
       end
     end
   end
-  context 'DM' do
+  context 'dm' do
     context 'admin' do
       context 'set' do
         it 'displays all settings' do

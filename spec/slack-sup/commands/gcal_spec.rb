@@ -3,7 +3,7 @@ require 'spec_helper'
 describe SlackSup::Commands::GCal do
   include_context :client
 
-  context 'DM' do
+  context 'dm' do
     include_context :subscribed_team
 
     before do
