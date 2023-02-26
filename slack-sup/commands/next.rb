@@ -6,7 +6,7 @@ module SlackSup
       channel_command 'next' do |client, channel, data, _match|
         channels = channel ? [channel] : client.owner.channels.enabled.asc(:_id)
         client.say(channel: data.channel, text: channels.map(&:next_sup_at_text).join("\n"))
-        logger.info "NEXT: #{data.channel} - #{data.user}"
+        logger.info "NEXT: #{client.owner}, channel=#{data.channel}, user=#{data.user}"
       end
     end
   end

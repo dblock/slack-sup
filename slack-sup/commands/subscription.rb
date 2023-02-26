@@ -21,7 +21,7 @@ module SlackSup
         else
           client.say(channel: data.channel, text: "Only <@#{client.owner.activated_user_id}> or a Slack team admin can get subscription details, sorry.")
         end
-        logger.info "SUBSCRIPTION: #{data.user}"
+        logger.info "SUBSCRIPTION: #{client.owner}, user=#{data.user}"
       end
     end
   end

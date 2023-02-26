@@ -27,6 +27,7 @@ module SlackSup
         rounds [n]                 - channel stats for the last n rounds, default is 3
         next                       - time of next round
         set                        - show all channel settings
+        sync                       - manually schedule a user sync
 
         Channel Admins
         --------------

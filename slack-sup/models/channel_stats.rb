@@ -43,7 +43,7 @@ class ChannelStats
     messages << if users_count > 0 && users_opted_in_count > 0
                   "Channel S'Up started #{channel.created_at.ago_in_words(highest_measure_only: true)} with #{users_opted_in_count_percent}% (#{users_opted_in_count}/#{users_count}) of users opted in."
                 elsif users_count > 0
-                  "Channel S'Up started #{channel.created_at.ago_in_words(highest_measure_only: true)} with none of the #{pluralize(users_count, 'user')}) opted in."
+                  "Channel S'Up started #{channel.created_at.ago_in_words(highest_measure_only: true)} with 0 of #{pluralize(users_count, 'user')} opted in."
                 else
                   "Channel S'Up started #{channel.created_at.ago_in_words(highest_measure_only: true)}."
                 end

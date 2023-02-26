@@ -26,7 +26,7 @@ module Api
         get do
           team = Team.find(params[:team_id]) || error!('Not Found', 404)
           authorize! team
-          channels = paginate_and_sort_by_cursor(team.channels, default_sort_order: '-_id')
+          channels = paginate_and_sort_by_cursor(team.channels.where(api: true), default_sort_order: '-_id')
           present channels, with: Api::Presenters::ChannelsPresenter
         end
       end

@@ -79,7 +79,7 @@ module SlackSup
       invoke_with_criteria!(Channel.enabled.where(sync: true)) do |channel|
         tt = Time.now.utc
         channel.sync!
-        logger.info "Synched #{channel}, #{channel.users.where(:updated_at.gte => tt).count} user(s) updated."
+        logger.info "Synced #{channel}, #{channel.users.where(:updated_at.gte => tt).count} user(s) updated."
       end
     end
 

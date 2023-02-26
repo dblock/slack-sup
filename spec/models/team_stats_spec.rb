@@ -12,7 +12,7 @@ describe Stats do
     expect(stats.reported_outcomes_count).to eq 0
     expect(stats.outcomes).to eq({})
     expect(stats.team).to eq team
-    expect(stats.to_s).to eq "Team S'Up connects no users in no channels."
+    expect(stats.to_s).to eq "Team S'Up connects 0 users in 0 channels."
   end
   context 'with outcomes' do
     include_context :subscribed_team
@@ -50,7 +50,7 @@ describe Stats do
       expect(stats.outcomes).to eq(all: 1, unknown: 3)
       expect(stats.team).to eq team
       expect(stats.to_s).to eq [
-        "Team S'Up connects 4 users in 2 channels.",
+        "Team S'Up connects 4 users in 2 channels (#{channel1.slack_mention} and #{channel2.slack_mention}).",
         "Team S'Up has 80% (4/5) of users opted in.",
         "Facilitated 4 S'Ups in 4 rounds for 5 users with 25% positive outcomes from 25% outcomes reported."
       ].join("\n")

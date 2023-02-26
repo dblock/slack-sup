@@ -25,7 +25,7 @@ describe Channel do
         [bot_member, deleted_member, restricted_member, ultra_restricted_member, ooo_member, available_member]
       end
       before do
-        allow_any_instance_of(Slack::Web::Client).to receive(:paginate).and_yield(
+        allow_any_instance_of(Slack::Web::Client).to receive(:conversations_members).and_yield(
           Hashie::Mash.new(members: members.map(&:id))
         )
         members.each do |member|
@@ -65,9 +65,7 @@ describe Channel do
     context 'with slack users' do
       let(:members) { [] }
       before do
-        allow_any_instance_of(Slack::Web::Client).to receive(:paginate).with(
-          :conversations_members, hash_including({})
-        ).and_yield(Hashie::Mash.new(members: members))
+        allow_any_instance_of(Slack::Web::Client).to receive(:conversations_members).and_yield(Hashie::Mash.new(members: members))
         members.each do |member|
           allow_any_instance_of(Slack::Web::Client).to receive(:users_info)
             .with(user: member).and_return(

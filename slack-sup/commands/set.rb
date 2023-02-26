@@ -19,7 +19,7 @@ module SlackSup
           else
             client.say(channel: data.channel, text: "Users are opted #{channel.opt_in_s} by default.")
           end
-          logger.info "SET: #{channel}, user=#{user.user_name}, opt_in=#{channel.opt_in}"
+          logger.info "SET: #{channel}, user=#{data.user}, opt_in=#{channel.opt_in}"
         end
 
         def set_api(client, channel, data, user, v = nil)
@@ -43,7 +43,7 @@ module SlackSup
             ].compact.join("\n")
             client.say(channel: data.channel, text: message)
           end
-          logger.info "SET: #{channel}, user=#{user.user_name}, api=#{channel.api_s}"
+          logger.info "SET: #{channel}, user=#{data.user}, api=#{channel.api_s}"
         end
 
         def set_api_token(client, channel, data, user)
@@ -75,7 +75,7 @@ module SlackSup
             ].join("\n")
             client.say(channel: data.channel, text: message)
           end
-          logger.info "SET: #{channel}, user=#{user.user_name}, api=#{channel.api_s}, api_token=#{channel.api_token ? '(set)' : '(not set)'}"
+          logger.info "SET: #{channel}, user=#{data.user}, api=#{channel.api_s}, api_token=#{channel.api_token ? '(set)' : '(not set)'}"
         end
 
         def unset_api_token(client, channel, data, user)
@@ -101,7 +101,7 @@ module SlackSup
             ].join(' ')
             client.say(channel: data.channel, text: message)
           end
-          logger.info "UNSET: #{channel}, user=#{user.user_name}, api=#{channel.api_s}, api_token=#{channel.api_token ? '(set)' : '(not set)'}"
+          logger.info "UNSET: #{channel}, user=#{data.user}, api=#{channel.api_s}, api_token=#{channel.api_token ? '(set)' : '(not set)'}"
         end
 
         def rotate_api_token(client, channel, data, user)
@@ -121,7 +121,7 @@ module SlackSup
             ].join(' ')
             client.say(channel: data.channel, text: message)
           end
-          logger.info "SET: #{channel}, user=#{user.user_name}, api=#{channel.api_s}, api_token=(rotated)"
+          logger.info "SET: #{channel}, user=#{data.user}, api=#{channel.api_s}, api_token=(rotated)"
         end
 
         def team_set_api(client, team, data, user, v = nil)
@@ -235,7 +235,7 @@ module SlackSup
           else
             client.say(channel: data.channel, text: "Channel S'Up is on #{channel.sup_day}.")
           end
-          logger.info "SET: #{channel}, user=#{user.user_name}, sup_day=#{channel.sup_day}."
+          logger.info "SET: #{channel}, user=#{data.user}, sup_day=#{channel.sup_day}."
         rescue ArgumentError
           raise SlackSup::Error, "Day _#{v}_ is invalid, try _Monday_, _Tuesday_, etc. Channel S'Up is on #{channel.sup_day}."
         end
@@ -258,7 +258,7 @@ module SlackSup
           else
             client.say(channel: data.channel, text: "Channel S'Up is after #{channel.sup_time_of_day_s} #{channel.sup_tzone_s}.")
           end
-          logger.info "SET: #{channel}, user=#{user.user_name}, sup_time_of_day=#{channel.sup_time_of_day_s}."
+          logger.info "SET: #{channel}, user=#{data.user}, sup_time_of_day=#{channel.sup_time_of_day_s}."
         rescue StandardError
           raise SlackSup::Error, "Time _#{v}_ is invalid. Channel S'Up is after #{channel.reload.sup_time_of_day_s} #{channel.sup_tzone_s}."
         end
@@ -272,7 +272,7 @@ module SlackSup
           else
             client.say(channel: data.channel, text: "Channel S'Up followup day is on #{channel.sup_followup_day}.")
           end
-          logger.info "SET: #{channel}, user=#{user.user_name}, sup_followup_day=#{channel.sup_followup_day}."
+          logger.info "SET: #{channel}, user=#{data.user}, sup_followup_day=#{channel.sup_followup_day}."
         rescue ArgumentError
           raise SlackSup::Error, "Day _#{v}_ is invalid, try _Monday_, _Tuesday_, etc. Channel S'Up followup day is on #{channel.sup_followup_day}."
         end
@@ -286,7 +286,7 @@ module SlackSup
           else
             client.say(channel: data.channel, text: "Channel S'Up is every #{channel.sup_every_n_weeks_s}.")
           end
-          logger.info "SET: #{channel}, user=#{user.user_name}, sup_every_n_weeks=#{channel.sup_every_n_weeks_s}."
+          logger.info "SET: #{channel}, user=#{data.user}, sup_every_n_weeks=#{channel.sup_every_n_weeks_s}."
         rescue StandardError
           raise SlackSup::Error, "Number _#{v}_ is invalid. Channel S'Up is every #{channel.reload.sup_every_n_weeks_s}."
         end
@@ -300,7 +300,7 @@ module SlackSup
           else
             client.say(channel: data.channel, text: "Channel S'Up connects groups of #{channel.sup_size} people.")
           end
-          logger.info "SET: #{channel}, user=#{user.user_name}, sup_size=#{channel.sup_size}."
+          logger.info "SET: #{channel}, user=#{data.user}, sup_size=#{channel.sup_size}."
         rescue StandardError
           raise SlackSup::Error, "Number _#{v}_ is invalid. Channel S'Up connects groups of #{channel.reload.sup_size} people."
         end
@@ -314,7 +314,7 @@ module SlackSup
           else
             client.say(channel: data.channel, text: "Channel S'Up connects groups of #{channel.sup_odd ? 'max ' : ''}#{channel.sup_size} people.")
           end
-          logger.info "SET: #{channel}, user=#{user.user_name}, sup_odd=#{channel.sup_odd}."
+          logger.info "SET: #{channel}, user=#{data.user}, sup_odd=#{channel.sup_odd}."
         end
 
         def set_timezone(client, channel, data, user, v = nil)
@@ -329,7 +329,7 @@ module SlackSup
           else
             client.say(channel: data.channel, text: "Channel S'Up timezone is #{channel.sup_tzone}.")
           end
-          logger.info "SET: #{channel} user=#{user.user_name}, timezone=#{channel.sup_tzone}."
+          logger.info "SET: #{channel} user=#{data.user}, timezone=#{channel.sup_tzone}."
         end
 
         def set_custom_profile_team_field(client, channel, data, user, v = nil)
@@ -341,7 +341,7 @@ module SlackSup
           else
             client.say(channel: data.channel, text: "Custom profile team field is _#{channel.team_field_label || 'not set'}_.")
           end
-          logger.info "SET: #{channel}, user=#{user.user_name}, team_field_label=#{channel.team_field_label || '(not set)'}."
+          logger.info "SET: #{channel}, user=#{data.user}, team_field_label=#{channel.team_field_label || '(not set)'}."
         end
 
         def unset_custom_profile_team_field(client, channel, data, user)
@@ -351,7 +351,7 @@ module SlackSup
           else
             client.say(channel: data.channel, text: "Custom profile team field is _#{channel.team_field_label || 'not set'}_. Only <@#{channel.inviter_id}> or a Slack team admin can change that, sorry.")
           end
-          logger.info "UNSET: #{channel}, user=#{user.user_name}, team_field_label=#{channel.team_field_label || '(not set)'}."
+          logger.info "UNSET: #{channel}, user=#{data.user}, team_field_label=#{channel.team_field_label || '(not set)'}."
         end
 
         def set_message(client, channel, data, user, v = nil)
@@ -367,7 +367,7 @@ module SlackSup
           else
             client.say(channel: data.channel, text: "Using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_")
           end
-          logger.info "SET: #{channel}, user=#{user.user_name}, sup_message=#{channel.sup_message || '(not set)'}."
+          logger.info "SET: #{channel}, user=#{data.user}, sup_message=#{channel.sup_message || '(not set)'}."
         end
 
         def unset_message(client, channel, data, user)
@@ -379,7 +379,7 @@ module SlackSup
           else
             client.say(channel: data.channel, text: "Using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_ Only <@#{channel.inviter_id}> or a Slack team admin can change that, sorry.")
           end
-          logger.info "UNSET: #{channel}, user=#{user.user_name}, sup_message=#{channel.sup_message || '(not set)'}."
+          logger.info "UNSET: #{channel}, user=#{data.user}, sup_message=#{channel.sup_message || '(not set)'}."
         end
 
         def set_recency(client, channel, data, user, v = nil)
@@ -391,7 +391,7 @@ module SlackSup
           else
             client.say(channel: data.channel, text: "Taking special care to not pair the same people more than every #{channel.sup_recency_s}.")
           end
-          logger.info "SET: #{channel}, user=#{user.user_name}, sup_recency=#{channel.sup_recency_s}."
+          logger.info "SET: #{channel}, user=#{data.user}, sup_recency=#{channel.sup_recency_s}."
         rescue StandardError
           raise SlackSup::Error, "Number _#{v}_ is invalid. Taking special care to not pair the same people more than every #{channel.reload.sup_recency_s}."
         end
@@ -410,7 +410,7 @@ module SlackSup
           else
             client.say(channel: data.channel, text: channel.last_sync_at_text)
           end
-          logger.info "SET: #{channel}, user=#{user.user_name}, sync_users=#{channel.sync}, last_sync_at=#{channel.last_sync_at}."
+          logger.info "SET: #{channel}, user=#{data.user}, sync_users=#{channel.sync}, last_sync_at=#{channel.last_sync_at}."
         end
 
         def team_set(client, team, data, user, k, v)
@@ -564,7 +564,7 @@ module SlackSup
       user_command 'unset' do |client, channel, user, data, match|
         if !match['expression']
           client.say(channel: data.channel, text: 'Missing setting, see _help_ for available options.')
-          logger.info "UNSET: #{channel} - #{user.user_name}, failed, missing setting"
+          logger.info "UNSET: #{channel}, user=#{data.user}, failed, missing setting"
         else
           k, = parse_expression(match)
           if channel && user
@@ -578,7 +578,7 @@ module SlackSup
       user_command 'rotate' do |client, channel, user, data, match|
         if !match['expression']
           client.say(channel: data.channel, text: 'Missing setting, see _help_ for available options.')
-          logger.info "UNSET: #{channel} - #{user.user_name}, failed, missing setting"
+          logger.info "UNSET: #{channel}, user=#{data.user}, failed, missing setting"
         else
           k, = parse_expression(match)
           if channel && user

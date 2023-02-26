@@ -6,8 +6,6 @@ module SlackSup
 
         def pluralize(count, text)
           case count
-          when 0
-            "no #{text.pluralize}"
           when 1
             "#{count} #{text}"
           else

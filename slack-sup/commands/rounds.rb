@@ -35,7 +35,7 @@ module SlackSup
           end
         end
         client.say(channel: data.channel, text: messages.join("\n"))
-        logger.info "STATS: #{data.channel} - #{data.user}"
+        logger.info "STATS: #{client.owner}, channel=#{data.channel}, user=#{data.user}"
       end
     end
   end

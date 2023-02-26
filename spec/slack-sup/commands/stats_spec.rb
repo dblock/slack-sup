@@ -6,7 +6,7 @@ describe SlackSup::Commands::Stats do
 
     it 'returns global team stats' do
       expect(message: "#{SlackRubyBot.config.user} stats", channel: 'DM').to respond_with_slack_message(
-        "Team S'Up connects no users in no channels."
+        "Team S'Up connects 0 users in 0 channels."
       )
     end
   end

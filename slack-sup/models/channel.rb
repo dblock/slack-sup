@@ -117,7 +117,7 @@ class Channel
   def sync!
     tt = Time.now.utc
     updated_user_ids = []
-    slack_client.paginate(:conversations_members, channel: channel_id) do |page|
+    slack_client.conversations_members(channel: channel_id) do |page|
       page.members.each do |user_id|
         user_info = slack_client.users_info(user: user_id).user
         existing_user = users.where(user_id: user_id).first

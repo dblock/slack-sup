@@ -28,7 +28,7 @@ module SlackSup
           else
             client.say(channel: data.channel, text: "Hi there #{user.slack_mention}, you're #{expression ? 'now ' : ''}opted #{user.opted_in? ? 'into' : 'out of'} S'Up.")
           end
-          logger.info "OPT: #{channel}, user=#{data.user}, #{user}, opted=#{user.opted_in? ? 'in' : 'out'}"
+          logger.info "OPT: #{client.owner}, channel=#{data.channel}, #{user}, opted=#{user.opted_in? ? 'in' : 'out'}"
         else
           mention = match['expression']
           if mention
@@ -66,7 +66,7 @@ module SlackSup
             client.say(channel: data.channel, text: "#{mention ? "User <@#{user}> was" : 'You were'} not found in any channels.")
           end
 
-          logger.info "OPT: #{channel}, user=#{data.user}, #{user}"
+          logger.info "OPT: #{client.owner}, for=#{user}, channel=#{data.channel}, user=#{data.user}"
         end
       end
     end

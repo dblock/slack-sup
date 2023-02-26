@@ -24,7 +24,7 @@ describe SlackSup::Commands::Next do
     end
     context 'supped' do
       before do
-        allow(team).to receive(:sync!)
+        allow(channel1).to receive(:sync!)
         channel1.sup!
       end
       it 'in a week' do
@@ -45,7 +45,7 @@ describe SlackSup::Commands::Next do
     end
     context 'supped' do
       before do
-        allow(team).to receive(:sync!)
+        allow(channel).to receive(:sync!)
         channel.sup!
       end
       it 'in a week' do

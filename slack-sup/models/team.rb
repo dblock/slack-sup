@@ -53,7 +53,7 @@ class Team
   end
 
   def inform!(message)
-    members = slack_client.paginate(:users_list, presence: false).map(&:members).flatten
+    members = slack_client.users_list(presence: false).map(&:members).flatten
     members.select(&:is_admin).each do |admin|
       channel = slack_client.conversations_open(users: admin.id.to_s)
       logger.info "Sending DM '#{message}' to #{admin.name}."

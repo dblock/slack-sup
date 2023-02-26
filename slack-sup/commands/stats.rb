@@ -6,7 +6,7 @@ module SlackSup
       channel_command 'stats' do |client, channel, data, _match|
         stats = channel ? ChannelStats.new(channel) : TeamStats.new(client.owner)
         client.say(channel: data.channel, text: stats.to_s)
-        logger.info "STATS: #{data.channel} - #{data.user}"
+        logger.info "STATS: #{client.owner}, channel=#{data.channel}, user=#{data.user}"
       end
     end
   end

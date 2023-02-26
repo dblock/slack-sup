@@ -475,7 +475,7 @@ describe SlackSup::Commands::Set do
           Timecop.travel(Time.now.utc + 1.minute)
           channel.update_attributes!(last_sync_at: Time.now.utc)
           expect(message: "#{SlackRubyBot.config.user} set sync").to respond_with_slack_message(
-            "Last users sync was less than 1 second ago, no users updated. Users will sync before the next round. #{channel.next_sup_at_text}"
+            "Last users sync was less than 1 second ago, 0 users updated. Users will sync before the next round. #{channel.next_sup_at_text}"
           )
         end
         it 'shows last sync that had multiple users updates' do

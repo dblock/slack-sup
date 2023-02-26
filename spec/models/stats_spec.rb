@@ -11,6 +11,6 @@ describe Stats do
     expect(stats.positive_outcomes_count).to eq 0
     expect(stats.reported_outcomes_count).to eq 0
     expect(stats.outcomes).to eq({})
-    expect(stats.to_s).to eq "S'Up connects no teams in no channels with 0% (0/0) of users opted in."
+    expect(stats.to_s).to eq "S'Up connects 0 teams in 0 channels with 0% (0/0) of users opted in."
   end
 end

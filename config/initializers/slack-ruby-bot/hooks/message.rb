@@ -10,6 +10,7 @@ module SlackRubyBot
           SlackSup::Commands::Unsubscribe,
           SlackSup::Commands::Opt,
           SlackSup::Commands::Set,
+          SlackSup::Commands::Sync,
           SlackSup::Commands::Stats,
           SlackSup::Commands::Rounds,
           SlackSup::Commands::Next,
