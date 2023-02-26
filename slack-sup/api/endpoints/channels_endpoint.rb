@@ -13,8 +13,8 @@ module Api
           requires :id, type: String, desc: 'Channel ID.'
         end
         get ':id' do
-          channel = Channel.find(params[:id]) || error!('Not Found', 404)
-          authorize! channel
+          channel = Channel.find(_id: params[:id]) || error!('Not Found', 404)
+          authorize_channel! channel
           present channel, with: Api::Presenters::ChannelPresenter
         end
 
@@ -25,8 +25,8 @@ module Api
         end
         get do
           team = Team.find(params[:team_id]) || error!('Not Found', 404)
-          authorize! team
-          channels = paginate_and_sort_by_cursor(team.channels.where(api: true), default_sort_order: '-_id')
+          authorize_team! team
+          channels = paginate_and_sort_by_cursor(team.channels, default_sort_order: '-_id')
           present channels, with: Api::Presenters::ChannelsPresenter
         end
       end

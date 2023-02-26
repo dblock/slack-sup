@@ -19,6 +19,16 @@ describe Api::Endpoints::RoundsEndpoint do
       expect(round.id).to eq existing_round.id.to_s
       expect(round._links.self._url).to eq "http://example.org/api/rounds/#{existing_round.id}"
     end
+    context 'with a team api token' do
+      before do
+        client.headers.update('X-Access-Token' => 'token')
+        existing_round.channel.team.update_attributes!(api_token: 'token')
+      end
+      it 'returns a round using a team API token' do
+        round = client.round(id: existing_round.id)
+        expect(round.id).to eq existing_round.id.to_s
+      end
+    end
   end
 
   context 'rounds' do

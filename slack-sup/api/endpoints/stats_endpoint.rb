@@ -14,12 +14,12 @@ module Api
         end
         get do
           if params[:team_id]
-            team = Team.where(_id: params[:team_id], api: true).first || error!('Not Found', 404)
-            authorize! team
+            team = Team.find(_id: params[:team_id]) || error!('Not Found', 404)
+            authorize_team! team
             present TeamStats.new(team), with: Api::Presenters::TeamStatsPresenter
           elsif params[:channel_id]
-            channel = Channel.where(_id: params[:channel_id], api: true).first || error!('Not Found', 404)
-            authorize! channel
+            channel = Channel.find(_id: params[:channel_id]) || error!('Not Found', 404)
+            authorize_channel! channel
             present ChannelStats.new(channel), with: Api::Presenters::ChannelStatsPresenter
           else
             present Stats.new, with: Api::Presenters::StatsPresenter

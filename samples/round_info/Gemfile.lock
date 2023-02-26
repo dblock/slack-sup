@@ -54,7 +54,6 @@ GEM
       loofah (~> 2.19, >= 2.19.1)
     ruby2_keywords (0.0.2)
     thread_safe (0.3.6)
-    time_ago_in_words (0.1.1)
     tzinfo (1.2.10)
       thread_safe (~> 0.1)
     zeitwerk (2.5.4)
@@ -66,7 +65,6 @@ DEPENDENCIES
   actionview
   dotenv
   hyperclient (~> 1.0)
-  time_ago_in_words
 
 BUNDLED WITH
    2.1.4

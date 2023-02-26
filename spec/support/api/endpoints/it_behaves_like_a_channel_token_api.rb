@@ -11,7 +11,7 @@ shared_examples_for 'a channel token api' do |model|
       it 'is not returned' do
         expect { client.send(model_s, id: instance.id.to_s).resource }.to raise_error Faraday::ClientError do |e|
           json = JSON.parse(e.response[:body])
-          expect(json['error']).to eq 'Not Found'
+          expect(json['error']).to eq 'Access Denied'
         end
       end
     end
@@ -53,7 +53,7 @@ shared_examples_for 'a channel token api' do |model|
       it 'is not returned' do
         expect { client.send(model_ps, cursor_params).resource }.to raise_error Faraday::ClientError do |e|
           json = JSON.parse(e.response[:body])
-          expect(json['error']).to eq 'Not Found'
+          expect(json['error']).to eq 'Access Denied'
         end
       end
     end

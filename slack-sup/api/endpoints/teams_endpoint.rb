@@ -13,8 +13,8 @@ module Api
           requires :id, type: String, desc: 'Team ID.'
         end
         get ':id' do
-          team = Team.where(_id: params[:id], api: true).first || error!('Not Found', 404)
-          authorize! team
+          team = Team.find(_id: params[:id]) || error!('Not Found', 404)
+          authorize_team! team
           present team, with: Api::Presenters::TeamPresenter
         end
 

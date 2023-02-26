@@ -14,7 +14,7 @@ module Api
         end
         get ':id' do
           user = User.find(params[:id]) || error!('Not Found', 404)
-          authorize! user.channel
+          authorize_channel! user.channel
           present user, with: Api::Presenters::UserPresenter
         end
 
@@ -25,7 +25,7 @@ module Api
         end
         get do
           channel = Channel.find(params[:channel_id]) || error!('Not Found', 404)
-          authorize! channel
+          authorize_channel! channel
           users = paginate_and_sort_by_cursor(channel.users, default_sort_order: '-_id')
           present users, with: Api::Presenters::UsersPresenter
         end

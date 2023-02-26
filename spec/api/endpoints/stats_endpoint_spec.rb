@@ -70,9 +70,20 @@ describe Api::Endpoints::StatsEndpoint do
         expect(stats.users_count).to eq 0
         expect(stats.outcomes).to eq({})
       end
+      context 'with a team api token' do
+        before do
+          client.headers.update('X-Access-Token' => 'token')
+          team.update_attributes!(api_token: 'token')
+        end
+        it 'returns stats' do
+          stats = client.stats(channel_id: channel.id)
+          expect(stats.rounds_count).to eq 2
+          expect(stats.sups_count).to eq 2
+        end
+      end
       context 'a channel with an api token' do
         before do
-          channel.update_attributes!(api_token: 'token')
+          channel.update_attributes!(api_token: 'token', api: true)
         end
         it 'cannot return stats without a token' do
           expect { client.stats(channel_id: channel.id).resource }.to raise_error Faraday::ClientError do |e|
@@ -87,7 +98,7 @@ describe Api::Endpoints::StatsEndpoint do
             expect(json['error']).to eq 'Access Denied'
           end
         end
-        it 'returns a stats' do
+        it 'returns stats' do
           client.headers.update('X-Access-Token' => 'token')
           stats = client.stats(channel_id: channel.id)
           expect(stats.sups_count).to eq 2
@@ -134,7 +145,7 @@ describe Api::Endpoints::StatsEndpoint do
             expect(json['error']).to eq 'Access Denied'
           end
         end
-        it 'returns a stats' do
+        it 'returns stats' do
           client.headers.update('X-Access-Token' => 'token')
           stats = client.stats(team_id: team.id)
           expect(stats.sups_count).to eq 4

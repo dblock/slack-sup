@@ -59,7 +59,7 @@ describe Api::Endpoints::TeamsEndpoint do
         end
       end
       it 'is returned directly' do
-        client.headers.update('X-Access-Token' => 'token')
+        client.headers.update('X-Access-Token' => team.api_token)
         returned_team = client.team(id: team.id)
         expect(returned_team.id).to eq team.id.to_s
       end

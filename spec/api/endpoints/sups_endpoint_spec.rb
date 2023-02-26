@@ -3,7 +3,8 @@ require 'spec_helper'
 describe Api::Endpoints::SupsEndpoint do
   include Api::Test::EndpointTest
 
-  let!(:channel) { Fabricate(:channel, api: true) }
+  let!(:team) { Fabricate(:team) }
+  let!(:channel) { Fabricate(:channel, api: true, team: team) }
   let!(:round) { Fabricate(:round, channel: channel) }
 
   before do
@@ -34,6 +35,16 @@ describe Api::Endpoints::SupsEndpoint do
       client.sup(id: existing_sup.id)._put(gcal_html_link: 'updated')
       expect(existing_sup.reload.gcal_html_link).to eq 'updated'
     end
+    context 'with a team api token' do
+      before do
+        client.headers.update('X-Access-Token' => 'token')
+        team.update_attributes!(api_token: 'token')
+      end
+      it 'returns a sup using a team API token' do
+        sup = client.sup(id: existing_sup.id)
+        expect(sup.id).to eq existing_sup.id.to_s
+      end
+    end
   end
 
   context 'sups' do
@@ -42,6 +53,16 @@ describe Api::Endpoints::SupsEndpoint do
     it 'returns sups' do
       sups = client.sups(round_id: round.id)
       expect(sups.map(&:id).sort).to eq [sup_1, sup_2].map(&:id).map(&:to_s).sort
+    end
+    context 'with a team api token' do
+      before do
+        client.headers.update('X-Access-Token' => 'token')
+        team.update_attributes!(api_token: 'token')
+      end
+      it 'returns sups' do
+        sups = client.sups(round_id: round.id)
+        expect(sups.map(&:id).sort).to eq [sup_1, sup_2].map(&:id).map(&:to_s).sort
+      end
     end
   end
 end

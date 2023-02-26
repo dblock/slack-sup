@@ -14,7 +14,7 @@ module Api
         end
         get ':id' do
           round = Round.find(params[:id]) || error!('Not Found', 404)
-          authorize! round.channel
+          authorize_channel! round.channel
           present round, with: Api::Presenters::RoundPresenter
         end
 
@@ -25,7 +25,7 @@ module Api
         end
         get do
           channel = Channel.find(params[:channel_id]) || error!('Not Found', 404)
-          authorize! channel
+          authorize_channel! channel
           rounds = paginate_and_sort_by_cursor(channel.rounds, default_sort_order: '_id')
           present rounds, with: Api::Presenters::RoundsPresenter
         end
