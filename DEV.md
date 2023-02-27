@@ -1,15 +1,13 @@
 ## Development Environment
 
-You may want to watch [Your First Slack Bot Service video](http://code.dblock.org/2016/03/11/your-first-slack-bot-service-video.html) first.
-
 ### Prerequisites
 
 Ensure that you can build the project and run tests. You will need these.
 
 - [MongoDB](https://docs.mongodb.com/manual/installation/)
 - [Firefox](https://www.mozilla.org/firefox/new/)
-- [Geckodriver](https://github.com/mozilla/geckodriver), download, `tar vfxz` and move to `/usr/local/bin`
-- Ruby 2.3.1
+- [Geckodriver](https://github.com/mozilla/geckodriver)
+- Ruby 2.7.7
 
 ```
 bundle install
@@ -22,22 +20,18 @@ Create a Slack team [here](https://slack.com/create).
 
 ### Slack App
 
-Create a test app [here](https://api.slack.com/apps). This gives you a client ID and a client secret.
+Create a test app [here](https://api.slack.com/apps) from [the manifest](manifest.yml).
 
-Under _Features/OAuth & Permissions_, configure the redirect URL to `http://localhost:5000`.
+Use [ngrok](https://ngrok.com/) to tunnel to `localhost:5000`.
 
-Add the following Permission Scope.
-
-* Add a bot user with the username @bot.
+* Choose _Allow users to send Slash commands and messages from the messages tab_ under `App Home`.
+* Use `https://....ngrok.io/api/slack/action` for _Interactivity and Shortcuts_.
+* Use `https://....ngrok.io` for _Redirect Urls_ in _OAuth & Permissions_.
+* Use `https://....ngrok.io/api/slack/event` in _Event Subscriptions_.
 
 ### Slack Keys
 
-Create a `.env` file.
-
-```
-SLACK_CLIENT_ID=slack_client_id
-SLACK_CLIENT_SECRET=slack_client_secret
-```
+Create a `.env` file from [.env.sample](.env.sample) with at least the Slack keys.
 
 ### Stripe Keys
 
@@ -59,18 +53,6 @@ $ foreman start
 
 Navigate to [localhost:5000](http://localhost:5000).
 
-### Interactive Buttons
-
-To test interactive buttons locally you need [ngrok](https://ngrok.com) to tunnel to `localhost:5000`.
-
-```
-ngrok http 5000
-```
-
-This will give you a forwarding HTTPs URL, such as `https://a740cdc9.ngrok.io -> localhost:5000`.
-
-Enter `https://a740cdc9.ngrok.io/api/slack/action/` in the Slack `Interactive Messages` configuration section of your app under `Request Url`.
-
 ### Google Calendar Integration
 
 * Create a new project on https://console.developers.google.com
@@ -79,6 +61,3 @@ Enter `https://a740cdc9.ngrok.io/api/slack/action/` in the Slack `Interactive Me
 * Choose `Add Credentials`, accessing `User Data` via `Google Calendar API` via `Web Browser (Javascript)`
 * Answer remaining questions and `Create a Client ID`
 * Set `GOOGLE_API_CLIENT_ID`
-
-
-

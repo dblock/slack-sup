@@ -80,14 +80,18 @@ describe Api::Endpoints::TeamsEndpoint do
     context 'register' do
       before do
         oauth_access = {
-          'bot' => {
-            'bot_access_token' => 'token',
-            'bot_user_id' => 'bot_user_id'
+          'access_token' => 'token',
+          'token_type' => 'bot',
+          'bot_user_id' => 'bot_user_id',
+          'team' => {
+            'id' => 'team_id',
+            'name' => 'team_name'
           },
-          'access_token' => 'access_token',
-          'user_id' => 'activated_user_id',
-          'team_id' => 'team_id',
-          'team_name' => 'team_name'
+          'authed_user' => {
+            'id' => 'activated_user_id',
+            'access_token' => 'user_token',
+            'token_type' => 'user'
+          }
         }
         ENV['SLACK_CLIENT_ID'] = 'client_id'
         ENV['SLACK_CLIENT_SECRET'] = 'client_secret'
@@ -98,7 +102,7 @@ describe Api::Endpoints::TeamsEndpoint do
             'id' => 'C1'
           }
         )
-        allow_any_instance_of(Slack::Web::Client).to receive(:oauth_access).with(
+        allow_any_instance_of(Slack::Web::Client).to receive(:oauth_v2_access).with(
           hash_including(
             code: 'code',
             client_id: 'client_id',
@@ -141,6 +145,7 @@ describe Api::Endpoints::TeamsEndpoint do
       end
       it 'returns a useful error when team already exists' do
         existing_team = Fabricate(:team, token: 'token')
+        allow_any_instance_of(Team).to receive(:ping_if_active!)
         expect { client.teams._post(code: 'code') }.to raise_error Faraday::ClientError do |e|
           json = JSON.parse(e.response[:body])
           expect(json['message']).to eq "Team #{existing_team.name} is already registered."

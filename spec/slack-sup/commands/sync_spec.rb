@@ -5,7 +5,7 @@ describe SlackSup::Commands::Sync do
     include_context :subscribed_team
 
     it 'does not sync' do
-      expect(message: "#{SlackRubyBot.config.user} sync", channel: 'DM').to respond_with_slack_message(
+      expect(message: '@sup sync', channel: 'DM').to respond_with_slack_message(
         'Please run this command in a channel.'
       )
     end
@@ -18,7 +18,7 @@ describe SlackSup::Commands::Sync do
         expect_any_instance_of(User).to receive(:channel_admin?).and_return(true)
       end
       it 'sync' do
-        expect(message: "#{SlackRubyBot.config.user} sync").to respond_with_slack_message(
+        expect(message: '@sup sync').to respond_with_slack_message(
           'Users will sync in the next hour. Come back and run `stats` in a bit.'
         )
       end
@@ -28,7 +28,7 @@ describe SlackSup::Commands::Sync do
         expect_any_instance_of(User).to receive(:channel_admin?).and_return(false)
       end
       it 'sets sync' do
-        expect(message: "#{SlackRubyBot.config.user} sync").to respond_with_slack_message(
+        expect(message: '@sup sync').to respond_with_slack_message(
           "Users will sync before the next round. Only <@#{channel.inviter_id}> or a Slack team admin can manually sync, sorry."
         )
       end

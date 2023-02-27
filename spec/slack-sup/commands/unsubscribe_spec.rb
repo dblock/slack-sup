@@ -1,15 +1,13 @@
 require 'spec_helper'
 
 describe SlackSup::Commands::Unsubscribe do
-  include_context :client
-
   shared_examples_for 'unsubscribe' do
     context 'on trial' do
       before do
         team.update_attributes!(subscribed: false, subscribed_at: nil, created_at: 1.week.ago)
       end
       it 'displays all set message' do
-        expect(message: "#{SlackRubyBot.config.user} unsubscribe", channel: 'DM').to respond_with_slack_message "You don't have a paid subscription, all set."
+        expect(message: '@sup unsubscribe', channel: 'DM').to respond_with_slack_message "You don't have a paid subscription, all set."
       end
     end
     context 'with subscribed_at' do
@@ -17,7 +15,7 @@ describe SlackSup::Commands::Unsubscribe do
         team.update_attributes!(subscribed: true, subscribed_at: 1.year.ago)
       end
       it 'displays subscription info' do
-        expect(message: "#{SlackRubyBot.config.user} unsubscribe", channel: 'DM').to respond_with_slack_message "You don't have a paid subscription, all set."
+        expect(message: '@sup unsubscribe', channel: 'DM').to respond_with_slack_message "You don't have a paid subscription, all set."
       end
     end
     context 'with a plan' do
@@ -50,13 +48,13 @@ describe SlackSup::Commands::Unsubscribe do
               "Subscribed to Plan ($29.99), will auto-renew on #{current_period_end}.",
               "Send `unsubscribe #{active_subscription.id}` to unsubscribe."
             ].join("\n")
-            expect(message: "#{SlackRubyBot.config.user} unsubscribe", channel: 'DM').to respond_with_slack_message customer_info
+            expect(message: '@sup unsubscribe', channel: 'DM').to respond_with_slack_message customer_info
           end
           it 'cannot unsubscribe with an invalid subscription id' do
-            expect(message: "#{SlackRubyBot.config.user} unsubscribe xyz", channel: 'DM').to respond_with_slack_message 'Sorry, I cannot find a subscription with "xyz".'
+            expect(message: '@sup unsubscribe xyz', channel: 'DM').to respond_with_slack_message 'Sorry, I cannot find a subscription with "xyz".'
           end
           it 'unsubscribes' do
-            expect(message: "#{SlackRubyBot.config.user} unsubscribe #{active_subscription.id}", channel: 'DM').to respond_with_slack_message 'Successfully canceled auto-renew for Plan ($29.99).'
+            expect(message: "@sup unsubscribe #{active_subscription.id}", channel: 'DM').to respond_with_slack_message 'Successfully canceled auto-renew for Plan ($29.99).'
             team.reload
             expect(team.subscribed).to be true
             expect(team.stripe_customer_id).to_not be nil
@@ -67,7 +65,7 @@ describe SlackSup::Commands::Unsubscribe do
             expect_any_instance_of(Team).to receive(:is_admin?).and_return(false)
           end
           it 'cannot unsubscribe' do
-            expect(message: "#{SlackRubyBot.config.user} unsubscribe xyz", channel: 'DM').to respond_with_slack_message "Only <@#{team.activated_user_id}> or a Slack team admin can unsubscribe, sorry."
+            expect(message: '@sup unsubscribe xyz', channel: 'DM').to respond_with_slack_message "Only <@#{team.activated_user_id}> or a Slack team admin can unsubscribe, sorry."
           end
         end
       end

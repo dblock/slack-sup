@@ -4,7 +4,7 @@ require 'bundler'
 Bundler.setup :default, :development
 
 $LOAD_PATH.unshift(File.dirname(__FILE__))
-require 'slack-sup'
+require 'app'
 
 require 'tasks/logger'
 

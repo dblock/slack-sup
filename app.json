@@ -1,9 +1,0 @@
-{
-	"name": "Slack Sup",
-	"description": "A Slack bot for team sup.",
-	"respository": "https://github.com/dblock/slack-sup",
-	"keywords": ["slack", "bots", "sup", "teams"],
-	"addons": [
-		"mongolab"
-	]
-}

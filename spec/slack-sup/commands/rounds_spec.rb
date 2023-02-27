@@ -5,7 +5,7 @@ describe SlackSup::Commands::Rounds do
     include_context :team
 
     it 'requires a subscription' do
-      expect(message: "#{SlackRubyBot.config.user} rounds").to respond_with_slack_message(team.subscribe_text)
+      expect(message: '@sup rounds').to respond_with_slack_message(team.subscribe_text)
     end
   end
 
@@ -13,7 +13,7 @@ describe SlackSup::Commands::Rounds do
     include_context :subscribed_team
 
     it 'empty stats' do
-      expect(message: "#{SlackRubyBot.config.user} rounds", channel: 'DM').to respond_with_slack_message(
+      expect(message: '@sup rounds', channel: 'DM').to respond_with_slack_message(
         "Team S'Up facilitated 0 rounds in 0 channels."
       )
     end
@@ -42,7 +42,7 @@ describe SlackSup::Commands::Rounds do
       end
       it 'reports counts' do
         Timecop.travel(Time.now + 731.days)
-        expect(message: "#{SlackRubyBot.config.user} rounds 4", channel: 'DM').to respond_with_slack_message([
+        expect(message: '@sup rounds 4', channel: 'DM').to respond_with_slack_message([
           "Team S'Up facilitated 4 rounds in 2 channels.",
           "* in progress in #{channel2.slack_mention}: 1 S'Up paired 3 users and no outcomes reported.",
           "* in progress in #{channel1.slack_mention}: 1 S'Up paired 3 users and no outcomes reported.",
@@ -57,7 +57,7 @@ describe SlackSup::Commands::Rounds do
     include_context :channel
 
     it 'empty stats' do
-      expect(message: "#{SlackRubyBot.config.user} rounds").to respond_with_slack_message(
+      expect(message: '@sup rounds').to respond_with_slack_message(
         "Channel S'Up facilitated 0 rounds."
       )
     end
@@ -78,7 +78,7 @@ describe SlackSup::Commands::Rounds do
       end
       it 'reports counts' do
         Timecop.travel(Time.now + 731.days)
-        expect(message: "#{SlackRubyBot.config.user} rounds 2").to respond_with_slack_message(
+        expect(message: '@sup rounds 2').to respond_with_slack_message(
           "Channel S'Up facilitated 2 rounds.\n" \
           "* in progress: 1 S'Up paired 3 users and no outcomes reported.\n" \
           "* 2 years ago: 1 S'Up paired 3 users, 100% positive outcomes and 100% outcomes reported."
@@ -100,7 +100,7 @@ describe SlackSup::Commands::Rounds do
         channel.sup!
       end
       it 'reports counts' do
-        expect(message: "#{SlackRubyBot.config.user} rounds 2").to respond_with_slack_message(
+        expect(message: '@sup rounds 2').to respond_with_slack_message(
           "Channel S'Up facilitated 1 round.\n" \
           "* in progress: 1 S'Up paired 3 users, no outcomes reported, 1 opt out and 2 missed users."
         )

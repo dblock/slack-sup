@@ -10,22 +10,24 @@ describe Api do
     end
     it 'documents root level apis' do
       expect(subject['paths'].keys.sort).to eq [
-        '/api/status',
-        '/api/teams/{id}',
-        '/api/teams',
-        '/api/channels/{id}',
         '/api/channels',
-        '/api/users/{id}',
-        '/api/users',
-        '/api/rounds/{id}',
-        '/api/rounds',
-        '/api/stats',
-        '/api/sups/{id}',
-        '/api/sups',
-        '/api/subscriptions',
+        '/api/channels/{id}',
         '/api/credit_cards',
-        '/api/slack/action'
-      ].sort
+        '/api/rounds',
+        '/api/rounds/{id}',
+        '/api/slack/action',
+        '/api/slack/command',
+        '/api/slack/event',
+        '/api/stats',
+        '/api/status',
+        '/api/subscriptions',
+        '/api/sups',
+        '/api/sups/{id}',
+        '/api/teams',
+        '/api/teams/{id}',
+        '/api/users',
+        '/api/users/{id}'
+      ]
     end
   end
 

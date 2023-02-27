@@ -17,7 +17,7 @@ describe SlackSup::Commands::Next do
     let!(:channel1) { Fabricate(:channel, team: team, sup_wday: wday, sup_time_of_day: 7 * 60 * 60 + 1, sup_tz: tz) }
     let!(:channel2) { Fabricate(:channel, team: team, sup_wday: wday, sup_time_of_day: 9 * 60 * 60 + 1, sup_tz: tz) }
     it 'returns all the next rounds' do
-      expect(message: "#{SlackRubyBot.config.user} next", channel: 'DM').to respond_with_slack_message([
+      expect(message: '@sup next', channel: 'DM').to respond_with_slack_message([
         "Next round in #{channel1.slack_mention} is overdue Monday, January 2, 2017 at 7:00 AM EST (7 hours ago).",
         "Next round in #{channel2.slack_mention} is overdue Monday, January 2, 2017 at 9:00 AM EST (5 hours ago)."
       ].join("\n"))
@@ -28,7 +28,7 @@ describe SlackSup::Commands::Next do
         channel1.sup!
       end
       it 'in a week' do
-        expect(message: "#{SlackRubyBot.config.user} next", channel: 'DM').to respond_with_slack_message([
+        expect(message: '@sup next', channel: 'DM').to respond_with_slack_message([
           "Next round in #{channel1.slack_mention} is Monday, January 9, 2017 at 7:00 AM EST (in 6 days).",
           "Next round in #{channel2.slack_mention} is overdue Monday, January 2, 2017 at 9:00 AM EST (5 hours ago)."
         ].join("\n"))
@@ -39,7 +39,7 @@ describe SlackSup::Commands::Next do
   context 'channel' do
     let(:channel) { Fabricate(:channel, channel_id: 'channel', team: team, sup_wday: wday, sup_time_of_day: 7 * 60 * 60 + 1, sup_tz: tz) }
     it 'no sup' do
-      expect(message: "#{SlackRubyBot.config.user} next").to respond_with_slack_message(
+      expect(message: '@sup next').to respond_with_slack_message(
         "Next round in #{channel.slack_mention} is overdue Monday, January 2, 2017 at 7:00 AM EST (7 hours ago)."
       )
     end
@@ -49,7 +49,7 @@ describe SlackSup::Commands::Next do
         channel.sup!
       end
       it 'in a week' do
-        expect(message: "#{SlackRubyBot.config.user} next").to respond_with_slack_message(
+        expect(message: '@sup next').to respond_with_slack_message(
           "Next round in #{channel.slack_mention} is Monday, January 9, 2017 at 7:00 AM EST (in 6 days)."
         )
       end
@@ -58,7 +58,7 @@ describe SlackSup::Commands::Next do
           Timecop.travel(Time.now + 1.day)
         end
         it 'in six days' do
-          expect(message: "#{SlackRubyBot.config.user} next").to respond_with_slack_message(
+          expect(message: '@sup next').to respond_with_slack_message(
             "Next round in #{channel.slack_mention} is Monday, January 9, 2017 at 7:00 AM EST (in 5 days)."
           )
         end

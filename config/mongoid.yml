@@ -1,7 +1,7 @@
 development:
   clients:
     default:
-      database: slack_sup_development
+      database: slack_sup2_development
       hosts:
         - 127.0.0.1:27017
   options:
@@ -11,7 +11,7 @@ development:
 test:
   clients:
     default:
-      database: slack_sup_test
+      database: slack_sup2_test
       hosts:
         - 127.0.0.1:27017
   options:

@@ -2,4 +2,4 @@
 # Usage: script/console
 # Starts an IRB console with slack-sup loaded.
 
-exec bundle exec irb -I . -r "slack-sup"
+exec bundle exec irb -I . -r "app"

@@ -1,0 +1,46 @@
+_metadata:
+  major_version: 1
+  minor_version: 1
+display_information:
+  name: S'Up v2 for Slack Teams
+  long_description: The most valuable relationships are not made of two people,
+    they're made of three. A third person will always stabilize and grow the
+    relationship between the other two. It's called a triad, and the more you
+    create, the stronger your network. This bot passively generates fresh triads
+    of channel members to meet every week in an informal standup, or S'Up.
+  description: Setup a weekly standup with people at your company.
+  background_color: "#0f2a4a"
+settings:
+  socket_mode_enabled: false
+  interactivity:
+    is_enabled: true
+    request_url: https://sup2.playplay.io/api/slack
+  event_subscriptions:
+    bot_events:
+      - member_left_channel
+      - member_joined_channel
+      - app_mention
+      - message.mpim
+      - message
+features:
+  bot_user:
+    display_name: sup
+oauth_config:
+  scopes:
+    bot:
+      - app_mentions:read
+      - channels:history
+      - channels:read
+      - chat:write
+      - groups:history
+      - groups:read
+      - im:history
+      - im:read
+      - im:write
+      - mpim:history
+      - mpim:read
+      - mpim:write
+      - users:read
+      - users.profile:read
+  redirect_urls:
+    - https://sup2.playplay.io/

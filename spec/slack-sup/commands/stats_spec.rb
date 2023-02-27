@@ -5,7 +5,7 @@ describe SlackSup::Commands::Stats do
     include_context :subscribed_team
 
     it 'returns global team stats' do
-      expect(message: "#{SlackRubyBot.config.user} stats", channel: 'DM').to respond_with_slack_message(
+      expect(message: '@sup stats', channel: 'DM').to respond_with_slack_message(
         "Team S'Up connects 0 users in 0 channels."
       )
     end
@@ -14,7 +14,7 @@ describe SlackSup::Commands::Stats do
     include_context :channel
 
     it 'empty stats' do
-      expect(message: "#{SlackRubyBot.config.user} stats").to respond_with_slack_message(
+      expect(message: '@sup stats').to respond_with_slack_message(
         "Channel S'Up connects groups of 3 people on Monday after 9:00 AM every week in <#channel>.\n" \
         "Channel S'Up started 3 weeks ago."
       )
@@ -37,7 +37,7 @@ describe SlackSup::Commands::Stats do
         user2.update_attributes!(opted_in: false)
       end
       it 'reports counts' do
-        expect(message: "#{SlackRubyBot.config.user} stats").to respond_with_slack_message(
+        expect(message: '@sup stats').to respond_with_slack_message(
           "Channel S'Up connects groups of 3 people on Monday after 9:00 AM every week in <#channel>.\n" \
           "Channel S'Up started 3 weeks ago with 66% (2/3) of users opted in.\n" \
           "Facilitated 2 S'Ups in 2 rounds for 3 users with 50% positive outcomes from 50% outcomes reported."

@@ -12,14 +12,3 @@ If Mongoid logging is annoying you.
 Mongoid.logger.level = Logger::INFO
 Mongo::Logger.logger.level = Logger::INFO
 ```
-
-### Heroku
-
-```
-heroku run script/console --app=...
-
-Running `script/console` attached to terminal... up, run.7593
-
-2.2.1 > Team.count
-=> 3
-```

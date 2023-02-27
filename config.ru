@@ -1,22 +1,10 @@
-$LOAD_PATH.unshift(File.dirname(__FILE__))
-
-ENV['RACK_ENV'] ||= 'development'
-
-require 'bundler/setup'
-Bundler.require :default, ENV['RACK_ENV']
-
-require 'slack-ruby-bot-server'
-require 'slack-sup'
+require_relative 'app'
 
 NewRelic::Agent.manual_start
 
 SlackSup::App.instance.prepare!
+SlackSup::App.instance.start!
 
-Thread.abort_on_exception = true
-
-Thread.new do
-  SlackRubyBotServer::Service.instance.start_from_database!
-  SlackSup::App.instance.after_start!
-end
+SlackRubyBotServer::Service.start!
 
 run Api::Middleware.instance

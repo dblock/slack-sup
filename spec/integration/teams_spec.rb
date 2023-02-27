@@ -14,8 +14,21 @@ describe 'Teams', js: true, type: :feature do
       allow_any_instance_of(Team).to receive(:inform!).with(Team::INSTALLED_TEXT)
       allow_any_instance_of(Team).to receive(:ping!).and_return(ok: true)
       expect(SlackRubyBotServer::Service.instance).to receive(:start!)
-      oauth_access = { 'bot' => { 'bot_access_token' => 'token' }, 'team_id' => 'team_id', 'team_name' => 'team_name' }
-      allow_any_instance_of(Slack::Web::Client).to receive(:oauth_access).with(hash_including(code: 'code')).and_return(oauth_access)
+      oauth_access = {
+        'access_token' => 'token',
+        'token_type' => 'bot',
+        'bot_user_id' => 'bot_user_id',
+        'team' => {
+          'id' => 'team_id',
+          'name' => 'team_name'
+        },
+        'authed_user' => {
+          'id' => 'activated_user_id',
+          'access_token' => 'user_token',
+          'token_type' => 'user'
+        }
+      }
+      allow_any_instance_of(Slack::Web::Client).to receive(:oauth_v2_access).with(hash_including(code: 'code')).and_return(oauth_access)
       expect do
         visit '/?code=code'
         expect(page.find('#messages')).to have_content 'Team successfully registered! Check your DMs.'
@@ -30,7 +43,8 @@ describe 'Teams', js: true, type: :feature do
       expect(title).to eq("S'Up for Slack Teams - Generate Fresh Triads of Team Members to Meet Every Week")
     end
     it 'includes a link to add to slack with the client id' do
-      expect(find("a[href='https://slack.com/oauth/authorize?scope=bot,users.profile:read&client_id=#{ENV['SLACK_CLIENT_ID']}']"))
+      url = "#{SlackRubyBotServer::Config.oauth_authorize_url}?scope=#{SlackRubyBotServer::Config.oauth_scope_s.gsub('+', ',')}&client_id=#{ENV['SLACK_CLIENT_ID']}"
+      expect(find("a[href='#{url}']"))
     end
   end
 end
