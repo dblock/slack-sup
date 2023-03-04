@@ -39,12 +39,14 @@ describe SlackSup::Commands::Next do
   context 'channel' do
     let(:channel) { Fabricate(:channel, channel_id: 'channel', team: team, sup_wday: wday, sup_time_of_day: 7 * 60 * 60 + 1, sup_tz: tz) }
     it 'no sup' do
+      allow_any_instance_of(Slack::Web::Client).to receive(:conversations_info)
       expect(message: '@sup next').to respond_with_slack_message(
         "Next round in #{channel.slack_mention} is overdue Monday, January 2, 2017 at 7:00 AM EST (7 hours ago)."
       )
     end
     context 'supped' do
       before do
+        allow_any_instance_of(Slack::Web::Client).to receive(:conversations_info)
         allow(channel).to receive(:sync!)
         channel.sup!
       end

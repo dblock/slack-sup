@@ -1,6 +1,9 @@
 require 'spec_helper'
 
 describe SlackSup::Commands::Sync do
+  before do
+    allow_any_instance_of(Slack::Web::Client).to receive(:conversations_info)
+  end
   context 'dm' do
     include_context :subscribed_team
 

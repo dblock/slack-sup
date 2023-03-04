@@ -56,6 +56,10 @@ describe SlackSup::Commands::Rounds do
   context 'channel' do
     include_context :channel
 
+    before do
+      allow_any_instance_of(Slack::Web::Client).to receive(:conversations_info)
+    end
+
     it 'empty stats' do
       expect(message: '@sup rounds').to respond_with_slack_message(
         "Channel S'Up facilitated 0 rounds."

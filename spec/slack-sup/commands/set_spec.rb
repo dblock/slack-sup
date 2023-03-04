@@ -502,6 +502,9 @@ describe SlackSup::Commands::Set do
       end
     end
     context 'not admin' do
+      before do
+        allow_any_instance_of(Slack::Web::Client).to receive(:conversations_info)
+      end
       context 'api' do
         it 'cannot set opt' do
           expect(message: '@sup set opt out').to respond_with_slack_message(

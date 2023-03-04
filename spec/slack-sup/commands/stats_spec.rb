@@ -13,6 +13,10 @@ describe SlackSup::Commands::Stats do
   context 'channel' do
     include_context :channel
 
+    before do
+      allow_any_instance_of(Slack::Web::Client).to receive(:conversations_info)
+    end
+
     it 'empty stats' do
       expect(message: '@sup stats').to respond_with_slack_message(
         "Channel S'Up connects groups of 3 people on Monday after 9:00 AM every week in <#channel>.\n" \

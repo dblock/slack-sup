@@ -239,6 +239,10 @@ describe SlackSup::Commands::Opt do
     context 'channel' do
       include_context :user
 
+      before do
+        allow_any_instance_of(Slack::Web::Client).to receive(:conversations_info)
+      end
+
       context 'current user' do
         it 'shows current value of opt' do
           expect(message: '@sup opt', user: user.user_id).to respond_with_slack_message(

@@ -166,6 +166,13 @@ class Team
     raise 'missing channel_id' unless channel_id
     return nil if channel_id[0] == 'D'
 
+    # an existing S'Up
+    return nil if Sup.where(conversation_id: channel_id).any?
+
+    # multi user DM
+    channel_info = slack_client.conversations_info(channel: channel_id)
+    return nil if channel_info && (channel_info.channel.is_im || channel_info.channel.is_mpim)
+
     channel = channels.where(channel_id: channel_id).first
     channel ||= channels.create!(channel_id: channel_id, enabled: true, sync: true, inviter_id: user_id)
     channel

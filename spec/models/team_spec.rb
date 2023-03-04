@@ -3,6 +3,9 @@ require 'spec_helper'
 describe Team do
   context '#find_create_or_update_channel_by_channel_id!' do
     let(:team) { Fabricate(:team) }
+    before do
+      allow(team.slack_client).to receive(:conversations_info)
+    end
     it 'creates a new channel' do
       expect do
         channel = team.find_create_or_update_channel_by_channel_id!('C123', 'U123')
@@ -13,6 +16,37 @@ describe Team do
     it 'does not create a new channel for DMs' do
       expect do
         channel = team.find_create_or_update_channel_by_channel_id!('D123', 'U123')
+        expect(channel).to be nil
+      end.to_not change(Channel, :count)
+    end
+    context 'with a sup' do
+      let!(:sup) { Fabricate(:sup, conversation_id: 'C123') }
+      it 'does not create a new channel over a sup' do
+        expect do
+          channel = team.find_create_or_update_channel_by_channel_id!(sup.conversation_id, 'U123')
+          expect(channel).to be nil
+        end.to_not change(Channel, :count)
+      end
+    end
+    it 'does not create a new IM channel' do
+      expect do
+        expect(team.slack_client).to receive(:conversations_info).and_return(Hashie::Mash.new(
+                                                                               channel: {
+                                                                                 is_im: true
+                                                                               }
+                                                                             ))
+        channel = team.find_create_or_update_channel_by_channel_id!('C1234', 'U123')
+        expect(channel).to be nil
+      end.to_not change(Channel, :count)
+    end
+    it 'does not create a new MPIM channel' do
+      expect do
+        expect(team.slack_client).to receive(:conversations_info).and_return(Hashie::Mash.new(
+                                                                               channel: {
+                                                                                 is_mpim: true
+                                                                               }
+                                                                             ))
+        channel = team.find_create_or_update_channel_by_channel_id!('C1234', 'U123')
         expect(channel).to be nil
       end.to_not change(Channel, :count)
     end
@@ -28,6 +62,9 @@ describe Team do
   end
   context '#find_create_or_update_user_in_channel_by_slack_id!' do
     let(:team) { Fabricate(:team) }
+    before do
+      allow(team.slack_client).to receive(:conversations_info)
+    end
     it 'creates a new channel and user' do
       expect do
         expect do
