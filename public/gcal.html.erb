@@ -22,8 +22,10 @@
 
       var sup = {
         id: <%= sup ? "'#{sup.id}'" : "null" %>,
-        with: "<%= sup && sup.users.map(&:real_name).and %>",
-        emails: ['<%= sup && sup.users.map(&:email).join("','") %>'],
+        with: "<%= sup && sup.users.map(&:real_name).compact.and %>",
+        emails: ['<%= sup && sup.users.map(&:email).compact.join("','") %>'],
+        users_count: <%= sup ? sup.users.count : 0 %>,
+        emails_count: <%= sup ? sup.users.map(&:email).compact.count : 0 %>,
         access_token: '<%= request["access_token"] %>',
         access_token_valid: <%= !! (request["access_token"] && sup.channel.short_lived_token_valid?(request["access_token"])) %>,
         dt_time_zone: '<%= sup && sup.channel.sup_tzone.tzinfo.identifier %>',
@@ -36,15 +38,21 @@
       function handleClientLoad() {
         if (!CLIENT_ID) {
           SlackSup.errorMessage("Missing GOOGLE_API_CLIENT_ID.");
-        } else if (sup.id && sup.dt && sup.access_token_valid) {
-          SlackSup.message("Adding S'Up calendar for <b>" + sup.with + "</b> on " + sup.dt_s + " ...");
-          gisInit();
         } else if (!sup.id) {
           SlackSup.errorMessage("Missing or invalid S'Up ID.");
         } else if (!sup.dt) {
           SlackSup.errorMessage("Missing or invalid S'Up time.");
         } else if (!sup.access_token_valid) {
           SlackSup.errorMessage("This link has expired, ask for a new one on your S'Up channel.");
+        } else if (sup.users_count == 0) {
+          SlackSup.errorMessage("S'Up does not have any users.");
+        } else if (sup.users_count > 0 && sup.emails_count == 0) {
+          SlackSup.errorMessage("None of " + sup.users_count + " users have e-mail addresses.");
+        } else if (sup.users_count > 0 && sup.emails_count != sup.users_count) {
+          SlackSup.errorMessage("Only " + sup.emails_count + " of " + sup.users_count + " users have e-mail addresses.");
+        } else if (sup.id && sup.dt && sup.access_token_valid) {
+          SlackSup.message("Adding S'Up calendar for <b>" + sup.with + "</b> on " + sup.dt_s + " ...");
+          gisInit();
         } else {
           SlackSup.errorMessage("Unexpected error.");
         }
