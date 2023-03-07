@@ -13,7 +13,7 @@ GEM
       public_suffix (>= 2.0.2, < 5.0)
     ambit (0.13)
     ast (2.4.0)
-    async (1.30.3)
+    async (1.31.0)
       console (~> 1.10)
       nio4r (~> 2.3)
       timers (~> 4.1)
@@ -30,7 +30,7 @@ GEM
       xpath (~> 3.2)
     childprocess (3.0.0)
     chronic (0.10.2)
-    concurrent-ruby (1.2.0)
+    concurrent-ruby (1.2.2)
     console (1.16.2)
       fiber-local
     crack (0.4.3)
@@ -116,7 +116,7 @@ GEM
     mime-types-data (3.2019.1009)
     mini_mime (1.0.2)
     mini_portile2 (2.8.1)
-    minitest (5.17.0)
+    minitest (5.18.0)
     mongo (2.18.2)
       bson (>= 4.14.1, < 5.0.0)
     mongoid (7.3.1)
@@ -153,7 +153,7 @@ GEM
     puma (6.1.0)
       nio4r (~> 2.0)
     racc (1.6.2)
-    rack (2.2.6.2)
+    rack (2.2.6.3)
     rack-accept (0.4.5)
       rack (>= 0.4)
     rack-cors (2.0.0)
@@ -210,7 +210,7 @@ GEM
     selenium-webdriver (3.142.7)
       childprocess (>= 0.5, < 4.0)
       rubyzip (>= 1.2.2)
-    slack-ruby-bot-server (1.2.1)
+    slack-ruby-bot-server (2.1.0)
       async
       foreman
       grape

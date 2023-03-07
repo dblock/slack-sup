@@ -3,40 +3,29 @@ module SlackSup
     def prepare!
       super
       deactivate_asleep_teams!
+      cron!
     end
 
-    def start!
-      Thread.new do
-        Thread.current.abort_on_exception = true
-        ::Async::Reactor.run do
-          logger.info 'Starting sup and subscription crons.'
-          once_and_every 60 * 60 * 24 * 3 do
-            check_subscribed_teams!
-            check_expired_subscriptions!
-          end
-          once_and_every 60 * 30 do
-            sync!
-            sup!
-          end
-          once_and_every 60 * 30 do
-            remind!
-            ask!
-            ask_again!
-          end
+    def cron!
+      logger.info 'Starting sup and subscription crons.'
+      SlackRubyBotServer::Service.instance.tap do |instance|
+        instance.once_and_every 60 * 60 * 24 * 3 do
+          check_subscribed_teams!
+          check_expired_subscriptions!
+        end
+        instance.once_and_every 60 * 30 do
+          sync!
+          sup!
+        end
+        instance.once_and_every 60 * 30 do
+          remind!
+          ask!
+          ask_again!
         end
       end
     end
 
     private
-
-    def once_and_every(tt)
-      ::Async::Reactor.run do |task|
-        loop do
-          yield
-          task.sleep tt
-        end
-      end
-    end
 
     def invoke_with_criteria!(obj, &_block)
       obj.each do |obj|
