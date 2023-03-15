@@ -334,7 +334,7 @@ describe Channel do
   end
   context '#api_url' do
     it 'sets the API url' do
-      expect(channel.api_url).to eq "https://sup.playplay.io/api/channels/#{channel._id}"
+      expect(channel.api_url).to eq "https://sup2.playplay.io/api/channels/#{channel._id}"
     end
   end
   context '#short_lived_token' do

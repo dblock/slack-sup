@@ -8,7 +8,7 @@ require 'hyperclient'
 team_id = ENV['SUP_TEAM_ID'] || raise('missing SUP_TEAM_ID')
 api_token = ENV['SUP_API_TOKEN'] || raise('missing SUP_API_TOKEN')
 
-url = ENV['SUP_URL'] || 'https://sup.playplay.io/api'
+url = ENV['SUP_URL'] || 'https://sup2.playplay.io/api'
 
 client = Hyperclient.new(url) do |config|
   config.headers['X-Access-Token'] = api_token

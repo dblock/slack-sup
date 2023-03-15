@@ -6,7 +6,7 @@ DM the S'Up bot `set api on` and `set api token`. This will generate an API toke
 
 ```
 Team data access via the API is on with an access token `5f31a5b2ebedbb30ef62601f9fddb56f`.
-https://sup.playplay.io/api/teams/4b86006700f7565b609b620f
+https://sup2.playplay.io/api/teams/4b86006700f7565b609b620f
 ```
 
 ### Using Curl
@@ -14,7 +14,7 @@ https://sup.playplay.io/api/teams/4b86006700f7565b609b620f
 Use `curl` and, optionally, `json_pp` to pretty-print the output.
 
 ```
-curl -H "X-Access-Token:[token]" "https://sup.playplay.io/api/teams/[id]" | json_pp
+curl -H "X-Access-Token:[token]" "https://sup2.playplay.io/api/teams/[id]" | json_pp
 ```
 
 ### Hypermedia API

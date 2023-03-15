@@ -1,7 +1,7 @@
 module SlackRubyBotServer
   class Service
     def self.url
-      ENV['URL'] || (ENV['RACK_ENV'] == 'development' ? 'http://localhost:5000' : 'https://sup.playplay.io')
+      ENV['URL'] || (ENV['RACK_ENV'] == 'development' ? 'http://localhost:5000' : 'https://sup2.playplay.io')
     end
 
     def self.api_url

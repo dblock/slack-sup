@@ -12,9 +12,9 @@ This bot passively generates fresh triads of company members to meet every week 
 
 ### Install
 
-We host the bot at [sup.playplay.io](https://sup.playplay.io).
+We host the bot at [sup2.playplay.io](https://sup2.playplay.io).
 
-<a href="http://sup.playplay.io"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
+<a href="http://sup2.playplay.io"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
 
 ### History
 

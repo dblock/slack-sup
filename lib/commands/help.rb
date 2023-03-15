@@ -58,7 +58,7 @@ module SlackSup
         ----
         gcal [date/time]           - help me create a GCal (works inside a S'Up, eg. @sup gcal tomorrow 5pm)
 
-        More information at https://sup.playplay.io
+        More information at https://sup2.playplay.io
         ```
       EOS
       def self.call(data)

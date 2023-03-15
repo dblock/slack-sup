@@ -251,7 +251,7 @@ describe Team do
   context '#api_url' do
     let!(:team) { Fabricate(:team) }
     it 'sets the API url' do
-      expect(team.api_url).to eq "https://sup.playplay.io/api/teams/#{team._id}"
+      expect(team.api_url).to eq "https://sup2.playplay.io/api/teams/#{team._id}"
     end
   end
   context '#is_admin?' do

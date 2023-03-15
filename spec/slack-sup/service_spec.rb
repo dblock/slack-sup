@@ -9,7 +9,7 @@ describe SlackRubyBotServer::Service do
       ENV['RACK_ENV'] = @rack_env
     end
     it 'defaults to playplay.io in production' do
-      expect(SlackRubyBotServer::Service.url).to eq 'https://sup.playplay.io'
+      expect(SlackRubyBotServer::Service.url).to eq 'https://sup2.playplay.io'
     end
     context 'in development' do
       before do
@@ -33,7 +33,7 @@ describe SlackRubyBotServer::Service do
   end
   context '#api_url' do
     it 'defaults to playplay.io in production' do
-      expect(SlackRubyBotServer::Service.api_url).to eq 'https://sup.playplay.io/api'
+      expect(SlackRubyBotServer::Service.api_url).to eq 'https://sup2.playplay.io/api'
     end
     context 'when set' do
       before do

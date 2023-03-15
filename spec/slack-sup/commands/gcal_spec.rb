@@ -60,7 +60,7 @@ describe SlackSup::Commands::GCal do
             Timecop.travel(monday).freeze do
               Chronic.time_class = channel.sup_tzone
               expect(message: '@sup gcal today 5pm', channel: 'sup-channel-id').to respond_with_slack_message(
-                "Click this link to create a gcal for Monday, January 02, 2017 at 5:00 pm: https://sup.playplay.io/gcal?sup_id=#{sup.id}&dt=1483394400&access_token=#{team.short_lived_token}"
+                "Click this link to create a gcal for Monday, January 02, 2017 at 5:00 pm: https://sup2.playplay.io/gcal?sup_id=#{sup.id}&dt=1483394400&access_token=#{team.short_lived_token}"
               )
             end
           end
