@@ -130,12 +130,14 @@ class Round
     if remaining_users.count == 1
       # find a sup to add this user to
       sups.each do |sup|
-        next if met_recently?(sup.users.concat(remaining_users))
+        next if met_recently?(sup.users + remaining_users)
 
-        sup.users << remaining_users
+        logger.info "   Adding #{remaining_users.map(&:user_name).and} to #{sup.users.map(&:user_name)}."
+        sup.users.concat(remaining_users)
         sup.save!
-        break
+        return
       end
+      logger.info "   Failed to pair #{remaining_users.map(&:user_name).and}."
     elsif remaining_users.count > 0 &&
           remaining_users.count < team.sup_size &&
           !met_recently?(remaining_users)

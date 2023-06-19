@@ -30,6 +30,41 @@ describe Round do
         expect(round.paired_users_count).to eq 3
         expect(round.missed_users_count).to eq 0
       end
+      context 'with sup_size of 3' do
+        let!(:user4) { Fabricate(:user, team: team) }
+        let!(:user5) { Fabricate(:user, team: team) }
+        let!(:user6) { Fabricate(:user, team: team) }
+        let!(:user7) { Fabricate(:user, team: team) }
+        let!(:user8) { Fabricate(:user, team: team) }
+        let!(:user9) { Fabricate(:user, team: team) }
+        let!(:user10) { Fabricate(:user, team: team) }
+        before do
+          team.update_attributes!(sup_size: 3)
+        end
+        it 'generates groups of 3' do
+          expect do
+            round = team.sup!
+            expect(round.sups.map(&:users).flatten.size).to eq team.users.size
+          end.to change(Sup, :count).by(3)
+        end
+        it 'when odd users met recently' do
+          first_round = team.sup!
+          expect(first_round.sups.map(&:users).flatten.size).to eq team.users.size
+          expect do
+            round = team.sup!
+            expect(round.sups.map(&:users).flatten.size).to eq team.users.size - 1
+          end.to change(Sup, :count).by(3)
+        end
+        it 'when new users have not met recently' do
+          first_round = team.sup!
+          expect(first_round.sups.map(&:users).flatten.size).to eq team.users.size
+          3.times { Fabricate(:user, team: team) } # 3 more users so we can have at least 1 non-met group
+          expect do
+            round = team.sup!
+            expect(round.sups.map(&:users).flatten.size).to eq team.users.size
+          end.to change(Sup, :count).by(4)
+        end
+      end
       context 'with sup_size of 2' do
         let!(:user4) { Fabricate(:user, team: team) }
         let!(:user5) { Fabricate(:user, team: team) }
@@ -69,6 +104,9 @@ describe Round do
           expect do
             team.sup!
           end.to change(Sup, :count).by(2)
+          round = team.rounds.desc(:_id).first
+          expect(round.sups.size).to eq 2
+          expect(round.sups.map(&:users).flatten.size).to eq team.users.size
         end
         context 'with sup_odd set to false' do
           before do
