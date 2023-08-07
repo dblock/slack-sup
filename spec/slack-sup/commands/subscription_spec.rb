@@ -20,19 +20,39 @@ describe SlackSup::Commands::Subscription do
         before do
           team.update_attributes!(subscribed: true, stripe_customer_id: customer['id'])
         end
-        let(:active_subscription) { team.active_stripe_subscription }
-        let(:current_period_end) { Time.at(active_subscription.current_period_end).strftime('%B %d, %Y') }
-        it 'displays subscription info' do
-          customer_info = "Customer since #{Time.at(customer.created).strftime('%B %d, %Y')}."
-          customer_info += "\nSubscribed to StripeMock Default Plan ID ($39.99), will auto-renew on #{current_period_end}."
-          card = customer.sources.first
-          customer_info += "\nOn file Visa card, #{card.name} ending with #{card.last4}, expires #{card.exp_month}/#{card.exp_year}."
-          customer_info += "\n#{team.update_cc_text}"
-          expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message customer_info
+        context 'active subscription' do
+          let(:active_subscription) { team.active_stripe_subscription }
+          let(:current_period_end) { Time.at(active_subscription.current_period_end).strftime('%B %d, %Y') }
+          it 'displays subscription info' do
+            customer_info = "Customer since #{Time.at(customer.created).strftime('%B %d, %Y')}."
+            customer_info += "\nSubscribed to StripeMock Default Plan ID ($39.99), will auto-renew on #{current_period_end}."
+            card = customer.sources.first
+            customer_info += "\nOn file Visa card, #{card.name} ending with #{card.last4}, expires #{card.exp_month}/#{card.exp_year}."
+            customer_info += "\n#{team.update_cc_text}"
+            expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message customer_info
+          end
+          it 'requires an admin user' do
+            allow_any_instance_of(User).to receive(:team_admin?).and_return(false)
+            expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message "Only <@#{team.activated_user_id}> or a Slack team admin can get subscription details, sorry."
+          end
         end
-        it 'requires an admin user' do
-          allow_any_instance_of(User).to receive(:team_admin?).and_return(false)
-          expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message "Only <@#{team.activated_user_id}> or a Slack team admin can get subscription details, sorry."
+        context 'past due subscription' do
+          before do
+            customer.subscriptions.data.first['status'] = 'past_due'
+            allow(Stripe::Customer).to receive(:retrieve).and_return(customer)
+          end
+          it 'displays subscription info' do
+            customer_info = "Customer since #{Time.at(customer.created).strftime('%B %d, %Y')}."
+            customer_info += "\nPast Due subscription created November 03, 2016 to StripeMock Default Plan ID ($39.99)."
+            card = customer.sources.first
+            customer_info += "\nOn file Visa card, #{card.name} ending with #{card.last4}, expires #{card.exp_month}/#{card.exp_year}."
+            customer_info += "\n#{team.update_cc_text}"
+            expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message customer_info
+          end
+          it 'requires an admin user' do
+            allow_any_instance_of(User).to receive(:team_admin?).and_return(false)
+            expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message "Only <@#{team.activated_user_id}> or a Slack team admin can get subscription details, sorry."
+          end
         end
       end
     end

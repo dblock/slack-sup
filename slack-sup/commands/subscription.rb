@@ -8,14 +8,12 @@ module SlackSup
         team = ::Team.find(client.owner.id)
         if user.team_admin?
           subscription_info = []
-          if team.active_stripe_subscription?
+          if team.stripe_subcriptions&.any?
             subscription_info << team.stripe_customer_text
             subscription_info.concat(team.stripe_customer_subscriptions_info)
-            if user.team_admin?
-              subscription_info.concat(team.stripe_customer_invoices_info)
-              subscription_info.concat(team.stripe_customer_sources_info)
-              subscription_info << team.update_cc_text
-            end
+            subscription_info.concat(team.stripe_customer_invoices_info)
+            subscription_info.concat(team.stripe_customer_sources_info)
+            subscription_info << team.update_cc_text
           elsif team.subscribed && team.subscribed_at
             subscription_info << team.subscriber_text
           else
