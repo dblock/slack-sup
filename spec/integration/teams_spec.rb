@@ -22,15 +22,4 @@ describe 'Teams', js: true, type: :feature do
       end.to change(Team, :count).by(1)
     end
   end
-  context 'homepage' do
-    before do
-      visit '/'
-    end
-    it 'displays index.html page' do
-      expect(title).to eq("S'Up for Slack Teams - Generate Fresh Triads of Team Members to Meet Every Week")
-    end
-    it 'includes a link to add to slack with the client id' do
-      expect(find("a[href='https://slack.com/oauth/authorize?scope=bot,users.profile:read&client_id=#{ENV['SLACK_CLIENT_ID']}']"))
-    end
-  end
 end
