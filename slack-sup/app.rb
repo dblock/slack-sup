@@ -132,6 +132,11 @@ module SlackSup
             team.update_attributes!(subscribed: false)
           end
         end
+        if customer.subscriptions.none?
+          logger.info "No active subscriptions for #{team} (#{team.stripe_customer_id}), downgrading."
+          team.inform! 'Your subscription was canceled and your team has been downgraded. Thank you for being a customer!'
+          team.update_attributes!(subscribed: false)
+        end
       rescue StandardError => e
         logger.warn "Error informing team #{team}, #{e.message}."
       end
