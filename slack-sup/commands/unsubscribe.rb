@@ -26,7 +26,7 @@ module SlackSup
           client.say(channel: data.channel, text: subscription_info.compact.join("\n"))
           logger.info "UNSUBSCRIBE: #{client.owner} - #{data.user}"
         else
-          client.say(channel: data.channel, text: "Only <@#{team.activated_user_id}> or a Slack team admin can unsubscribe, sorry.")
+          client.say(channel: data.channel, text: "Only #{team.team_admins_slack_mentions} can unsubscribe, sorry.")
           logger.info "UNSUBSCRIBE: #{client.owner} - #{user.user_name} unsubscribe failed, not admin"
         end
       end

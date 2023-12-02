@@ -33,7 +33,7 @@ describe SlackSup::Commands::Subscription do
           end
           it 'requires an admin user' do
             allow_any_instance_of(User).to receive(:team_admin?).and_return(false)
-            expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message "Only <@#{team.activated_user_id}> or a Slack team admin can get subscription details, sorry."
+            expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message "Only #{team.team_admins_slack_mentions} can get subscription details, sorry."
           end
         end
         context 'past due subscription' do
@@ -51,7 +51,7 @@ describe SlackSup::Commands::Subscription do
           end
           it 'requires an admin user' do
             allow_any_instance_of(User).to receive(:team_admin?).and_return(false)
-            expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message "Only <@#{team.activated_user_id}> or a Slack team admin can get subscription details, sorry."
+            expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message "Only #{team.team_admins_slack_mentions} can get subscription details, sorry."
           end
         end
       end

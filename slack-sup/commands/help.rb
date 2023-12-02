@@ -42,6 +42,7 @@ module SlackSup
         set message [message]      - set the message users see when creating a S'Up DM
         unset message              - reset the message users see when creating a S'Up DM to the default one
         opt [in|out] [@mention]    - opt a user in/out of S'Up by @mention
+        promote|demote [@mention]  - promote or demote another user to/from admin
         subscription               - show team subscription info
         unsubscribe                - cancel auto-renew, unsubscribe
 

@@ -61,6 +61,31 @@ describe User do
         end.to_not change(User, :count)
         expect(user.reload.user_name).to eq 'username'
       end
+      context 'admin' do
+        it 'does not demote an admin' do
+          user.update_attributes!(is_admin: true)
+          allow_any_instance_of(Slack::Web::Client).to receive(:users_info).and_return(
+            user: {
+              is_admin: false
+            }
+          )
+          expect do
+            User.find_create_or_update_by_slack_id!(client, user.user_id)
+          end.to_not change(User, :count)
+          expect(user.reload.is_admin).to be true
+        end
+        it 'promotes an admin' do
+          allow_any_instance_of(Slack::Web::Client).to receive(:users_info).and_return(
+            user: {
+              is_admin: true
+            }
+          )
+          expect do
+            User.find_create_or_update_by_slack_id!(client, user.user_id)
+          end.to_not change(User, :count)
+          expect(user.reload.is_admin).to be true
+        end
+      end
     end
   end
   context '#update_custom_profile' do

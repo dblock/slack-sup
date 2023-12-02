@@ -1,6 +1,36 @@
 require 'spec_helper'
 
 describe Team do
+  context 'team_admins' do
+    let(:team) { Fabricate(:team) }
+    it 'has no activated users' do
+      expect(team.team_admins).to eq([])
+    end
+    context 'with an activated user' do
+      let!(:user) { Fabricate(:user, team: team) }
+      before do
+        team.update_attributes!(activated_user_id: user.user_id)
+      end
+      it 'has an admin' do
+        expect(team.team_admins).to eq([user])
+        expect(team.team_admins_slack_mentions).to eq(user.slack_mention)
+      end
+      context 'with another admin' do
+        let!(:another) { Fabricate(:user, team: team, is_admin: true) }
+        it 'has two admins' do
+          expect(team.team_admins.to_a.sort).to eq([user, another].sort)
+          expect(team.team_admins_slack_mentions).to eq([user.slack_mention, another.slack_mention].or)
+        end
+      end
+      context 'with another owner' do
+        let!(:another) { Fabricate(:user, team: team, is_owner: true) }
+        it 'has two admins' do
+          expect(team.team_admins.to_a.sort).to eq([user, another].sort)
+          expect(team.team_admins_slack_mentions).to eq([user.slack_mention, another.slack_mention].or)
+        end
+      end
+    end
+  end
   context '#short_lived_token' do
     let(:team) { Fabricate(:team) }
     it 'create a new token every time' do

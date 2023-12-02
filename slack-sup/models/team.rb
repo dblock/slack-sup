@@ -196,6 +196,14 @@ class Team
     end
   end
 
+  def team_admins
+    users.in(user_id: activated_user_id).or(is_admin: true).or(is_owner: true)
+  end
+
+  def team_admins_slack_mentions
+    (["<@#{activated_user_id}>"] + team_admins.map(&:slack_mention)).uniq.or
+  end
+
   def subscription_expired?
     return false if subscribed?
 

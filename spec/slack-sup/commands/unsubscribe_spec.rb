@@ -62,7 +62,7 @@ describe SlackSup::Commands::Unsubscribe do
             expect_any_instance_of(User).to receive(:team_admin?).and_return(false)
           end
           it 'cannot unsubscribe' do
-            expect(message: "#{SlackRubyBot.config.user} unsubscribe xyz").to respond_with_slack_message "Only <@#{activated_user.user_id}> or a Slack team admin can unsubscribe, sorry."
+            expect(message: "#{SlackRubyBot.config.user} unsubscribe xyz").to respond_with_slack_message "Only <@#{activated_user.user_id}> can unsubscribe, sorry."
           end
         end
       end
