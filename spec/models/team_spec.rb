@@ -29,6 +29,13 @@ describe Team do
           expect(team.team_admins_slack_mentions).to eq([user.slack_mention, another.slack_mention].or)
         end
       end
+      context 'with an admin in another team' do
+        let!(:another) { Fabricate(:user, team: Fabricate(:team), is_admin: true) }
+        it 'has one admin' do
+          expect(team.team_admins).to eq([user])
+          expect(team.team_admins_slack_mentions).to eq(user.slack_mention)
+        end
+      end
     end
   end
   context '#short_lived_token' do

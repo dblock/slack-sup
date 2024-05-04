@@ -1,5 +1,6 @@
 ### Changelog
 
+* 2024/05/03: Fix incorrect list of admins listed in `set` errors - [@dblock](https://github.com/dblock).
 * 2023/12/01: Added promote/demote @mention - [@dblock](https://github.com/dblock).
 * 2023/06/19: Fix [#131](https://github.com/dblock/slack-sup/issues/131), odd user added to more than 1 sup - [@dblock](https://github.com/dblock).
 * 2023/02/18: Added `set sync now` for admins to manually sync users - [@dblock](https://github.com/dblock).
