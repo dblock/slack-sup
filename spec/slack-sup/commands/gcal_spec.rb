@@ -29,7 +29,7 @@ describe SlackSup::Commands::GCal do
         context 'outside of a sup' do
           it 'requires a sup DM' do
             expect(message: "#{SlackRubyBot.config.user} gcal", user: user.user_id).to respond_with_slack_message(
-              "Please `@sup cal date/time` inside a S'Up DM channel."
+              "Please `@sup gcal date/time` inside a S'Up DM channel."
             )
           end
         end
@@ -38,7 +38,7 @@ describe SlackSup::Commands::GCal do
           let(:monday) { DateTime.parse('2017/1/2 8:00 AM EST').utc }
           it 'requires a date/time' do
             expect(message: "#{SlackRubyBot.config.user} gcal", user: user.user_id, channel: 'sup-channel-id').to respond_with_slack_message(
-              'Please specify a date/time, eg. `@sup cal tomorrow 5pm`.'
+              'Please specify a date/time, eg. `@sup gcal tomorrow 5pm`.'
             )
           end
           it 'creates a link' do
