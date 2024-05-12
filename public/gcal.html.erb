@@ -16,7 +16,7 @@
     <script type="text/javascript">
 
       var CLIENT_ID = '<%= ENV['GOOGLE_API_CLIENT_ID'] %>';
-      var SCOPES = "https://www.googleapis.com/auth/calendar";
+      var SCOPES = "https://www.googleapis.com/auth/calendar.events";
 
       <% sup = Sup.where(id: request['sup_id']).first %>
 
