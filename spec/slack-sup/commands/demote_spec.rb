@@ -31,11 +31,13 @@ describe SlackSup::Commands::Demote do
             allow_any_instance_of(User).to receive(:team_admin?).and_return(true)
           end
           it 'cannot demote self' do
+            expect(team).to receive(:sync_user!).with(user.user_id)
             expect(message: "#{SlackRubyBot.config.user} demote #{user.slack_mention}").to respond_with_slack_message(
               'Sorry, you cannot demote yourself.'
             )
           end
           it 'demotes a user' do
+            expect(team).to receive(:sync_user!).with(user2.user_id)
             user2.update_attributes!(is_admin: true)
             expect(message: "#{SlackRubyBot.config.user} demote #{user2.slack_mention}").to respond_with_slack_message(
               "User #{user2.slack_mention} is no longer S'Up admin."
@@ -43,6 +45,7 @@ describe SlackSup::Commands::Demote do
             expect(user2.reload.is_admin).to be false
           end
           it 'says user already demoted' do
+            expect(team).to receive(:sync_user!).with(user2.user_id)
             user2.update_attributes!(is_admin: false)
             expect(message: "#{SlackRubyBot.config.user} demote #{user2.slack_mention}").to respond_with_slack_message(
               "User #{user2.slack_mention} is not S'Up admin."
