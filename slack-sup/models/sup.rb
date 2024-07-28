@@ -108,6 +108,13 @@ class Sup
     ]
   }.freeze
 
+  RESPOND_TO_ASK_MESSAGES = {
+    'all' => 'Glad you all met! Thanks for letting me know.',
+    'some' => 'Glad to hear that some of you could meet! Thanks for letting me know.',
+    'later' => "Thanks, I'll ask again in a couple of days.",
+    'none' => "Sorry to hear that you couldn't meet. Thanks for letting me know."
+  }.freeze
+
   def ask!
     message = ASK_WHO_SUP_MESSAGE.dup
     message[:attachments].first[:callback_id] = id.to_s

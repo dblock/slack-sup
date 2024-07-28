@@ -31,12 +31,7 @@ module Api
               action[:style] = action[:value] == sup.outcome ? 'primary' : 'default'
             end
 
-            message[:text] = case sup.outcome
-                             when 'later'
-                               "Thanks, I'll ask again in a couple of days."
-                             else
-                               'Thanks for letting me know.'
-                             end
+            message[:text] = Sup::RESPOND_TO_ASK_MESSAGES[sup.outcome]
 
             {
               as_user: true,
