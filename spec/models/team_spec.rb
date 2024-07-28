@@ -258,6 +258,7 @@ describe Team do
     end
     context '#sup?' do
       before do
+        Timecop.travel(beginning_of_day + 8 * 60 * 60)
         allow(team).to receive(:sync!)
       end
       context 'without rounds' do
