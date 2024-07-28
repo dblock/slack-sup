@@ -4,10 +4,10 @@
     <%= partial 'public/partials/_head.html' %>
     <%= partial 'public/partials/_scripts.html' %>
     <%
-      team = Team.where(team_id: request['team_id']).first
-      stripe_token = request['stripeToken']
-      stripe_token_type = request['stripeTokenType']
-      stripe_email = request['stripeEmail']
+      team = Team.where(team_id: request.params['team_id']).first
+      stripe_token = request.params['stripeToken']
+      stripe_token_type = request.params['stripeTokenType']
+      stripe_email = request.params['stripeEmail']
     %>
   </head>
   <body style='text-align: center'>

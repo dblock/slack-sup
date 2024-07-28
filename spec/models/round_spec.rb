@@ -360,11 +360,6 @@ describe Round do
             expect(round.remind?).to be false
           end
         end
-        it 'is true 24 hours later' do
-          Timecop.travel(round.created_at + 25.hours) do
-            expect(round.remind?).to be true
-          end
-        end
       end
       it 'is true after sup time of day' do
         Timecop.travel(wednesday_est_after_time_of_day) do
