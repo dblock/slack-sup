@@ -390,7 +390,7 @@ class Team
   end
 
   def sync_member_from_slack!(member)
-    existing_user = User.where(user_id: member.id).first
+    existing_user = users.where(user_id: member.id).first
     existing_user ||= User.new(user_id: member.id, team: self, opted_in: opt_in)
     existing_user.user_name = member.name
     existing_user.real_name = member.real_name

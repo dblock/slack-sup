@@ -215,6 +215,17 @@ describe Team do
         expect(to_be_disabled_users.map(&:reload).map(&:enabled)).to eq [false] * 4
         expect(available_user.reload.enabled).to be true
       end
+      it 'enables users with the same ID present in multiple teams' do
+        team2 = Fabricate(:team)
+        Fabricate(:user, team: team2, user_id: available_member.id, enabled: true)
+        available_user = Fabricate(:user, team: team, user_id: available_member.id, enabled: true)
+        to_be_disabled_users = [deleted_member, restricted_member, ultra_restricted_member, ooo_member].map do |member|
+          Fabricate(:user, team: team, user_id: member.id, enabled: true)
+        end
+        expect { team.sync! }.to change(User, :count).by(0)
+        expect(to_be_disabled_users.map(&:reload).map(&:enabled)).to eq [false] * 4
+        expect(available_user.reload.enabled).to be true
+      end
       it 'reactivates users that are back' do
         disabled_user = Fabricate(:user, team: team, enabled: false, user_id: available_member.id)
         expect { team.sync! }.to change(User, :count).by(0)
