@@ -14,12 +14,12 @@ jobs:
       - uses: browser-actions/setup-geckodriver@latest
         with:
           geckodriver-version: '0.34.0'
-      - uses: browser-actions/setup-firefox@latest
+      - uses: browser-actions/setup-firefox@v1
         with:
-          firefox-version: '111.0.1'
+          firefox-version: '129.0.2'
       - run: |
           bundle install
       - uses: GabrielBB/xvfb-action@v1
         with:          
           run: |
-            bundle exec rake
+            bundle exec rake spec
