@@ -13,7 +13,8 @@ describe Api::Endpoints::UsersEndpoint do
   it_behaves_like 'a team token api', User
 
   context 'user' do
-    let(:existing_user) { Fabricate(:user, team: team) }
+    let(:existing_user) { Fabricate(:user, team:) }
+
     it 'returns a user' do
       user = client.user(id: existing_user.id)
       expect(user.id).to eq existing_user.id.to_s
@@ -23,8 +24,9 @@ describe Api::Endpoints::UsersEndpoint do
   end
 
   context 'users' do
-    let!(:user_1) { Fabricate(:user, team: team) }
-    let!(:user_2) { Fabricate(:user, team: team) }
+    let!(:user_1) { Fabricate(:user, team:) }
+    let!(:user_2) { Fabricate(:user, team:) }
+
     it 'returns users' do
       users = client.users(team_id: team.id)
       expect(users.map(&:id).sort).to eq [user_1, user_2].map(&:id).map(&:to_s).sort

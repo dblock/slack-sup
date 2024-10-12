@@ -153,7 +153,7 @@ class Sup
   private
 
   def notify_gcal_html_link_changed!
-    return unless gcal_html_link_changed? && gcal_html_link
+    return unless gcal_html_link && (gcal_html_link_changed? || saved_change_to_gcal_html_link?)
 
     dm!(text: "I've added this S'Up to your Google Calendar: #{gcal_html_link}")
   end

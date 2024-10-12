@@ -13,7 +13,8 @@ describe Api::Endpoints::RoundsEndpoint do
   it_behaves_like 'a team token api', Round
 
   context 'round' do
-    let(:existing_round) { Fabricate(:round, team: team) }
+    let(:existing_round) { Fabricate(:round, team:) }
+
     it 'returns a round' do
       round = client.round(id: existing_round.id)
       expect(round.id).to eq existing_round.id.to_s
@@ -22,8 +23,9 @@ describe Api::Endpoints::RoundsEndpoint do
   end
 
   context 'rounds' do
-    let!(:round_1) { Fabricate(:round, team: team) }
-    let!(:round_2) { Fabricate(:round, team: team) }
+    let!(:round_1) { Fabricate(:round, team:) }
+    let!(:round_2) { Fabricate(:round, team:) }
+
     it 'returns rounds' do
       rounds = client.rounds(team_id: team.id)
       expect(rounds.map(&:id).sort).to eq [round_1, round_2].map(&:id).map(&:to_s).sort

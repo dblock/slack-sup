@@ -7,12 +7,15 @@ describe Api::Endpoints::TeamsEndpoint do
     subject do
       client.teams
     end
+
     it 'lists no teams' do
       expect(subject.to_a.size).to eq 0
     end
+
     context 'with teams' do
       let!(:team1) { Fabricate(:team, api: false) }
       let!(:team2) { Fabricate(:team, api: true) }
+
       it 'lists teams with api enabled' do
         expect(subject.to_a.size).to eq 1
         expect(subject.first.id).to eq team2.id.to_s
@@ -35,6 +38,7 @@ describe Api::Endpoints::TeamsEndpoint do
 
     context 'a team with api false' do
       let!(:team) { Fabricate(:team, api: false) }
+
       it 'is not returned' do
         expect(client.teams.count).to eq 0
       end
@@ -42,9 +46,11 @@ describe Api::Endpoints::TeamsEndpoint do
 
     context 'a team with api and token' do
       let!(:team) { Fabricate(:team, api: true, api_token: 'token') }
+
       it 'is not returned' do
         expect(client.teams.count).to eq 0
       end
+
       it 'is returned with api token header' do
         Fabricate(:team, api: true) # another team
         Fabricate(:team, api: false) # another team
@@ -52,12 +58,14 @@ describe Api::Endpoints::TeamsEndpoint do
         expect(client.teams.count).to eq 1
         expect(client.teams.first.id).to eq team.id.to_s
       end
+
       it 'is not returned directly without a token' do
         expect { client.team(id: team.id).resource }.to raise_error Faraday::ClientError do |e|
           json = JSON.parse(e.response[:body])
           expect(json['error']).to eq 'Access Denied'
         end
       end
+
       it 'is returned directly' do
         client.headers.update('X-Access-Token' => 'token')
         returned_team = client.team(id: team.id)
@@ -67,9 +75,11 @@ describe Api::Endpoints::TeamsEndpoint do
 
     context 'a team with api true' do
       let!(:existing_team) { Fabricate(:team, api: true) }
+
       it 'is returned in the collection' do
         expect(client.teams.count).to eq 1
       end
+
       it 'is returned directly' do
         team = client.team(id: existing_team.id)
         expect(team.id).to eq existing_team.id.to_s
@@ -106,10 +116,12 @@ describe Api::Endpoints::TeamsEndpoint do
           )
         ).and_return(oauth_access)
       end
+
       after do
         ENV.delete('SLACK_CLIENT_ID')
         ENV.delete('SLACK_CLIENT_SECRET')
       end
+
       it 'creates a team' do
         expect_any_instance_of(Team).to receive(:inform!).with(Team::INSTALLED_TEXT)
         expect(SlackRubyBotServer::Service.instance).to receive(:start!)
@@ -123,6 +135,7 @@ describe Api::Endpoints::TeamsEndpoint do
           expect(team.activated_user_id).to eq 'activated_user_id'
         end.to change(Team, :count).by(1)
       end
+
       it 'reactivates a deactivated team' do
         expect_any_instance_of(Team).to receive(:inform!).with(Team::INSTALLED_TEXT)
         expect(SlackRubyBotServer::Service.instance).to receive(:start!)
@@ -137,8 +150,9 @@ describe Api::Endpoints::TeamsEndpoint do
           expect(team.active).to be true
           expect(team.bot_user_id).to eq 'bot_user_id'
           expect(team.activated_user_id).to eq 'activated_user_id'
-        end.to_not change(Team, :count)
+        end.not_to change(Team, :count)
       end
+
       it 'returns a useful error when team already exists' do
         existing_team = Fabricate(:team, token: 'token')
         expect { client.teams._post(code: 'code') }.to raise_error Faraday::ClientError do |e|
@@ -146,6 +160,7 @@ describe Api::Endpoints::TeamsEndpoint do
           expect(json['message']).to eq "Team #{existing_team.name} is already registered."
         end
       end
+
       it 'reactivates a deactivated team with a different code' do
         expect_any_instance_of(Team).to receive(:inform!).with(Team::INSTALLED_TEXT)
         expect(SlackRubyBotServer::Service.instance).to receive(:start!)
@@ -160,8 +175,9 @@ describe Api::Endpoints::TeamsEndpoint do
           expect(team.active).to be true
           expect(team.bot_user_id).to eq 'bot_user_id'
           expect(team.activated_user_id).to eq 'activated_user_id'
-        end.to_not change(Team, :count)
+        end.not_to change(Team, :count)
       end
+
       context 'with mailchimp settings' do
         before do
           SlackRubyBotServer::Mailchimp.configure do |config|
@@ -169,8 +185,13 @@ describe Api::Endpoints::TeamsEndpoint do
             config.mailchimp_list_id = 'list-id'
           end
         end
+
         after do
           SlackRubyBotServer::Mailchimp.config.reset!
+          ENV.delete('MAILCHIMP_API_KEY')
+          ENV.delete('MAILCHIMP_LIST_ID')
+          ENV.delete('MAILCHIMP_API_KEY')
+          ENV.delete('MAILCHIMP_LIST_ID')
         end
 
         let(:list) { double(Mailchimp::List, members: double(Mailchimp::List::Members)) }
@@ -209,10 +230,6 @@ describe Api::Endpoints::TeamsEndpoint do
           )
 
           client.teams._post(code: 'code')
-        end
-        after do
-          ENV.delete('MAILCHIMP_API_KEY')
-          ENV.delete('MAILCHIMP_LIST_ID')
         end
       end
     end

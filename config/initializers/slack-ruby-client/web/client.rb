@@ -3,9 +3,7 @@ module Slack
     class PaginatedResult
       include Enumerable
 
-      attr_reader :client
-      attr_reader :method
-      attr_reader :params
+      attr_reader :client, :method, :params
 
       def initialize(client, method, params = {})
         @client = client

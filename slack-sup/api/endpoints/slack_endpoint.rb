@@ -17,7 +17,7 @@ module Api
           error! 'Missing action.', 400 unless payload.actions.first
 
           case payload.actions.first.name
-          when 'outcome' then
+          when 'outcome'
 
             sup = Sup.find(payload.callback_id) || error!('Sup Not Found', 404)
             sup.update_attributes!(outcome: payload.actions.first.value)

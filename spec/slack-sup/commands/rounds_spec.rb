@@ -2,17 +2,20 @@ require 'spec_helper'
 
 describe SlackSup::Commands::Rounds do
   let(:team) { Fabricate(:team, subscribed: true) }
-  let(:app) { SlackSup::Server.new(team: team) }
+  let(:app) { SlackSup::Server.new(team:) }
   let(:client) { app.send(:client) }
+
   it 'empty stats' do
     expect(message: "#{SlackRubyBot.config.user} rounds").to respond_with_slack_message(
       "Team S'Up facilitated 0 rounds."
     )
   end
+
   context 'with outcomes' do
-    let!(:user1) { Fabricate(:user, team: team) }
-    let!(:user2) { Fabricate(:user, team: team) }
-    let!(:user3) { Fabricate(:user, team: team) }
+    let!(:user1) { Fabricate(:user, team:) }
+    let!(:user2) { Fabricate(:user, team:) }
+    let!(:user3) { Fabricate(:user, team:) }
+
     before do
       allow(team).to receive(:sync!)
       allow_any_instance_of(Sup).to receive(:dm!)
@@ -24,6 +27,7 @@ describe SlackSup::Commands::Rounds do
         team.sup!
       end
     end
+
     it 'reports counts' do
       Timecop.travel(Time.now + 731.days)
       expect(message: "#{SlackRubyBot.config.user} rounds 2").to respond_with_slack_message(
@@ -33,20 +37,23 @@ describe SlackSup::Commands::Rounds do
       )
     end
   end
+
   context 'with opt outs and misses' do
-    let!(:user1) { Fabricate(:user, team: team) }
-    let!(:user2) { Fabricate(:user, team: team) }
-    let!(:user3) { Fabricate(:user, team: team) }
-    let!(:user4) { Fabricate(:user, team: team, opted_in: false) }
-    let!(:user5) { Fabricate(:user, team: team, enabled: false) }
-    let!(:user6) { Fabricate(:user, team: team) }
-    let!(:user7) { Fabricate(:user, team: team) }
+    let!(:user1) { Fabricate(:user, team:) }
+    let!(:user2) { Fabricate(:user, team:) }
+    let!(:user3) { Fabricate(:user, team:) }
+    let!(:user4) { Fabricate(:user, team:, opted_in: false) }
+    let!(:user5) { Fabricate(:user, team:, enabled: false) }
+    let!(:user6) { Fabricate(:user, team:) }
+    let!(:user7) { Fabricate(:user, team:) }
+
     before do
       team.update_attributes!(sup_odd: false)
       allow(team).to receive(:sync!)
       allow_any_instance_of(Sup).to receive(:dm!)
       team.sup!
     end
+
     it 'reports counts' do
       expect(message: "#{SlackRubyBot.config.user} rounds 2").to respond_with_slack_message(
         "Team S'Up facilitated 1 round.\n" \

@@ -262,7 +262,7 @@ class Team
   end
 
   def slack_client
-    @client ||= Slack::Web::Client.new(token: token)
+    @client ||= Slack::Web::Client.new(token:)
   end
 
   def stripe_customer
@@ -417,7 +417,7 @@ class Team
   end
 
   def validate_team_field_label
-    return unless team_field_label && team_field_label_changed?
+    return unless team_field_label && (team_field_label_changed? || saved_change_to_team_field_label?)
 
     client = Slack::Web::Client.new(token: activated_user_access_token)
     profile_fields = client.team_profile_get.profile.fields
@@ -471,13 +471,14 @@ class Team
     'Thanks for being a customer!'.freeze
 
   def subscribed!
-    return unless subscribed? && subscribed_changed?
+    return unless subscribed? && (subscribed_changed? || saved_change_to_subscribed?)
 
     inform! SUBSCRIBED_TEXT
   end
 
   def activated!
     return unless active? && activated_user_id && bot_user_id
-    return unless active_changed? || activated_user_id_changed?
+
+    nil unless active_changed? || (activated_user_id_changed? || saved_change_to_activated_user_id?)
   end
 end

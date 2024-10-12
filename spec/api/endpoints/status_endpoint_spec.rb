@@ -10,6 +10,7 @@ describe Api::Endpoints::StatusEndpoint do
   context 'status' do
     context 'with a team' do
       let!(:team) { Fabricate(:team) }
+
       it 'returns a status with ping' do
         status = client.status
         ping = status.ping

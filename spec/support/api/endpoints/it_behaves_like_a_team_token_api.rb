@@ -8,6 +8,7 @@ shared_examples_for 'a team token api' do |model|
       before do
         instance.team.update_attributes!(api: false)
       end
+
       it 'is not returned' do
         expect { client.send(model_s, id: instance.id.to_s).resource }.to raise_error Faraday::ClientError do |e|
           json = JSON.parse(e.response[:body])
@@ -15,16 +16,19 @@ shared_examples_for 'a team token api' do |model|
         end
       end
     end
+
     context 'with a team api token' do
       before do
         instance.team.update_attributes!(api_token: 'token')
       end
+
       it 'is not returned without a team api token' do
         expect { client.send(model_s, id: instance.id.to_s).resource }.to raise_error Faraday::ClientError do |e|
           json = JSON.parse(e.response[:body])
           expect(json['error']).to eq 'Access Denied'
         end
       end
+
       it 'is not returned with the wrong team api token' do
         client.headers.update('X-Access-Token' => 'invalid')
         expect { client.send(model_s, id: instance.id.to_s).resource }.to raise_error Faraday::ClientError do |e|
@@ -32,6 +36,7 @@ shared_examples_for 'a team token api' do |model|
           expect(json['error']).to eq 'Access Denied'
         end
       end
+
       it 'is returned with the correct team api token' do
         client.headers.update('X-Access-Token' => 'token')
         returned_intance = client.send(model_s, id: instance.id.to_s)
@@ -39,6 +44,7 @@ shared_examples_for 'a team token api' do |model|
       end
     end
   end
+
   context model.name.underscore.pluralize do
     let(:cursor_params) { @cursor_params || { team_id: team.id.to_s } }
 
@@ -50,6 +56,7 @@ shared_examples_for 'a team token api' do |model|
       before do
         team.update_attributes!(api: false)
       end
+
       it 'is not returned' do
         expect { client.send(model_ps, cursor_params).resource }.to raise_error Faraday::ClientError do |e|
           json = JSON.parse(e.response[:body])
@@ -57,16 +64,19 @@ shared_examples_for 'a team token api' do |model|
         end
       end
     end
+
     context 'with a team api token' do
       before do
         team.update_attributes!(api_token: 'token')
       end
+
       it 'is not returned without a team api token' do
         expect { client.send(model_ps, cursor_params).resource }.to raise_error Faraday::ClientError do |e|
           json = JSON.parse(e.response[:body])
           expect(json['error']).to eq 'Access Denied'
         end
       end
+
       it 'is not returned with the wrong team api token' do
         client.headers.update('X-Access-Token' => 'invalid')
         expect { client.send(model_ps, cursor_params).resource }.to raise_error Faraday::ClientError do |e|
@@ -74,6 +84,7 @@ shared_examples_for 'a team token api' do |model|
           expect(json['error']).to eq 'Access Denied'
         end
       end
+
       it 'is returned with the correct team api token' do
         client.headers.update('X-Access-Token' => 'token')
         returned_intances = client.send(model_ps, cursor_params)

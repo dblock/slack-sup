@@ -5,7 +5,7 @@ module SlackSup
         extend ActiveSupport::Concern
 
         module ClassMethods
-          def subscribe_command(*values, &_block)
+          def subscribe_command(*values, &)
             command(*values) do |client, data, match|
               if Stripe.api_key && client.owner.reload.subscription_expired?
                 client.say channel: data.channel, text: client.owner.subscribe_text

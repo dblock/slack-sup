@@ -53,7 +53,7 @@ class User
     user_match = user_name.match(/^<@(.*)>$/)
     query = user_match ? { user_id: user_match[1] } : { user_name: ::Regexp.new("^#{user_name}$", 'i') }
     team.sync_user!(user_match ? user_match[1] : user_name)
-    user = User.where(query.merge(team: team)).first
+    user = User.where(query.merge(team:)).first
 
     raise SlackSup::Error, "I don't know who #{user_name} is!" unless user
 

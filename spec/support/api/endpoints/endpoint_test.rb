@@ -15,8 +15,8 @@ module Api
               conn.request :json
               conn.response :json
               conn.use Faraday::Response::RaiseError
-              conn.use FaradayMiddleware::FollowRedirects
-              conn.use Faraday::Adapter::Rack, app
+              conn.use Faraday::FollowRedirects::Middleware
+              conn.adapter Faraday::Adapter::Rack, app
             end
           end
         end

@@ -388,7 +388,10 @@ module SlackSup
 
       command 'set' do |client, data, match|
         user = ::User.find_create_or_update_by_slack_id!(client, data.user)
-        if !match['expression']
+        if match['expression']
+          k, v = parse_expression(match)
+          set client, client.owner, data, user, k, v
+        else
           team = client.owner
           message = [
             "Team S'Up connects groups of #{team.sup_odd ? 'max ' : ''}#{team.sup_size} people on #{team.sup_day} after #{team.sup_time_of_day_s} every #{team.sup_every_n_weeks_s} in #{team.sup_tzone}, taking special care to not pair the same people more frequently than every #{team.sup_recency_s}.",
@@ -399,31 +402,28 @@ module SlackSup
           ].compact.join("\n")
           client.say(channel: data.channel, text: message)
           logger.info "SET: #{client.owner} - #{user.user_name}"
-        else
-          k, v = parse_expression(match)
-          set client, client.owner, data, user, k, v
         end
       end
 
       command 'unset' do |client, data, match|
         user = ::User.find_create_or_update_by_slack_id!(client, data.user)
-        if !match['expression']
-          client.say(channel: data.channel, text: 'Missing setting, see _help_ for available options.')
-          logger.info "UNSET: #{client.owner} - #{user.user_name}, failed, missing setting"
-        else
+        if match['expression']
           k, = parse_expression(match)
           unset client, client.owner, data, user, k
+        else
+          client.say(channel: data.channel, text: 'Missing setting, see _help_ for available options.')
+          logger.info "UNSET: #{client.owner} - #{user.user_name}, failed, missing setting"
         end
       end
 
       command 'rotate' do |client, data, match|
         user = ::User.find_create_or_update_by_slack_id!(client, data.user)
-        if !match['expression']
-          client.say(channel: data.channel, text: 'Missing setting, see _help_ for available options.')
-          logger.info "UNSET: #{client.owner} - #{user.user_name}, failed, missing setting"
-        else
+        if match['expression']
           k, = parse_expression(match)
           rotate client, client.owner, data, user, k
+        else
+          client.say(channel: data.channel, text: 'Missing setting, see _help_ for available options.')
+          logger.info "UNSET: #{client.owner} - #{user.user_name}, failed, missing setting"
         end
       end
     end

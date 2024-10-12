@@ -16,10 +16,10 @@ module SlackSup
                     end
         if stats.sups_count > 0
           messages << "Facilitated #{pluralize(stats.sups_count, 'S\'Up')} " \
-            "in #{pluralize(stats.rounds_count, 'round')} " \
-            "for #{pluralize(stats.users_in_sups_count, 'user')} " \
-            "with #{stats.positive_outcomes_count * 100 / stats.sups_count}% positive outcomes " \
-            "from #{stats.reported_outcomes_count * 100 / stats.sups_count}% outcomes reported."
+                      "in #{pluralize(stats.rounds_count, 'round')} " \
+                      "for #{pluralize(stats.users_in_sups_count, 'user')} " \
+                      "with #{stats.positive_outcomes_count * 100 / stats.sups_count}% positive outcomes " \
+                      "from #{stats.reported_outcomes_count * 100 / stats.sups_count}% outcomes reported."
         end
         client.say(channel: data.channel, text: messages.join("\n"))
         logger.info "STATS: #{client.owner} - #{data.user}"

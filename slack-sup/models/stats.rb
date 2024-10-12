@@ -1,13 +1,7 @@
 class Stats
   include ActiveModel::Model
 
-  attr_accessor :rounds_count
-  attr_accessor :sups_count
-  attr_accessor :users_in_sups_count
-  attr_accessor :users_opted_in_count
-  attr_accessor :users_count
-  attr_accessor :outcomes
-  attr_accessor :team
+  attr_accessor :rounds_count, :sups_count, :users_in_sups_count, :users_opted_in_count, :users_count, :outcomes, :team
 
   def initialize(team = nil)
     @team = team

@@ -35,7 +35,7 @@ module SlackSup
       end
     end
 
-    def invoke_with_criteria!(teams, &_block)
+    def invoke_with_criteria!(teams, &)
       teams.each do |team|
         yield team
       rescue StandardError => e
@@ -44,8 +44,8 @@ module SlackSup
       end
     end
 
-    def invoke!(&_block)
-      invoke_with_criteria!(Team.active, &_block)
+    def invoke!(&)
+      invoke_with_criteria!(Team.active, &)
     end
 
     def ask!

@@ -1,10 +1,7 @@
 class RoundStats
   include ActiveModel::Model
 
-  attr_accessor :round
-  attr_accessor :sups_count
-  attr_accessor :users_in_sups_count
-  attr_accessor :outcomes
+  attr_accessor :round, :sups_count, :users_in_sups_count, :outcomes
 
   def initialize(round = nil)
     @round = round
