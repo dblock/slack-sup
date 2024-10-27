@@ -22,10 +22,14 @@ class Round
 
   after_create :run!
 
-  index(round_id: 1, user_ids: 1, created_at: 1)
+  index(_id: 1, user_ids: 1, created_at: 1)
 
   def to_s
     "id=#{id}, #{team}"
+  end
+
+  def stats
+    @stats ||= RoundStats.new(self)
   end
 
   def ask_again?

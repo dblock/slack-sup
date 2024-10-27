@@ -31,7 +31,7 @@ module SlackSup
         messages = []
         messages << "Team S'Up facilitated #{pluralize(team.rounds.count, 'round')}."
         team.rounds.desc(:_id).take(max).each do |round|
-          stats = RoundStats.new(round)
+          stats = round.stats
           ran_at = if round.ran_at && round.asked_at
                      round.ran_at.to_time.ago_in_words(highest_measure_only: true)
                    elsif round.ran_at

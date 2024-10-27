@@ -88,5 +88,35 @@ describe Api::Endpoints::StatsEndpoint do
         expect(stats.sups_count).to eq 2
       end
     end
+
+    context 'round' do
+      let(:round) { team.rounds.last }
+
+      it 'reports counts for a round' do
+        stats = client.stats(round_id: round.id)
+        expect(stats.positive_outcomes_count).to eq 0
+        expect(stats.reported_outcomes_count).to eq 0
+      end
+
+      it 'reports counts for another round' do
+        stats = client.stats(round_id: Fabricate(:round).id)
+        expect(stats.positive_outcomes_count).to eq 0
+        expect(stats.reported_outcomes_count).to eq 0
+      end
+
+      context 'with a team api token' do
+        before do
+          client.headers.update('X-Access-Token' => 'token')
+          team.update_attributes!(api_token: 'token')
+        end
+
+        it 'returns stats' do
+          stats = client.stats(round_id: round.id)
+          round.sups.last.update_attributes!(outcome: 'all')
+          expect(stats.positive_outcomes_count).to eq 1
+          expect(stats.reported_outcomes_count).to eq 1
+        end
+      end
+    end
   end
 end
