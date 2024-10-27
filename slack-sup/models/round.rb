@@ -22,8 +22,6 @@ class Round
 
   after_create :run!
 
-  index(_id: 1, user_ids: 1, created_at: 1)
-
   def to_s
     "id=#{id}, #{team}"
   end
