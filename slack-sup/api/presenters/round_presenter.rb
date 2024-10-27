@@ -4,6 +4,7 @@ module Api
       include Roar::JSON::HAL
       include Roar::Hypermedia
       include Grape::Roar::Representer
+      include BasePresenter
 
       property :id, type: String, desc: 'Round ID.'
       property :total_users_count, desc: 'Total users.'
@@ -17,23 +18,19 @@ module Api
       property :updated_at, type: DateTime, desc: 'Date/time when the round was updated.'
 
       link :team do |opts|
-        request = Grape::Request.new(opts[:env])
-        "#{request.base_url}/api/teams/#{team_id}"
+        "#{base_url(opts)}/api/teams/#{team_id}"
       end
 
       link :stats do |opts|
-        request = Grape::Request.new(opts[:env])
-        "#{request.base_url}/api/stats?round_id=#{id}"
+        "#{base_url(opts)}/api/stats?round_id=#{id}"
       end
 
       link :sups do |opts|
-        request = Grape::Request.new(opts[:env])
-        "#{request.base_url}/api/sups?round_id=#{id}"
+        "#{base_url(opts)}/api/sups?round_id=#{id}"
       end
 
       link :self do |opts|
-        request = Grape::Request.new(opts[:env])
-        "#{request.base_url}/api/rounds/#{id}"
+        "#{base_url(opts)}/api/rounds/#{id}"
       end
     end
   end

@@ -4,6 +4,7 @@ module Api
       include Roar::JSON::HAL
       include Roar::Hypermedia
       include Grape::Roar::Representer
+      include BasePresenter
 
       link :self do |opts|
         "#{base_url(opts)}/api"
@@ -66,11 +67,6 @@ module Api
       end
 
       private
-
-      def base_url(opts)
-        request = Grape::Request.new(opts[:env])
-        request.base_url
-      end
 
       def link_params(*args)
         "{?#{args.join(',')}}"

@@ -4,6 +4,7 @@ module Api
       include Roar::JSON::HAL
       include Roar::Hypermedia
       include Grape::Roar::Representer
+      include BasePresenter
 
       link :self do |opts|
         next unless opts.key?(:env)
@@ -20,11 +21,6 @@ module Api
 
       link :team do |opts|
         "#{base_url(opts)}/api/teams/#{round.team.id}"
-      end
-
-      def base_url(opts)
-        request = Grape::Request.new(opts[:env])
-        request.base_url
       end
     end
   end

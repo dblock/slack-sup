@@ -4,6 +4,7 @@ module Api
       include Roar::JSON::HAL
       include Roar::Hypermedia
       include Grape::Roar::Representer
+      include BasePresenter
 
       link :self do |opts|
         "#{base_url(opts)}/api/status"
@@ -16,11 +17,6 @@ module Api
         return unless team
 
         team.ping!
-      end
-
-      def base_url(opts)
-        request = Grape::Request.new(opts[:env])
-        request.base_url
       end
     end
   end

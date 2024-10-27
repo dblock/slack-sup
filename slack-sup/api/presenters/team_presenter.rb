@@ -4,6 +4,7 @@ module Api
       include Roar::JSON::HAL
       include Roar::Hypermedia
       include Grape::Roar::Representer
+      include BasePresenter
 
       property :id, type: String, desc: 'Team ID.'
       property :team_id, type: String, desc: 'Slack team ID.'
@@ -24,23 +25,19 @@ module Api
       property :sup_size, type: Integer, desc: "The number of people that meet for each S'Up."
 
       link :users do |opts|
-        request = Grape::Request.new(opts[:env])
-        "#{request.base_url}/api/users?team_id=#{id}"
+        "#{base_url(opts)}/api/users?team_id=#{id}"
       end
 
       link :rounds do |opts|
-        request = Grape::Request.new(opts[:env])
-        "#{request.base_url}/api/rounds?team_id=#{id}"
+        "#{base_url(opts)}/api/rounds?team_id=#{id}"
       end
 
       link :stats do |opts|
-        request = Grape::Request.new(opts[:env])
-        "#{request.base_url}/api/stats?team_id=#{id}"
+        "#{base_url(opts)}/api/stats?team_id=#{id}"
       end
 
       link :self do |opts|
-        request = Grape::Request.new(opts[:env])
-        "#{request.base_url}/api/teams/#{id}"
+        "#{base_url(opts)}/api/teams/#{id}"
       end
     end
   end

@@ -2,6 +2,7 @@ require 'roar/representer'
 require 'roar/json'
 require 'roar/json/hal'
 
+require 'slack-sup/api/presenters/base_presenter'
 require 'slack-sup/api/presenters/paginated_presenter'
 require 'slack-sup/api/presenters/status_presenter'
 require 'slack-sup/api/presenters/stats_presenter'

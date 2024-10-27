@@ -4,6 +4,7 @@ module Api
       include Roar::JSON::HAL
       include Roar::Hypermedia
       include Grape::Roar::Representer
+      include BasePresenter
 
       property :total_count
 
@@ -16,11 +17,6 @@ module Api
       end
 
       private
-
-      def request_url(opts)
-        request = Grape::Request.new(opts[:env])
-        "#{request.base_url}#{opts[:env]['PATH_INFO']}"
-      end
 
       # replace the page and offset parameters in the query string
       def query_string_for_cursor(cursor, opts)

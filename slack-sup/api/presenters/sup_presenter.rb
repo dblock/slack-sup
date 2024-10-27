@@ -4,6 +4,7 @@ module Api
       include Roar::JSON::HAL
       include Roar::Hypermedia
       include Grape::Roar::Representer
+      include BasePresenter
 
       property :id, type: String, desc: "S'Up ID."
       property :outcome, type: String, desc: "S'up outcome."
@@ -15,18 +16,15 @@ module Api
       link :captain do |opts|
         next unless captain_id
 
-        request = Grape::Request.new(opts[:env])
-        "#{request.base_url}/api/users/#{captain_id}"
+        "#{base_url(opts)}/api/users/#{captain_id}"
       end
 
       link :round do |opts|
-        request = Grape::Request.new(opts[:env])
-        "#{request.base_url}/api/rounds/#{round_id}"
+        "#{base_url(opts)}/api/rounds/#{round_id}"
       end
 
       link :self do |opts|
-        request = Grape::Request.new(opts[:env])
-        "#{request.base_url}/api/sups/#{id}"
+        "#{base_url(opts)}/api/sups/#{id}"
       end
     end
   end
