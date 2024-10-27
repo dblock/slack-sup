@@ -14,7 +14,25 @@ module SlackSup
         dt = Chronic.parse(match['expression']) if match['expression']
         raise SlackSup::Error, "Please specify a date/time, eg. `#{client.owner.bot_name} gcal tomorrow 5pm`." unless dt
 
-        client.say(channel: data.channel, text: "Click this link to create a gcal for #{dt.strftime('%A, %B %d, %Y')} at #{dt.strftime('%l:%M %P').strip}: #{sup.calendar_href(dt)}")
+        client.owner.slack_client.chat_postMessage(
+          as_user: true,
+          channel: data.channel,
+          text: "Click the button below to create a gcal for #{dt.strftime('%A, %B %d, %Y')} at #{dt.strftime('%l:%M %P').strip}.",
+          attachments: [
+            {
+              text: '',
+              attachment_type: 'default',
+              actions: [
+                {
+                  type: 'button',
+                  text: 'Add to Calendar',
+                  url: sup.calendar_href(dt)
+                }
+              ]
+            }
+          ]
+        )
+
         logger.info "CALENDAR: #{client.owner}, user=#{data.user}, #{user}"
       end
     end

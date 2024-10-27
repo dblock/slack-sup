@@ -51,11 +51,39 @@ describe SlackSup::Commands::GCal do
             )
           end
 
-          it 'creates a link' do
-            Timecop.travel(monday).freeze do
-              Chronic.time_class = team.sup_tzone
-              expect(message: "#{SlackRubyBot.config.user} gcal today 5pm", user: user.user_id, channel: 'sup-channel-id').to respond_with_slack_message(
-                "Click this link to create a gcal for Monday, January 02, 2017 at 5:00 pm: https://sup.playplay.io/gcal?sup_id=#{sup.id}&dt=1483394400&access_token=#{team.short_lived_token}"
+          context 'monday' do
+            let(:message_command) { SlackRubyBot::Hooks::Message.new }
+
+            before do
+              Timecop.travel(monday).freeze
+            end
+
+            it 'creates a link' do
+              expect_any_instance_of(Slack::Web::Client).to receive(:chat_postMessage).with(
+                {
+                  as_user: true,
+                  channel: 'sup-channel-id',
+                  text: 'Click the button below to create a gcal for Monday, January 02, 2017 at 5:00 pm.',
+                  attachments: [
+                    {
+                      text: '',
+                      attachment_type: 'default',
+                      actions: [{
+                        type: 'button',
+                        text: 'Add to Calendar',
+                        url: "https://sup.playplay.io/gcal?sup_id=#{sup.id}&dt=1483394400&access_token=#{team.short_lived_token}"
+                      }]
+                    }
+                  ]
+                }
+              )
+
+              message_command.call(
+                client,
+                Hashie::Mash.new(
+                  text: "#{SlackRubyBot.config.user} gcal today 5pm",
+                  channel: 'sup-channel-id', user: user.user_id
+                )
               )
             end
           end
