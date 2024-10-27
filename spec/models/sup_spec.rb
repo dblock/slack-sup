@@ -73,7 +73,7 @@ describe Sup do
   end
 
   context 'a team' do
-    let(:team) { Fabricate(:team) }
+    let(:team) { Fabricate(:team, sup_wday: Date::MONDAY, sup_followup_wday: Date::THURSDAY) }
     let!(:user1) { Fabricate(:user, team:) }
     let!(:user2) { Fabricate(:user, team:) }
     let!(:user3) { Fabricate(:user, team:) }
@@ -141,7 +141,7 @@ describe Sup do
   end
 
   context 'sup!' do
-    let(:team) { Fabricate(:team) }
+    let(:team) { Fabricate(:team, sup_wday: Date::MONDAY, sup_followup_wday: Date::THURSDAY) }
     let!(:user1) { Fabricate(:user, team:) }
     let!(:user2) { Fabricate(:user, team:) }
     let!(:user3) { Fabricate(:user, team:) }

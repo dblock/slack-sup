@@ -1,6 +1,34 @@
 require 'spec_helper'
 
 describe Team do
+  context 'days of week' do
+    {
+      DateTime.parse('2017/1/2 3:00 PM EST').utc => { wday: Date::TUESDAY, followup_wday: Date::THURSDAY },
+      DateTime.parse('2017/1/3 3:00 PM EST').utc => { wday: Date::WEDNESDAY, followup_wday: Date::FRIDAY },
+      DateTime.parse('2017/1/4 3:00 PM EST').utc => { wday: Date::THURSDAY, followup_wday: Date::TUESDAY },
+      DateTime.parse('2017/1/5 3:00 PM EST').utc => { wday: Date::FRIDAY, followup_wday: Date::TUESDAY },
+      DateTime.parse('2017/1/6 3:00 PM EST').utc => { wday: Date::MONDAY, followup_wday: Date::THURSDAY },
+      DateTime.parse('2017/1/7 3:00 PM EST').utc => { wday: Date::MONDAY, followup_wday: Date::THURSDAY },
+      DateTime.parse('2017/1/8 3:00 PM EST').utc => { wday: Date::MONDAY, followup_wday: Date::THURSDAY }
+    }.each_pair do |dt, expectations|
+      context "created on #{Date::DAYNAMES[dt.wday]}" do
+        before do
+          Timecop.travel(dt)
+        end
+
+        let(:team) { Fabricate(:team) }
+
+        it "sets sup to #{Date::DAYNAMES[expectations[:wday]]}" do
+          expect(team.sup_wday).to eq expectations[:wday]
+        end
+
+        it "sets reminder to #{Date::DAYNAMES[expectations[:followup_wday]]}" do
+          expect(team.sup_followup_wday).to eq expectations[:followup_wday]
+        end
+      end
+    end
+  end
+
   context 'team_admins' do
     let(:team) { Fabricate(:team) }
 
@@ -135,7 +163,7 @@ describe Team do
 
   context 'team sup on monday 3pm' do
     let(:tz) { 'Eastern Time (US & Canada)' }
-    let(:team) { Fabricate(:team, sup_wday: 1, sup_tz: tz) }
+    let(:team) { Fabricate(:team, sup_wday: Date::MONDAY, sup_tz: tz) }
     let(:monday) { DateTime.parse('2017/1/2 3:00 PM EST').utc }
 
     before do
@@ -162,7 +190,7 @@ describe Team do
 
   context 'team sup on monday before 9am' do
     let(:tz) { 'Eastern Time (US & Canada)' }
-    let(:team) { Fabricate(:team, sup_wday: 1, sup_tz: tz) }
+    let(:team) { Fabricate(:team, sup_wday: Date::MONDAY, sup_tz: tz) }
     let(:monday) { DateTime.parse('2017/1/2 8:00 AM EST').utc }
 
     before do
@@ -182,7 +210,7 @@ describe Team do
 
   context 'with a custom sup_time_of_day' do
     let(:tz) { 'Eastern Time (US & Canada)' }
-    let(:team) { Fabricate(:team, sup_wday: 1, sup_time_of_day: 7 * 60 * 60, sup_tz: tz) }
+    let(:team) { Fabricate(:team, sup_wday: Date::MONDAY, sup_time_of_day: 7 * 60 * 60, sup_tz: tz) }
     let(:monday) { DateTime.parse('2017/1/2 8:00 AM EST').utc }
 
     before do
@@ -207,7 +235,7 @@ describe Team do
     let(:t_in_time_zone) { Time.now.utc.in_time_zone(tz) }
     let(:wday) { t_in_time_zone.wday }
     let(:beginning_of_day) { t_in_time_zone.beginning_of_day }
-    let(:team) { Fabricate(:team, sup_wday: wday, sup_time_of_day: (7 * 60 * 60) + 1, sup_tz: tz) }
+    let(:team) { Fabricate(:team, sup_wday: wday, sup_time_of_day: 0, sup_tz: tz) }
 
     describe '#sync!' do
       let(:member_default_attr) do

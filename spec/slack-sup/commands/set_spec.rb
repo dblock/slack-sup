@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
-  let!(:team) { Fabricate(:team) }
+  let!(:team) { Fabricate(:team, sup_wday: Date::MONDAY, sup_followup_wday: Date::THURSDAY) }
   let(:app) { SlackSup::Server.new(team:) }
   let(:client) { app.send(:client) }
   let(:admin) { Fabricate(:user, team:, user_name: 'username', is_admin: true) }
@@ -183,7 +183,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       end
 
       it 'shows current value of sup day' do
-        team.update_attributes!(sup_wday: 2)
+        team.update_attributes!(sup_wday: Date::TUESDAY)
         expect(message: "#{SlackRubyBot.config.user} set day").to respond_with_slack_message(
           "Team S'Up is on Tuesday."
         )
@@ -193,7 +193,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
         expect(message: "#{SlackRubyBot.config.user} set day friday").to respond_with_slack_message(
           "Team S'Up is now on Friday."
         )
-        expect(team.reload.sup_wday).to eq 5
+        expect(team.reload.sup_wday).to eq Date::FRIDAY
       end
 
       it 'errors set on an invalid day' do
@@ -211,7 +211,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       end
 
       it 'shows current value of sup followup' do
-        team.update_attributes!(sup_followup_wday: 2)
+        team.update_attributes!(sup_followup_wday: Date::TUESDAY)
         expect(message: "#{SlackRubyBot.config.user} set followup").to respond_with_slack_message(
           "Team S'Up followup day is on Tuesday."
         )
@@ -221,7 +221,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
         expect(message: "#{SlackRubyBot.config.user} set followup friday").to respond_with_slack_message(
           "Team S'Up followup day is now on Friday."
         )
-        expect(team.reload.sup_followup_wday).to eq 5
+        expect(team.reload.sup_followup_wday).to eq Date::FRIDAY
       end
 
       it 'errors set on an invalid day' do
@@ -527,6 +527,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       end
 
       it 'shows last sync that had user updates' do
+        Timecop.travel(Time.now.utc + 1.minute)
         team.update_attributes!(last_sync_at: Time.now.utc)
         Fabricate(:user, team:)
         expect(message: "#{SlackRubyBot.config.user} set sync").to respond_with_slack_message(
@@ -535,6 +536,8 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       end
 
       it 'shows last sync that had no user updates' do
+        Fabricate(:user, team:)
+        Timecop.travel(Time.now.utc + 1.minute)
         team.update_attributes!(last_sync_at: Time.now.utc)
         expect(message: "#{SlackRubyBot.config.user} set sync").to respond_with_slack_message(
           "Last users sync was less than 1 second ago. No users updated. Users will sync before the next round. #{team.next_sup_at_text}"
@@ -542,6 +545,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       end
 
       it 'shows last sync that had multiple users updates' do
+        Timecop.travel(Time.now.utc + 1.minute)
         team.update_attributes!(last_sync_at: Time.now.utc)
         2.times { Fabricate(:user, team:) }
         expect(message: "#{SlackRubyBot.config.user} set sync").to respond_with_slack_message(

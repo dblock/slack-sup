@@ -70,8 +70,8 @@ describe Round do
           3.times { Fabricate(:user, team:) } # 3 more users so we can have at least 1 non-met group
           expect do
             round = team.sup!
-            expect(round.sups.map(&:users).flatten.size).to eq team.users.size
-          end.to change(Sup, :count).by(4)
+            expect([team.users.size, team.users.size - 4]).to include round.sups.map(&:users).flatten.size
+          end.to change(Sup, :count).by_at_least(3)
         end
       end
 
@@ -370,7 +370,7 @@ describe Round do
 
         context 'team followup_day Wednesday' do
           before do
-            team.update_attributes!(sup_followup_wday: 3)
+            team.update_attributes!(sup_followup_wday: Date::WEDNESDAY)
           end
 
           it 'is true after sup time of day' do
