@@ -91,6 +91,14 @@ class Round
     sups.each(&:remind!)
   end
 
+  def paired_users
+    User.find(sups.distinct(:user_ids))
+  end
+
+  def missed_users
+    team.users - paired_users
+  end
+
   private
 
   def run!

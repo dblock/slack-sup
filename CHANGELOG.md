@@ -1,5 +1,6 @@
 ### Changelog
 
+* 2024/10/27: Added collections of missed and matched users to rounds API - [@dblock](https://github.com/dblock).
 * 2024/10/27: Added captain's username to S'Up API - [@dblock](https://github.com/dblock).
 * 2024/10/27: Added round stats to API - [@dblock](https://github.com/dblock).
 * 2024/10/12: Upgraded to Ruby 3.3.5 - [@dblock](https://github.com/dblock).

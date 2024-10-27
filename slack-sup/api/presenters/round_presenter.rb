@@ -17,6 +17,9 @@ module Api
       property :created_at, type: DateTime, desc: 'Date/time when the round was created.'
       property :updated_at, type: DateTime, desc: 'Date/time when the round was updated.'
 
+      collection :paired_users, extend: UserPresenter, embedded: true
+      collection :missed_users, extend: UserPresenter, embedded: true
+
       link :team do |opts|
         "#{base_url(opts)}/api/teams/#{team_id}"
       end
