@@ -45,6 +45,7 @@ module SlackSup
         promote|demote [@mention]  - promote or demote another user to/from admin
         subscription               - show team subscription info
         unsubscribe                - cancel auto-renew, unsubscribe
+        data                       - get a .zip of the team's data
 
         More information at https://sup.playplay.io
         ```

@@ -1,3 +1,7 @@
+require 'csv'
+require 'zip'
+
+require 'slack-sup/models/mixins'
 require 'slack-sup/models/error'
 require 'slack-sup/models/team'
 require 'slack-sup/models/user'

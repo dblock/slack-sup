@@ -31,6 +31,7 @@ GEM
     bigdecimal (3.1.8)
     bson (5.0.1)
     byebug (11.1.3)
+    bytesize (0.1.2)
     capybara (3.40.0)
       addressable
       matrix
@@ -331,6 +332,7 @@ PLATFORMS
 DEPENDENCIES
   ambit
   byebug
+  bytesize
   capybara
   chronic
   database_cleaner-mongoid
@@ -359,6 +361,7 @@ DEPENDENCIES
   rubocop-capybara
   rubocop-rake
   rubocop-rspec
+  rubyzip
   selenium-webdriver
   slack-ruby-bot-server
   slack-ruby-bot-server-mailchimp

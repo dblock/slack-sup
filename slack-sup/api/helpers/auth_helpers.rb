@@ -2,7 +2,7 @@ module Api
   module Helpers
     module AuthHelpers
       def authorize_short_lived_token!(team)
-        jwt_token = headers['X-Access-Token']
+        jwt_token = headers['X-Access-Token'] || params['access_token']
         error!('Access Denied', 401) unless team.short_lived_token_valid?(jwt_token)
       end
 

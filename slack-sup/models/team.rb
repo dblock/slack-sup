@@ -1,4 +1,6 @@
 class Team
+  include SlackSup::Models::Mixins::Export
+
   # enable API for this team
   field :api, type: Boolean, default: false
   field :api_token, type: String
@@ -73,7 +75,7 @@ class Team
   end
 
   def short_lived_token
-    JWT.encode({ dt: Time.now.utc.to_i }, token)
+    JWT.encode({ dt: Time.now.utc.to_i, nonce: SecureRandom.hex }, token)
   end
 
   def short_lived_token_valid?(short_lived_token, dt = 30.minutes)
@@ -81,6 +83,8 @@ class Team
 
     data, = JWT.decode(short_lived_token, token)
     Time.at(data['dt']).utc + dt >= Time.now.utc
+  rescue JWT::DecodeError
+    false
   end
 
   def api_s
@@ -384,6 +388,29 @@ class Team
       messages << next_sup_at_text
     end
     messages.compact.join(' ')
+  end
+
+  def stats
+    @stats ||= Stats.new(self)
+  end
+
+  def export_filename(root)
+    super(root, team_id)
+  end
+
+  def export_zip!(root)
+    super(root, team_id)
+  end
+
+  def export!(root)
+    super
+    stats.export!(root, 'stats', Api::Presenters::StatsPresenter)
+    super(root, 'users', Api::Presenters::UserPresenter, users)
+    super(root, 'rounds', Api::Presenters::RoundPresenter, rounds)
+    super(root, 'sups', Api::Presenters::SupPresenter, sups)
+    rounds.each do |round|
+      round.export!(File.join(root, File.join('rounds', round.ran_at&.strftime('%F') || round.id)))
+    end
   end
 
   private

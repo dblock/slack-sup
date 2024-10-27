@@ -57,6 +57,13 @@ module Api
         }
       end
 
+      link :data do |opts|
+        {
+          href: "#{base_url(opts)}/api/data/{team_id}",
+          templated: true
+        }
+      end
+
       %i[user team round sup].each do |model|
         link model do |opts|
           {

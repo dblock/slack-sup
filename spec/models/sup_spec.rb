@@ -70,6 +70,31 @@ describe Sup do
         expect(params['dt'].to_i).to eq t.to_i
       end
     end
+
+    describe '#export' do
+      include_context 'uses temp dir'
+
+      before do
+        sup.export!(tmp)
+      end
+
+      %w[sup].each do |csv|
+        it "creates #{csv}.csv" do
+          expect(File.exist?(File.join(tmp, "#{csv}.csv"))).to be true
+        end
+      end
+      context 'sup.csv' do
+        let(:csv) { CSV.read(File.join(tmp, 'sup.csv'), headers: true) }
+
+        it 'generates csv' do
+          expect(csv.headers).to eq(%w[id outcome captain_user_name created_at updated_at users])
+          row = csv[0]
+          expect(row['outcome']).to be_nil
+          expect(row['users']).to eq sup.users.map(&:user_name).join("\n")
+          expect(row['captain_user_name']).to eq sup.captain&.user_name
+        end
+      end
+    end
   end
 
   context 'a team' do

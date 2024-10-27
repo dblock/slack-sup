@@ -15,7 +15,8 @@ module SlackRubyBot
           SlackSup::Commands::Next,
           SlackSup::Commands::GCal,
           SlackSup::Commands::Promote,
-          SlackSup::Commands::Demote
+          SlackSup::Commands::Demote,
+          SlackSup::Commands::Data
         ]
       end
     end

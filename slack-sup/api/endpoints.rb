@@ -1,3 +1,4 @@
+require 'slack-sup/api/endpoints/data_endpoint'
 require 'slack-sup/api/endpoints/teams_endpoint'
 require 'slack-sup/api/endpoints/users_endpoint'
 require 'slack-sup/api/endpoints/rounds_endpoint'

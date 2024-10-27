@@ -440,4 +440,77 @@ describe Team do
       end
     end
   end
+
+  describe '#export' do
+    let(:team) { Fabricate(:team) }
+
+    include_context 'uses temp dir'
+    before do
+      allow(team).to receive(:sync!)
+      allow(team).to receive(:inform!)
+      team.sup!
+      team.export!(tmp)
+    end
+
+    %w[team rounds sups stats users].each do |csv|
+      it "creates #{csv}.csv" do
+        expect(File.exist?(File.join(tmp, "#{csv}.csv"))).to be true
+      end
+    end
+    it 'creates rounds subfolders' do
+      expect(Dir.exist?(File.join(tmp, 'rounds'))).to be true
+      expect(File.exist?(File.join(tmp, 'rounds', team.rounds.first.ran_at.strftime('%F'), 'round.csv'))).to be true
+    end
+
+    context 'team.csv' do
+      let(:csv) { CSV.read(File.join(tmp, 'team.csv'), headers: true) }
+
+      it 'generates csv' do
+        expect(csv.headers).to eq(
+          %w[
+            id
+            team_id
+            name
+            domain
+            active
+            subscribed
+            subscribed_at
+            created_at
+            updated_at
+            sup_wday
+            sup_followup_wday
+            sup_day
+            sup_tz
+            sup_time_of_day
+            sup_time_of_day_s
+            sup_every_n_weeks
+            sup_size
+          ]
+        )
+        row = csv[0]
+        expect(row['team_id']).to eq team.team_id
+      end
+    end
+  end
+
+  describe '#export_zip!' do
+    let(:team) { Fabricate(:team) }
+
+    include_context 'uses temp dir'
+    before do
+      allow(team).to receive(:sync!)
+      allow(team).to receive(:inform!)
+      team.sup!
+      team.export!(tmp)
+    end
+
+    context 'zip' do
+      let!(:zip) { team.export_zip!(tmp) }
+
+      it 'exists' do
+        expect(File.exist?(zip)).to be true
+        expect(File.size(zip)).not_to eq 0
+      end
+    end
+  end
 end

@@ -521,6 +521,46 @@ describe Round do
         end
       end
     end
+
+    describe '#export' do
+      include_context 'uses temp dir'
+
+      before do
+        round.export!(tmp)
+      end
+
+      %w[round sups].each do |csv|
+        it "creates #{csv}.csv" do
+          expect(File.exist?(File.join(tmp, "#{csv}.csv"))).to be true
+        end
+      end
+      context 'round.csv' do
+        let(:csv) { CSV.read(File.join(tmp, 'round.csv'), headers: true) }
+
+        it 'generates csv' do
+          expect(csv.headers).to eq(
+            %w[
+              id
+              total_users_count
+              opted_in_users_count
+              opted_out_users_count
+              paired_users_count
+              missed_users_count
+              ran_at
+              asked_at
+              created_at
+              updated_at
+              paired_users
+              missed_users
+            ]
+          )
+          row = csv[0]
+          expect(row['total_users_count']).to eq '3'
+          expect(row['missed_users']).to eq round.missed_users.map(&:user_name).join("\n")
+          expect(row['paired_users']).to eq round.paired_users.map(&:user_name).join("\n")
+        end
+      end
+    end
   end
 
   describe '#dm!' do

@@ -1,5 +1,6 @@
 class RoundStats
   include ActiveModel::Model
+  include SlackSup::Models::Mixins::Export
 
   attr_accessor :round, :sups_count, :users_in_sups_count, :outcomes
 

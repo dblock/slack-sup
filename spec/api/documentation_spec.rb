@@ -23,6 +23,7 @@ describe Api do
         '/api/sups',
         '/api/subscriptions',
         '/api/credit_cards',
+        '/api/data',
         '/api/slack/action'
       ].sort
     end

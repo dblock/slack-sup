@@ -2,6 +2,7 @@
 class Sup
   include Mongoid::Document
   include Mongoid::Timestamps
+  include SlackSup::Models::Mixins::Export
 
   field :outcome, type: String
   field :channel_id, type: String

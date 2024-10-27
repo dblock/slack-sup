@@ -55,6 +55,7 @@ describe SlackSup::Commands::GCal do
             let(:message_command) { SlackRubyBot::Hooks::Message.new }
 
             before do
+              allow_any_instance_of(Team).to receive(:short_lived_token).and_return('token')
               Timecop.travel(monday).freeze
             end
 
@@ -71,7 +72,7 @@ describe SlackSup::Commands::GCal do
                       actions: [{
                         type: 'button',
                         text: 'Add to Calendar',
-                        url: "https://sup.playplay.io/gcal?sup_id=#{sup.id}&dt=1483394400&access_token=#{team.short_lived_token}"
+                        url: "https://sup.playplay.io/gcal?sup_id=#{sup.id}&dt=1483394400&access_token=token"
                       }]
                     }
                   ]
