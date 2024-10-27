@@ -43,7 +43,22 @@ describe Api::Endpoints::SupsEndpoint do
     end
 
     it 'updates a sup html link and DMs sup' do
-      expect_any_instance_of(Sup).to receive(:dm!).with(text: "I've added this S'Up to your Google Calendar: updated")
+      expect_any_instance_of(Sup).to receive(:dm!).with(
+        {
+          text: "I've added this S'Up to your Google Calendar.",
+          attachments: [
+            {
+              text: '',
+              attachment_type: 'default',
+              actions: [{
+                type: 'button',
+                text: 'Google Calendar',
+                url: 'updated'
+              }]
+            }
+          ]
+        }
+      )
       client.headers.update('X-Access-Token' => team.short_lived_token)
       client.sup(id: existing_sup.id)._put(gcal_html_link: 'updated')
       expect(existing_sup.reload.gcal_html_link).to eq 'updated'

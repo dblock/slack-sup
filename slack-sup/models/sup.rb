@@ -159,7 +159,22 @@ class Sup
   def notify_gcal_html_link_changed!
     return unless gcal_html_link && (gcal_html_link_changed? || saved_change_to_gcal_html_link?)
 
-    dm!(text: "I've added this S'Up to your Google Calendar: #{gcal_html_link}")
+    dm!(
+      {
+        text: "I've added this S'Up to your Google Calendar.",
+        attachments: [
+          {
+            text: '',
+            attachment_type: 'default',
+            actions: [{
+              type: 'button',
+              text: 'Google Calendar',
+              url: gcal_html_link
+            }]
+          }
+        ]
+      }
+    )
   end
 
   def select_best_captain
