@@ -150,6 +150,10 @@ class Sup
   before_validation :validate_team
   after_save :notify_gcal_html_link_changed!
 
+  def captain_user_name
+    captain&.user_name
+  end
+
   private
 
   def notify_gcal_html_link_changed!

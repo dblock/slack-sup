@@ -1,5 +1,7 @@
 ### Changelog
 
+* 2024/10/27: Added captain's username to S'Up API - [@dblock](https://github.com/dblock).
+* 2024/10/27: Added round stats to API - [@dblock](https://github.com/dblock).
 * 2024/10/12: Upgraded to Ruby 3.3.5 - [@dblock](https://github.com/dblock).
 * 2024/07/27: Only send reminders after S'Up time of day - [@dblock](https://github.com/dblock).
 * 2024/05/03: Fix incorrect list of admins listed in `set` errors - [@dblock](https://github.com/dblock).
