@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe SlackSup::Commands::Stats do
-  let(:team) { Fabricate(:team, subscribed: true) }
+  let(:team) { Fabricate(:team, sup_wday: Date::MONDAY, subscribed: true) }
   let(:app) { SlackSup::Server.new(team:) }
   let(:client) { app.send(:client) }
 
@@ -13,7 +13,6 @@ describe SlackSup::Commands::Stats do
   end
 
   context 'with outcomes' do
-    let(:team) { Fabricate(:team, subscribed: true) }
     let!(:user1) { Fabricate(:user, team:) }
     let!(:user2) { Fabricate(:user, team:) }
     let!(:user3) { Fabricate(:user, team:) }
