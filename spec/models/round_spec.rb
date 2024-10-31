@@ -349,6 +349,11 @@ describe Round do
         let(:wednesday_est_after_time_of_day) { DateTime.parse('2042/1/8 3:00 PM EST').utc }
         let(:thursday_morning_utc) { DateTime.parse('2042/1/9 0:00 AM UTC').utc }
         let(:thursday_est) { DateTime.parse('2042/1/9 3:00 PM EST').utc }
+        let(:friday_est) { DateTime.parse('2042/1/10 3:00 PM EST').utc }
+
+        before do
+          team.update_attributes!(sup_wday: Date::TUESDAY, sup_followup_wday: Date::FRIDAY)
+        end
 
         it 'is false for Wednesday eastern time' do
           Timecop.travel(wednesday_est_after_time_of_day) do
@@ -356,14 +361,20 @@ describe Round do
           end
         end
 
-        it 'is false for Thursday morning utc time when team is eastern time' do
+        it 'is false for Thursday morning utc time when channel is eastern time' do
           Timecop.travel(thursday_morning_utc) do
             expect(round.ask?).to be false
           end
         end
 
-        it 'is true for Thursday eastern' do
+        it 'is false for Thursday eastern because sup on a Tuesday, remind on Friday' do
           Timecop.travel(thursday_est) do
+            expect(round.ask?).to be false
+          end
+        end
+
+        it 'is true for Friday eastern because sup on a Tuesday, remind on Friday' do
+          Timecop.travel(friday_est) do
             expect(round.ask?).to be true
           end
         end

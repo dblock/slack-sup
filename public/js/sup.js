@@ -1,8 +1,15 @@
 var SlackSup = {};
 
 SlackSup.message = function(text) {
-  $('#messages').removeClass('has-error');
   $('#messages').fadeOut('slow', function() {
+    $('#messages').removeClass('has-error');
+    $('#messages').fadeIn('slow').html(text)
+  });
+};
+
+SlackSup.errorMessage = function(text) {
+  $('#messages').fadeOut('slow', function() {
+    $('#messages').addClass('has-error');
     $('#messages').fadeIn('slow').html(text)
   });
 };
@@ -12,11 +19,6 @@ SlackSup.register = function(text) {
   $('header').fadeOut('slow');
   $('section').fadeOut('slow');
   $('#register').show();
-};
-
-SlackSup.errorMessage = function(message) {
-  SlackSup.message(message)
-  $('#messages').addClass('has-error');
 };
 
 SlackSup.error = function(xhr) {

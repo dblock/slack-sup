@@ -41,19 +41,20 @@
     <script>
       $(document).ready(function() {
         var data = {
-          stripe_token: "<%= stripe_token %>",
-          stripe_token_type: "<%= stripe_token_type %>",
-          stripe_email: "<%= stripe_email %>",
-          team_id: "<%= team ? team.id : nil %>"
+          stripe_token: "<%=h stripe_token %>",
+          stripe_token_type: "<%=h stripe_token_type %>",
+          stripe_email: "<%=h stripe_email %>",
+          team_id: "<%= team&.id %>"
         };
 
-        if (data.stripe_token) {
+        var team = {
+          id: "<%= team&.id %>",
+          name: <%= JSON::generate(ERB::Util.html_escape(team&.name)) %>
+        };
 
-          var team = {
-            id: <%= team ? "'#{team._id}'" : 'null' %>,
-            name: <%= team ? "'#{team.name}'" : 'null' %>
-          };
+        SlackSup.message('Update credit card for team <b>' + team.name + '</b>.');
 
+        if (data.stripe_token && data.stripe_token.length > 0) {
           $.ajax({
             type: 'POST',
             url: '/api/credit_cards',
@@ -66,7 +67,7 @@
             error: SlackSup.error
           });
 
-        } else if (!data.team_id) {
+        } else if (!data.team_id || data.team_id.length == 0) {
           SlackSup.errorMessage("Team not found.")
           $('form').remove();
           $('#update_cc').hide();
