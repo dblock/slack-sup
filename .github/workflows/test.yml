@@ -8,15 +8,15 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3.5'
-      - uses: supercharge/mongodb-github-action@1.7.0
+      - uses: supercharge/mongodb-github-action@1.12.0
         with:
-          mongodb-version: '5.0'
+          mongodb-version: '7.0'
       - uses: browser-actions/setup-geckodriver@latest
         with:
-          geckodriver-version: '0.34.0'
-      - uses: browser-actions/setup-firefox@v1
+          geckodriver-version: '0.35.0'
+      - uses: browser-actions/setup-firefox@v1.5.2
         with:
-          firefox-version: '129.0.2'
+          firefox-version: '134.0.1'
       - run: |
           bundle install
       - uses: GabrielBB/xvfb-action@v1
