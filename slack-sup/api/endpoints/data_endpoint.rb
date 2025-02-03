@@ -7,27 +7,17 @@ module Api
       namespace :data do
         desc 'Get data.'
         params do
-          requires :team_id, type: String, desc: 'Required team ID.'
+          requires :id, type: String, desc: 'Export ID.'
         end
-        get do
-          team = Team.find(_id: params[:team_id]) || error!('Team Not Found', 404)
-
-          authorize_short_lived_token! team
-
-          path = File.join(Dir.tmpdir, 'slack-sup2', team.id)
-          filename = team.export_filename(path)
-
-          if !File.exist?(filename) || (File.mtime(filename) + 1.hour < Time.now)
-            FileUtils.rm_rf(path)
-            FileUtils.makedirs(path)
-            Api::Middleware.logger.info "Generating data file for #{team}."
-            filename = team.export_zip!(path)
-          end
-
-          Api::Middleware.logger.info "Sending #{ByteSize.new(File.size(filename))} data file for #{team}."
+        get ':id' do
+          data = Export.find(_id: params[:id]) || error!('Data Not Found', 404)
+          authorize_short_lived_token! data.team
+          error!('Data Not Ready', 404) unless data.exported?
+          error!('Data Expired', 404) unless File.exist?(data.filename)
+          Api::Middleware.logger.info "Sending #{ByteSize.new(File.size(data.filename))} data file for #{data.team}."
           content_type 'application/zip'
-          header['Content-Disposition'] = "attachment; filename=#{File.basename(filename)}"
-          File.binread filename
+          header['Content-Disposition'] = "attachment; filename=#{File.basename(data.filename)}"
+          File.binread data.filename
         end
       end
     end

@@ -41,6 +41,7 @@ class Team
   has_many :users, dependent: :destroy
   has_many :rounds, dependent: :destroy
   has_many :sups, dependent: :destroy
+  has_many :exports, dependent: :destroy
 
   after_update :subscribed!
   after_save :activated!

@@ -37,29 +37,32 @@ describe SlackSup::Commands::Data do
             allow_any_instance_of(Team).to receive(:short_lived_token).and_return('token')
           end
 
-          it 'returns a link to download data' do
-            allow(team.slack_client).to receive(:conversations_open).with(
-              users: 'user'
-            ).and_return(Hashie::Mash.new('channel' => { 'id' => 'D1' }))
+          it 'prepares team data' do
+            expect do
+              expect(message: "#{SlackRubyBot.config.user} data").to respond_with_slack_message(
+                "Hey #{user.slack_mention}, we will prepare your team data in the next few minutes, please check your DMs for a link."
+              )
+            end.to change(Export, :count).by(1)
+          end
 
-            expect_any_instance_of(Slack::Web::Client).to receive(:chat_postMessage).with(
-              as_user: true,
-              channel: 'D1',
-              text: 'Click here to download your team data.',
-              attachments: [
-                text: '',
-                attachment_type: 'default',
-                actions: [{
-                  type: 'button',
-                  text: 'Download',
-                  url: "https://sup.playplay.io/api/data?team_id=#{team.id}&access_token=token"
-                }]
-              ]
-            )
+          it 'does not allow for more than one active request' do
+            Export.create!(team:, user_id: 'user', exported: false)
 
-            expect(message: "#{SlackRubyBot.config.user} data").to respond_with_slack_message(
-              "Hey #{user.slack_mention}, check your DMs for a link."
-            )
+            expect do
+              expect(message: "#{SlackRubyBot.config.user} data").to respond_with_slack_message(
+                'Hey <@user>, we are still working on your previous request.'
+              )
+            end.not_to change(Export, :count)
+          end
+
+          it 'allow for more than one active request once the previous one is completed' do
+            Export.create!(team:, user_id: 'user', exported: true)
+
+            expect do
+              expect(message: "#{SlackRubyBot.config.user} data").to respond_with_slack_message(
+                "Hey #{user.slack_mention}, we will prepare your team data in the next few minutes, please check your DMs for a link."
+              )
+            end.to change(Export, :count).by(1)
           end
         end
       end

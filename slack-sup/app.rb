@@ -21,6 +21,9 @@ module SlackSup
           ask!
           ask_again!
         end
+        once_and_every 60 do
+          export_data!
+        end
       end
     end
 
@@ -139,6 +142,12 @@ module SlackSup
         end
       rescue StandardError => e
         logger.warn "Error informing team #{team}, #{e.message}."
+      end
+    end
+
+    def export_data!
+      invoke_with_criteria!(Export.requested) do |export|
+        export.export!
       end
     end
   end
