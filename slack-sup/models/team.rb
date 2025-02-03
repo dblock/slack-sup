@@ -214,9 +214,9 @@ class Team
 
   def team_admins
     users
-      .in(team_id: id, user_id: activated_user_id)
-      .or(team_id: id, is_admin: true)
-      .or(team_id: id, is_owner: true)
+      .in(team_id: id, enabled: true, user_id: activated_user_id)
+      .or(team_id: id, enabled: true, is_admin: true)
+      .or(team_id: id, enabled: true, is_owner: true)
   end
 
   def team_admins_slack_mentions

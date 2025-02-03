@@ -74,6 +74,15 @@ describe Team do
           expect(team.team_admins_slack_mentions).to eq(user.slack_mention)
         end
       end
+
+      context 'with a disabled admin' do
+        let!(:another) { Fabricate(:user, team:, is_admin: true, enabled: false) }
+
+        it 'has one admin' do
+          expect(team.team_admins).to eq([user])
+          expect(team.team_admins_slack_mentions).to eq(user.slack_mention)
+        end
+      end
     end
   end
 
