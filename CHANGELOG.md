@@ -1,5 +1,6 @@
 ### Changelog
 
+* 2025/02/03: Fix: S'Up runs on time a week after being delayed - [@dblock](https://github.com/dblock).
 * 2024/10/31: Fix: subscribe and change cc for teams with special characters in name - [@dblock](https://github.com/dblock).
 * 2024/10/27: Replaced gcal link by a button - [@dblock](https://github.com/dblock).
 * 2024/10/27: Added collections of missed and matched users to rounds API - [@dblock](https://github.com/dblock).

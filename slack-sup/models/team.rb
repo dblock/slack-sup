@@ -181,11 +181,12 @@ class Team
     # only sup on a certain day of the week
     now_in_tz = Time.now.utc.in_time_zone(sup_tzone)
     return false unless now_in_tz.wday == sup_wday
-    # sup after 9am by default
+
+    # sup after sup_time_of_day, 9am by default
     return false if now_in_tz < now_in_tz.beginning_of_day + sup_time_of_day
 
-    # don't sup more than once a week
-    time_limit = Time.now.utc - sup_every_n_weeks.weeks
+    # don't sup more than sup_every_n_weeks, once a week by default
+    time_limit = now_in_tz.end_of_day - sup_every_n_weeks.weeks
     (last_round_at || time_limit) <= time_limit
   end
 
