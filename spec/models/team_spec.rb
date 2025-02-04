@@ -45,7 +45,7 @@ describe Team do
 
       it 'has an admin' do
         expect(team.team_admins).to eq([user])
-        expect(team.team_admins_slack_mentions).to eq(user.slack_mention)
+        expect(team.team_admins_slack_mentions).to eq([user.slack_mention])
       end
 
       context 'with another admin' do
@@ -53,7 +53,7 @@ describe Team do
 
         it 'has two admins' do
           expect(team.team_admins.to_a.sort).to eq([user, another].sort)
-          expect(team.team_admins_slack_mentions).to eq([user.slack_mention, another.slack_mention].or)
+          expect(team.team_admins_slack_mentions).to eq([user.slack_mention, another.slack_mention])
         end
       end
 
@@ -62,7 +62,7 @@ describe Team do
 
         it 'has two admins' do
           expect(team.team_admins.to_a.sort).to eq([user, another].sort)
-          expect(team.team_admins_slack_mentions).to eq([user.slack_mention, another.slack_mention].or)
+          expect(team.team_admins_slack_mentions).to eq([user.slack_mention, another.slack_mention])
         end
       end
 
@@ -71,7 +71,7 @@ describe Team do
 
         it 'has one admin' do
           expect(team.team_admins).to eq([user])
-          expect(team.team_admins_slack_mentions).to eq(user.slack_mention)
+          expect(team.team_admins_slack_mentions).to eq([user.slack_mention])
         end
       end
 
@@ -80,7 +80,7 @@ describe Team do
 
         it 'has one admin' do
           expect(team.team_admins).to eq([user])
-          expect(team.team_admins_slack_mentions).to eq(user.slack_mention)
+          expect(team.team_admins_slack_mentions).to eq([user.slack_mention])
         end
       end
     end

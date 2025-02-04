@@ -39,7 +39,7 @@ describe SlackSup::Commands::Subscription do
 
           it 'requires an admin user' do
             allow_any_instance_of(User).to receive(:team_admin?).and_return(false)
-            expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message "Only #{team.team_admins_slack_mentions} can get subscription details, sorry."
+            expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message "Only #{team.team_admins_slack_mentions.or} can get subscription details, sorry."
           end
         end
 
@@ -60,7 +60,7 @@ describe SlackSup::Commands::Subscription do
 
           it 'requires an admin user' do
             allow_any_instance_of(User).to receive(:team_admin?).and_return(false)
-            expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message "Only #{team.team_admins_slack_mentions} can get subscription details, sorry."
+            expect(message: "#{SlackRubyBot.config.user} subscription").to respond_with_slack_message "Only #{team.team_admins_slack_mentions.or} can get subscription details, sorry."
           end
         end
       end

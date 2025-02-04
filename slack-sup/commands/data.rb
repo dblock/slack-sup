@@ -5,7 +5,7 @@ module SlackSup
 
       subscribe_command 'data' do |client, data, _match|
         user = ::User.find_create_or_update_by_slack_id!(client, data.user)
-        raise SlackSup::Error, "Sorry, only #{user.team.team_admins_slack_mentions} can download data." unless user.team_admin?
+        raise SlackSup::Error, "Sorry, only #{user.team.team_admins_slack_mentions.or} can download data." unless user.team_admin?
         raise SlackSup::Error, "Hey <@#{data.user}>, we are still working on your previous request." if Export.where(team: client.owner, user_id: data.user, exported: false).exists?
 
         Export.create!(

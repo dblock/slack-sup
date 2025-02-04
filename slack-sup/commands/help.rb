@@ -19,6 +19,7 @@ module SlackSup
         next                      - time of next round
         help                      - this helpful message
         about                     - more helpful info about this bot
+        admins                    - show all admins
         set                       - show all settings
 
         Team Admins

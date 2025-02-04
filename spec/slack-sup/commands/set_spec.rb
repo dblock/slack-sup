@@ -575,13 +575,13 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
     context 'api' do
       it 'cannot set opt' do
         expect(message: "#{SlackRubyBot.config.user} set opt out").to respond_with_slack_message(
-          "Users are opted in by default. Only #{team.team_admins_slack_mentions} can change that, sorry."
+          "Users are opted in by default. Only #{team.team_admins_slack_mentions.or} can change that, sorry."
         )
       end
 
       it 'cannot set api' do
         expect(message: "#{SlackRubyBot.config.user} set api true").to respond_with_slack_message(
-          "Team data access via the API is on. Only #{team.team_admins_slack_mentions} can change that, sorry."
+          "Team data access via the API is on. Only #{team.team_admins_slack_mentions.or} can change that, sorry."
         )
       end
 
@@ -601,7 +601,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       it 'rotate api token' do
         team.update_attributes!(api: true, api_token: 'old')
         expect(message: "#{SlackRubyBot.config.user} rotate api token").to respond_with_slack_message(
-          "Team data access via the API is on with an access token visible to admins. Only #{team.team_admins_slack_mentions} can rotate it, sorry."
+          "Team data access via the API is on with an access token visible to admins. Only #{team.team_admins_slack_mentions.or} can rotate it, sorry."
         )
         expect(team.reload.api_token).to eq 'old'
       end
@@ -609,14 +609,14 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
       it 'unsets api token' do
         team.update_attributes!(api: true, api_token: 'old')
         expect(message: "#{SlackRubyBot.config.user} unset api token").to respond_with_slack_message(
-          "Team data access via the API is on with an access token visible to admins. Only #{team.team_admins_slack_mentions} can unset it, sorry."
+          "Team data access via the API is on with an access token visible to admins. Only #{team.team_admins_slack_mentions.or} can unset it, sorry."
         )
         expect(team.reload.api_token).to eq 'old'
       end
 
       it 'cannot set day' do
         expect(message: "#{SlackRubyBot.config.user} set day tuesday").to respond_with_slack_message(
-          "Team S'Up is on Monday. Only #{team.team_admins_slack_mentions} can change that, sorry."
+          "Team S'Up is on Monday. Only #{team.team_admins_slack_mentions.or} can change that, sorry."
         )
       end
 
@@ -628,7 +628,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
 
       it 'cannot set time' do
         expect(message: "#{SlackRubyBot.config.user} set time 11:00 AM").to respond_with_slack_message(
-          "Team S'Up is after 9:00 AM #{tzs}. Only #{team.team_admins_slack_mentions} can change that, sorry."
+          "Team S'Up is after 9:00 AM #{tzs}. Only #{team.team_admins_slack_mentions.or} can change that, sorry."
         )
       end
 
@@ -640,7 +640,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
 
       it 'cannot set weeks' do
         expect(message: "#{SlackRubyBot.config.user} set weeks 2").to respond_with_slack_message(
-          "Team S'Up is every week. Only #{team.team_admins_slack_mentions} can change that, sorry."
+          "Team S'Up is every week. Only #{team.team_admins_slack_mentions.or} can change that, sorry."
         )
       end
 
@@ -652,7 +652,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
 
       it 'cannot set followup day' do
         expect(message: "#{SlackRubyBot.config.user} set followup 2").to respond_with_slack_message(
-          "Team S'Up followup day is on Thursday. Only #{team.team_admins_slack_mentions} can change that, sorry."
+          "Team S'Up followup day is on Thursday. Only #{team.team_admins_slack_mentions.or} can change that, sorry."
         )
       end
 
@@ -664,7 +664,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
 
       it 'cannot set recency' do
         expect(message: "#{SlackRubyBot.config.user} set recency 2").to respond_with_slack_message(
-          "Taking special care to not pair the same people more than every 12 weeks. Only #{team.team_admins_slack_mentions} can change that, sorry."
+          "Taking special care to not pair the same people more than every 12 weeks. Only #{team.team_admins_slack_mentions.or} can change that, sorry."
         )
       end
 
@@ -676,7 +676,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
 
       it 'cannot set size' do
         expect(message: "#{SlackRubyBot.config.user} set size 2").to respond_with_slack_message(
-          "Team S'Up connects groups of 3 people. Only #{team.team_admins_slack_mentions} can change that, sorry."
+          "Team S'Up connects groups of 3 people. Only #{team.team_admins_slack_mentions.or} can change that, sorry."
         )
       end
 
@@ -688,7 +688,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
 
       it 'cannot set timezone' do
         expect(message: "#{SlackRubyBot.config.user} set tz Hawaii").to respond_with_slack_message(
-          "Team S'Up timezone is #{ActiveSupport::TimeZone.new('Eastern Time (US & Canada)')}. Only #{team.team_admins_slack_mentions} can change that, sorry."
+          "Team S'Up timezone is #{ActiveSupport::TimeZone.new('Eastern Time (US & Canada)')}. Only #{team.team_admins_slack_mentions.or} can change that, sorry."
         )
       end
 
@@ -700,7 +700,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
 
       it 'cannot set custom profile team field' do
         expect(message: "#{SlackRubyBot.config.user} set team field Artsy Team").to respond_with_slack_message(
-          "Custom profile team field is _not set_. Only #{team.team_admins_slack_mentions} can change that, sorry."
+          "Custom profile team field is _not set_. Only #{team.team_admins_slack_mentions.or} can change that, sorry."
         )
       end
 
@@ -712,7 +712,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
 
       it 'cannot set message' do
         expect(message: "#{SlackRubyBot.config.user} set message Custom message.").to respond_with_slack_message(
-          "Using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_ Only #{team.team_admins_slack_mentions} can change that, sorry."
+          "Using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_ Only #{team.team_admins_slack_mentions.or} can change that, sorry."
         )
       end
 
@@ -737,7 +737,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
 
       it 'cannot set sync now' do
         expect(message: "#{SlackRubyBot.config.user} set sync now").to respond_with_slack_message(
-          "Users will sync before the next round. #{team.next_sup_at_text} Only #{team.team_admins_slack_mentions} can manually sync, sorry."
+          "Users will sync before the next round. #{team.next_sup_at_text} Only #{team.team_admins_slack_mentions.or} can manually sync, sorry."
         )
       end
     end

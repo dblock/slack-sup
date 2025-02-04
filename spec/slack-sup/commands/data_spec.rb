@@ -26,7 +26,7 @@ describe SlackSup::Commands::Data do
 
           it 'requires an admin' do
             expect(message: "#{SlackRubyBot.config.user} data").to respond_with_slack_message(
-              "Sorry, only #{user.team.team_admins_slack_mentions} can download data."
+              "Sorry, only #{user.team.team_admins_slack_mentions.or} can download data."
             )
           end
         end

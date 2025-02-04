@@ -220,7 +220,7 @@ class Team
   end
 
   def team_admins_slack_mentions
-    (["<@#{activated_user_id}>"] + team_admins.map(&:slack_mention)).uniq.or
+    (["<@#{activated_user_id}>"] + team_admins.map(&:slack_mention)).uniq
   end
 
   def subscription_expired?

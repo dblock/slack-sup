@@ -6,6 +6,7 @@ module SlackRubyBot
         [
           SlackSup::Commands::Help,
           SlackSup::Commands::About,
+          SlackSup::Commands::Admins,
           SlackSup::Commands::Subscription,
           SlackSup::Commands::Unsubscribe,
           SlackSup::Commands::Opt,

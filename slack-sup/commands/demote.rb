@@ -5,7 +5,7 @@ module SlackSup
 
       subscribe_command 'demote' do |client, data, match|
         user = ::User.find_create_or_update_by_slack_id!(client, data.user)
-        raise SlackSup::Error, "Sorry, only #{user.team.team_admins_slack_mentions} can demote users." unless user.team_admin?
+        raise SlackSup::Error, "Sorry, only #{user.team.team_admins_slack_mentions.or} can demote users." unless user.team_admin?
 
         mention = match['expression']
         raise SlackSup::Error, 'Sorry, demote @someone.' if mention.blank?

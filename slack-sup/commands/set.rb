@@ -13,7 +13,7 @@ module SlackSup
           elsif v
             message = [
               "Users are opted #{team.opt_in_s} by default.",
-              "Only #{team.team_admins_slack_mentions} can change that, sorry."
+              "Only #{team.team_admins_slack_mentions.or} can change that, sorry."
             ].join(' ')
             client.say(channel: data.channel, text: message)
           else
@@ -33,7 +33,7 @@ module SlackSup
           elsif v
             message = [
               team_data_access_message(user),
-              "Only #{team.team_admins_slack_mentions} can change that, sorry."
+              "Only #{team.team_admins_slack_mentions.or} can change that, sorry."
             ].join(' ')
             client.say(channel: data.channel, text: message)
           else
@@ -65,7 +65,7 @@ module SlackSup
           elsif !team.api_token
             message = [
               team_data_access_message(user),
-              "Only #{team.team_admins_slack_mentions} can change that, sorry."
+              "Only #{team.team_admins_slack_mentions.or} can change that, sorry."
             ].join(' ')
             client.say(channel: data.channel, text: message)
           else
@@ -97,7 +97,7 @@ module SlackSup
           else
             message = [
               team_data_access_message(user),
-              "Only #{team.team_admins_slack_mentions} can unset it, sorry."
+              "Only #{team.team_admins_slack_mentions.or} can unset it, sorry."
             ].join(' ')
             client.say(channel: data.channel, text: message)
           end
@@ -117,7 +117,7 @@ module SlackSup
           else
             message = [
               team_data_access_message(user),
-              "Only #{team.team_admins_slack_mentions} can rotate it, sorry."
+              "Only #{team.team_admins_slack_mentions.or} can rotate it, sorry."
             ].join(' ')
             client.say(channel: data.channel, text: message)
           end
@@ -129,7 +129,7 @@ module SlackSup
             team.update_attributes(sup_wday: Date.parse(v).wday)
             client.say(channel: data.channel, text: "Team S'Up is now on #{team.sup_day}.")
           elsif v
-            client.say(channel: data.channel, text: "Team S'Up is on #{team.sup_day}. Only #{team.team_admins_slack_mentions} can change that, sorry.")
+            client.say(channel: data.channel, text: "Team S'Up is on #{team.sup_day}. Only #{team.team_admins_slack_mentions.or} can change that, sorry.")
           else
             client.say(channel: data.channel, text: "Team S'Up is on #{team.sup_day}.")
           end
@@ -152,7 +152,7 @@ module SlackSup
             team.update_attributes!(sup_time_of_day: DateTime.parse(v).seconds_since_midnight)
             client.say(channel: data.channel, text: "Team S'Up is now after #{team.sup_time_of_day_s} #{team.sup_tzone_s}.")
           elsif v
-            client.say(channel: data.channel, text: "Team S'Up is after #{team.sup_time_of_day_s} #{team.sup_tzone_s}. Only #{team.team_admins_slack_mentions} can change that, sorry.")
+            client.say(channel: data.channel, text: "Team S'Up is after #{team.sup_time_of_day_s} #{team.sup_tzone_s}. Only #{team.team_admins_slack_mentions.or} can change that, sorry.")
           else
             client.say(channel: data.channel, text: "Team S'Up is after #{team.sup_time_of_day_s} #{team.sup_tzone_s}.")
           end
@@ -166,7 +166,7 @@ module SlackSup
             team.update_attributes(sup_followup_wday: Date.parse(v).wday)
             client.say(channel: data.channel, text: "Team S'Up followup day is now on #{team.sup_followup_day}.")
           elsif v
-            client.say(channel: data.channel, text: "Team S'Up followup day is on #{team.sup_followup_day}. Only #{team.team_admins_slack_mentions} can change that, sorry.")
+            client.say(channel: data.channel, text: "Team S'Up followup day is on #{team.sup_followup_day}. Only #{team.team_admins_slack_mentions.or} can change that, sorry.")
           else
             client.say(channel: data.channel, text: "Team S'Up followup day is on #{team.sup_followup_day}.")
           end
@@ -180,7 +180,7 @@ module SlackSup
             team.update_attributes!(sup_every_n_weeks: v.to_i)
             client.say(channel: data.channel, text: "Team S'Up is now every #{team.sup_every_n_weeks_s}.")
           elsif v
-            client.say(channel: data.channel, text: "Team S'Up is every #{team.sup_every_n_weeks_s}. Only #{team.team_admins_slack_mentions} can change that, sorry.")
+            client.say(channel: data.channel, text: "Team S'Up is every #{team.sup_every_n_weeks_s}. Only #{team.team_admins_slack_mentions.or} can change that, sorry.")
           else
             client.say(channel: data.channel, text: "Team S'Up is every #{team.sup_every_n_weeks_s}.")
           end
@@ -194,7 +194,7 @@ module SlackSup
             team.update_attributes!(sup_size: v.to_i)
             client.say(channel: data.channel, text: "Team S'Up now connects groups of #{team.sup_size} people.")
           elsif v
-            client.say(channel: data.channel, text: "Team S'Up connects groups of #{team.sup_size} people. Only #{team.team_admins_slack_mentions} can change that, sorry.")
+            client.say(channel: data.channel, text: "Team S'Up connects groups of #{team.sup_size} people. Only #{team.team_admins_slack_mentions.or} can change that, sorry.")
           else
             client.say(channel: data.channel, text: "Team S'Up connects groups of #{team.sup_size} people.")
           end
@@ -208,7 +208,7 @@ module SlackSup
             team.update_attributes!(sup_odd: v.to_b)
             client.say(channel: data.channel, text: "Team S'Up now connects groups of #{team.sup_odd ? 'max ' : ''}#{team.sup_size} people.")
           elsif !v.nil?
-            client.say(channel: data.channel, text: "Team S'Up connects groups of #{team.sup_odd ? 'max ' : ''}#{team.sup_size} people. Only #{team.team_admins_slack_mentions} can change that, sorry.")
+            client.say(channel: data.channel, text: "Team S'Up connects groups of #{team.sup_odd ? 'max ' : ''}#{team.sup_size} people. Only #{team.team_admins_slack_mentions.or} can change that, sorry.")
           else
             client.say(channel: data.channel, text: "Team S'Up connects groups of #{team.sup_odd ? 'max ' : ''}#{team.sup_size} people.")
           end
@@ -223,7 +223,7 @@ module SlackSup
             team.update_attributes!(sup_tz: timezone.name)
             client.say(channel: data.channel, text: "Team S'Up timezone is now #{team.sup_tzone}.")
           elsif v
-            client.say(channel: data.channel, text: "Team S'Up timezone is #{team.sup_tzone}. Only #{team.team_admins_slack_mentions} can change that, sorry.")
+            client.say(channel: data.channel, text: "Team S'Up timezone is #{team.sup_tzone}. Only #{team.team_admins_slack_mentions.or} can change that, sorry.")
           else
             client.say(channel: data.channel, text: "Team S'Up timezone is #{team.sup_tzone}.")
           end
@@ -235,7 +235,7 @@ module SlackSup
             team.update_attributes!(team_field_label: v)
             client.say(channel: data.channel, text: "Custom profile team field is now _#{team.team_field_label}_.")
           elsif v
-            client.say(channel: data.channel, text: "Custom profile team field is _#{team.team_field_label || 'not set'}_. Only #{team.team_admins_slack_mentions} can change that, sorry.")
+            client.say(channel: data.channel, text: "Custom profile team field is _#{team.team_field_label || 'not set'}_. Only #{team.team_admins_slack_mentions.or} can change that, sorry.")
           else
             client.say(channel: data.channel, text: "Custom profile team field is _#{team.team_field_label || 'not set'}_.")
           end
@@ -247,7 +247,7 @@ module SlackSup
             team.update_attributes!(team_field_label: nil)
             client.say(channel: data.channel, text: 'Custom profile team field is now _not set_.')
           else
-            client.say(channel: data.channel, text: "Custom profile team field is _#{team.team_field_label || 'not set'}_. Only #{team.team_admins_slack_mentions} can change that, sorry.")
+            client.say(channel: data.channel, text: "Custom profile team field is _#{team.team_field_label || 'not set'}_. Only #{team.team_admins_slack_mentions.or} can change that, sorry.")
           end
           logger.info "UNSET: #{team}, user=#{user.user_name}, team_field_label=#{team.team_field_label || '(not set)'}."
         end
@@ -257,9 +257,9 @@ module SlackSup
             team.update_attributes!(sup_message: v.to_s)
             client.say(channel: data.channel, text: "Now using a custom S'Up message. _#{team.sup_message}_")
           elsif v && team.sup_message
-            client.say(channel: data.channel, text: "Using a custom S'Up message. _#{team.sup_message}_ Only #{team.team_admins_slack_mentions} can change that, sorry.")
+            client.say(channel: data.channel, text: "Using a custom S'Up message. _#{team.sup_message}_ Only #{team.team_admins_slack_mentions.or} can change that, sorry.")
           elsif v && !team.sup_message
-            client.say(channel: data.channel, text: "Using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_ Only #{team.team_admins_slack_mentions} can change that, sorry.")
+            client.say(channel: data.channel, text: "Using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_ Only #{team.team_admins_slack_mentions.or} can change that, sorry.")
           elsif team.sup_message
             client.say(channel: data.channel, text: "Using a custom S'Up message. _#{team.sup_message}_")
           else
@@ -273,9 +273,9 @@ module SlackSup
             team.update_attributes!(sup_message: nil)
             client.say(channel: data.channel, text: "Now using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_")
           elsif team.sup_message
-            client.say(channel: data.channel, text: "Using a custom S'Up message. _#{team.sup_message}_ Only #{team.team_admins_slack_mentions} can change that, sorry.")
+            client.say(channel: data.channel, text: "Using a custom S'Up message. _#{team.sup_message}_ Only #{team.team_admins_slack_mentions.or} can change that, sorry.")
           else
-            client.say(channel: data.channel, text: "Using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_ Only #{team.team_admins_slack_mentions} can change that, sorry.")
+            client.say(channel: data.channel, text: "Using the default S'Up message. _#{Sup::PLEASE_SUP_MESSAGE}_ Only #{team.team_admins_slack_mentions.or} can change that, sorry.")
           end
           logger.info "UNSET: #{team}, user=#{user.user_name}, sup_message=#{team.sup_message || '(not set)'}."
         end
@@ -285,7 +285,7 @@ module SlackSup
             team.update_attributes!(sup_recency: v.to_i)
             client.say(channel: data.channel, text: "Now taking special care to not pair the same people more than every #{team.sup_recency_s}.")
           elsif v
-            client.say(channel: data.channel, text: "Taking special care to not pair the same people more than every #{team.sup_recency_s}. Only #{team.team_admins_slack_mentions} can change that, sorry.")
+            client.say(channel: data.channel, text: "Taking special care to not pair the same people more than every #{team.sup_recency_s}. Only #{team.team_admins_slack_mentions.or} can change that, sorry.")
           else
             client.say(channel: data.channel, text: "Taking special care to not pair the same people more than every #{team.sup_recency_s}.")
           end
@@ -304,7 +304,7 @@ module SlackSup
             end
             client.say(channel: data.channel, text: "#{team.last_sync_at_text} Come back and run `set sync` or `stats` in a bit.")
           elsif v
-            client.say(channel: data.channel, text: "#{team.last_sync_at_text} Only #{team.team_admins_slack_mentions} can manually sync, sorry.")
+            client.say(channel: data.channel, text: "#{team.last_sync_at_text} Only #{team.team_admins_slack_mentions.or} can manually sync, sorry.")
           else
             client.say(channel: data.channel, text: team.last_sync_at_text)
           end

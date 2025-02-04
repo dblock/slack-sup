@@ -21,7 +21,7 @@ module SlackSup
           end
           client.say(channel: data.channel, text: subscription_info.compact.join("\n"))
         else
-          client.say(channel: data.channel, text: "Only #{team.team_admins_slack_mentions} can get subscription details, sorry.")
+          client.say(channel: data.channel, text: "Only #{team.team_admins_slack_mentions.or} can get subscription details, sorry.")
         end
         logger.info "SUBSCRIPTION: #{client.owner} - #{user.user_name}"
       end
