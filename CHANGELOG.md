@@ -1,5 +1,6 @@
 ### Changelog
 
+* 2025/02/22: Added `data [n|all]` and only export the last round by default - [@dblock](https://github.com/dblock).
 * 2025/02/04: Added `admins` that shows all admins - [@dblock](https://github.com/dblock).
 * 2025/02/03: Fix: remove disabled users from admins - [@dblock](https://github.com/dblock).
 * 2025/02/03: Background data export - [@dblock](https://github.com/dblock).

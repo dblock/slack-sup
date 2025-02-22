@@ -553,47 +553,101 @@ describe Team do
     before do
       allow(team).to receive(:sync!)
       allow(team).to receive(:inform!)
-      team.sup!
-      team.export!(tmp)
     end
 
-    %w[team rounds sups stats users].each do |csv|
-      it "creates #{csv}.csv" do
-        expect(File.exist?(File.join(tmp, "#{csv}.csv"))).to be true
+    context 'with one sup' do
+      before do
+        team.sup!
+        team.export!(tmp)
+      end
+
+      %w[team rounds sups stats users].each do |csv|
+        it "creates #{csv}.csv" do
+          expect(File.exist?(File.join(tmp, "#{csv}.csv"))).to be true
+        end
+      end
+
+      it 'creates rounds subfolders' do
+        expect(Dir.exist?(File.join(tmp, 'rounds'))).to be true
+        expect(File.exist?(File.join(tmp, 'rounds', team.rounds.first.ran_at.strftime('%F'), 'round.csv'))).to be true
+      end
+
+      context 'team.csv' do
+        let(:csv) { CSV.read(File.join(tmp, 'team.csv'), headers: true) }
+
+        it 'generates csv' do
+          expect(csv.headers).to eq(
+            %w[
+              id
+              team_id
+              name
+              domain
+              active
+              subscribed
+              subscribed_at
+              created_at
+              updated_at
+              sup_wday
+              sup_followup_wday
+              sup_day
+              sup_tz
+              sup_time_of_day
+              sup_time_of_day_s
+              sup_every_n_weeks
+              sup_size
+            ]
+          )
+          row = csv[0]
+          expect(row['team_id']).to eq team.team_id
+        end
       end
     end
-    it 'creates rounds subfolders' do
-      expect(Dir.exist?(File.join(tmp, 'rounds'))).to be true
-      expect(File.exist?(File.join(tmp, 'rounds', team.rounds.first.ran_at.strftime('%F'), 'round.csv'))).to be true
-    end
 
-    context 'team.csv' do
-      let(:csv) { CSV.read(File.join(tmp, 'team.csv'), headers: true) }
+    context 'with 3 sups' do
+      before do
+        3.times do |i|
+          Timecop.travel(Time.now + i.days)
+          team.sup!
+        end
+      end
 
-      it 'generates csv' do
-        expect(csv.headers).to eq(
-          %w[
-            id
-            team_id
-            name
-            domain
-            active
-            subscribed
-            subscribed_at
-            created_at
-            updated_at
-            sup_wday
-            sup_followup_wday
-            sup_day
-            sup_tz
-            sup_time_of_day
-            sup_time_of_day_s
-            sup_every_n_weeks
-            sup_size
-          ]
-        )
-        row = csv[0]
-        expect(row['team_id']).to eq team.team_id
+      context 'default export' do
+        before do
+          team.export!(tmp)
+        end
+
+        %w[team rounds sups stats users].each do |csv|
+          it "creates #{csv}.csv" do
+            expect(File.exist?(File.join(tmp, "#{csv}.csv"))).to be true
+          end
+        end
+
+        it 'creates rounds subfolders' do
+          expect(Dir.exist?(File.join(tmp, 'rounds'))).to be true
+          team.rounds.each do |round|
+            expect(File.exist?(File.join(tmp, 'rounds', round.ran_at.strftime('%F'), 'round.csv'))).to be true
+          end
+        end
+      end
+
+      context 'export with max_rounds_count' do
+        before do
+          team.export!(tmp, { max_rounds_count: 1 })
+        end
+
+        %w[team rounds sups stats users].each do |csv|
+          it "creates #{csv}.csv" do
+            expect(File.exist?(File.join(tmp, "#{csv}.csv"))).to be true
+          end
+        end
+
+        it 'creates limits the number of rounds exported' do
+          expect(Dir.exist?(File.join(tmp, 'rounds'))).to be true
+          rounds = team.rounds.desc(:ran_at)
+          expect(File.exist?(File.join(tmp, 'rounds', rounds[0].ran_at.strftime('%F'), 'round.csv'))).to be true
+          expect(File.exist?(File.join(tmp, 'rounds', rounds[1].ran_at.strftime('%F'), 'round.csv'))).to be false
+          expect(File.exist?(File.join(tmp, 'rounds', rounds[2].ran_at.strftime('%F'), 'round.csv'))).to be false
+        end
       end
     end
   end

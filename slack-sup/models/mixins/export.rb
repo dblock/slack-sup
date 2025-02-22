@@ -9,10 +9,10 @@ module SlackSup
           File.join(data_path, "#{name}.zip")
         end
 
-        def export_zip!(root, name)
+        def export_zip!(root, name, options = {})
           data_path = File.join(root, name)
           data_zip = File.join(data_path, "#{name}.zip")
-          export!(data_path)
+          export!(data_path, options)
           Zip::File.open(data_zip, create: true) do |zipfile|
             Dir.glob("#{data_path}/**/*").reject { |fn| File.directory?(fn) }.each do |file|
               zipfile.add(file.sub(data_path + '/', ''), file)
@@ -21,10 +21,11 @@ module SlackSup
           data_zip
         end
 
-        def export!(root, name = self.class.name, presenter = nil, coll = nil)
-          presenter ||= Object.const_get("Api::Presenters::#{self.class.name}Presenter")
+        def export!(root, options = {})
+          name = options[:name] || self.class.name
+          presenter = options[:presenter] || Object.const_get("Api::Presenters::#{self.class.name}Presenter")
           keys = presenter.representable_attrs.keys - ['links']
-          data = coll || Array(self)
+          data = options[:coll] || Array(self)
           FileUtils.makedirs(root)
           CSV.open(File.join(root, "#{name.downcase}.csv"), 'w', write_headers: true, headers: keys) do |csv|
             data.each do |entry|

@@ -98,9 +98,9 @@ class Round
     team.users - paired_users
   end
 
-  def export!(root)
+  def export!(root, options = {})
     super
-    super(root, 'sups', Api::Presenters::SupPresenter, sups)
+    super(root, options.merge(name: 'sups', presenter: Api::Presenters::SupPresenter, coll: sups))
   end
 
   private

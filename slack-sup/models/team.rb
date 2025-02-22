@@ -400,18 +400,23 @@ class Team
     super(root, team_id)
   end
 
-  def export_zip!(root)
-    super(root, team_id)
+  def export_zip!(root, options = {})
+    super(root, team_id, options)
   end
 
-  def export!(root)
+  def export!(root, options = {})
     super
-    stats.export!(root, 'stats', Api::Presenters::StatsPresenter)
-    super(root, 'users', Api::Presenters::UserPresenter, users)
-    super(root, 'rounds', Api::Presenters::RoundPresenter, rounds)
-    super(root, 'sups', Api::Presenters::SupPresenter, sups)
-    rounds.each do |round|
-      round.export!(File.join(root, File.join('rounds', round.ran_at&.strftime('%F') || round.id)))
+    stats.export!(root, options.merge(name: 'stats', presenter: Api::Presenters::StatsPresenter))
+    super(root, options.merge(name: 'users', presenter: Api::Presenters::UserPresenter, coll: users))
+    target_rounds = options[:max_rounds_count] ? rounds.desc(:ran_at).limit(options[:max_rounds_count]) : rounds
+    target_sups = options[:max_rounds_count] ? sups.where(:round_id.in => target_rounds.distinct(:_id)) : sups
+    super(root, options.merge(name: 'rounds', presenter: Api::Presenters::RoundPresenter, coll: target_rounds))
+    super(root, options.merge(name: 'sups', presenter: Api::Presenters::SupPresenter, coll: target_sups))
+    target_rounds.each do |round|
+      round.export!(
+        File.join(root, File.join('rounds', round.ran_at&.strftime('%F') || round.id)),
+        options
+      )
     end
   end
 
