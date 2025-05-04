@@ -38,7 +38,7 @@ describe SlackSup::Commands::Rounds do
     end
   end
 
-  context 'with opt outs and misses' do
+  context 'with opt outs, misses, and vacations' do
     let!(:user1) { Fabricate(:user, team:) }
     let!(:user2) { Fabricate(:user, team:) }
     let!(:user3) { Fabricate(:user, team:) }
@@ -46,6 +46,7 @@ describe SlackSup::Commands::Rounds do
     let!(:user5) { Fabricate(:user, team:, enabled: false) }
     let!(:user6) { Fabricate(:user, team:) }
     let!(:user7) { Fabricate(:user, team:) }
+    let!(:user8) { Fabricate(:user, team:, vacation: true) }
 
     before do
       team.update_attributes!(sup_odd: false)
@@ -57,7 +58,7 @@ describe SlackSup::Commands::Rounds do
     it 'reports counts' do
       expect(message: "#{SlackRubyBot.config.user} rounds 2").to respond_with_slack_message(
         "Team S'Up facilitated 1 round.\n" \
-        "* in progress: 1 S'Up paired 3 users, no outcomes reported, 1 opt out and 2 missed users."
+        "* in progress: 1 S'Up paired 3 users, no outcomes reported, 1 opt out, 2 missed users and 1 user on vacation."
       )
     end
   end
