@@ -11,6 +11,9 @@ class User
   field :is_admin, type: Boolean, default: false
   field :real_name, type: String
 
+  field :vacation, type: Boolean, default: false
+  scope :vacation, -> { where(vacation: true, opted_in: true) }
+
   field :introduced_sup_at, type: DateTime
 
   field :opted_in, type: Boolean, default: true
@@ -20,7 +23,7 @@ class User
   field :enabled, type: Boolean, default: true
   scope :enabled, -> { where(enabled: true) }
 
-  scope :suppable, -> { where(enabled: true, opted_in: true) }
+  scope :suppable, -> { where(enabled: true, vacation: false, opted_in: true) }
   index(team_id: 1, enabled: 1, opted_in: 1)
 
   belongs_to :team, index: true
@@ -65,10 +68,23 @@ class User
   def self.find_create_or_update_by_slack_id!(client, slack_id)
     instance = User.where(team: client.owner, user_id: slack_id).first
     instance_info = Hashie::Mash.new(client.web_client.users_info(user: slack_id)).user
-    instance.update_attributes!(is_admin: instance_info.is_admin) if instance && !instance.is_admin && instance.is_admin != instance_info.is_admin
-    instance.update_attributes!(is_owner: instance_info.is_owner) if instance && instance.is_owner != instance_info.is_owner
-    instance.update_attributes!(user_name: instance_info.name) if instance && instance.user_name != instance_info.name
-    instance ||= User.create!(team: client.owner, user_id: slack_id, user_name: instance_info.name, opted_in: client.owner.opt_in)
+    instance_info_vacation = instance_info.profile&.status_emoji == ':palm_tree:'
+    if instance
+      attributes = {}
+      attributes[:is_admin] = instance_info.is_admin if !instance.is_admin && instance.is_admin != instance_info.is_admin
+      attributes[:is_owner] = instance_info.is_owner if instance.is_owner != instance_info.is_owner
+      attributes[:user_name] = instance_info.name if instance.user_name != instance_info.name
+      attributes[:vacation] = instance_info_vacation if instance.vacation != instance_info_vacation
+      instance.update_attributes!(attributes) if attributes.any?
+    else
+      instance = User.create!(
+        team: client.owner,
+        user_id: slack_id,
+        user_name: instance_info.name,
+        vacation: instance_info_vacation,
+        opted_in: client.owner.opt_in
+      )
+    end
     instance
   end
 

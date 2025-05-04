@@ -258,17 +258,16 @@ describe Team do
           is_ultra_restricted: false,
           name: 'Forrest Gump',
           real_name: 'Real Forrest Gump',
-          profile: double(email: nil, status: nil, status_text: nil)
+          profile: double(email: nil, status_emoji: nil)
         }
       end
       let(:bot_member) { double(member_default_attr.merge(id: 'bot-user', is_bot: true)) }
       let(:deleted_member) { double(member_default_attr.merge(id: 'deleted-user', deleted: true)) }
       let(:restricted_member) { double(member_default_attr.merge(id: 'restricted-user', is_restricted: true)) }
       let(:ultra_restricted_member) { double(member_default_attr.merge(id: 'ult-rest-user', is_ultra_restricted: true)) }
-      let(:ooo_member) { double(member_default_attr.merge(id: 'ooo-user', name: 'member-name-on-ooo')) }
       let(:available_member) { double(member_default_attr) }
       let(:members) do
-        [bot_member, deleted_member, restricted_member, ultra_restricted_member, ooo_member, available_member]
+        [bot_member, deleted_member, restricted_member, ultra_restricted_member, available_member]
       end
 
       before do
@@ -292,11 +291,11 @@ describe Team do
 
       it 'disables dead users' do
         available_user = Fabricate(:user, team:, user_id: available_member.id, enabled: true)
-        to_be_disabled_users = [deleted_member, restricted_member, ultra_restricted_member, ooo_member].map do |member|
+        to_be_disabled_users = [deleted_member, restricted_member, ultra_restricted_member].map do |member|
           Fabricate(:user, team:, user_id: member.id, enabled: true)
         end
         expect { team.sync! }.not_to change(User, :count)
-        expect(to_be_disabled_users.map(&:reload).map(&:enabled)).to eq [false] * 4
+        expect(to_be_disabled_users.map(&:reload).map(&:enabled)).to eq [false] * 3
         expect(available_user.reload.enabled).to be true
       end
 
@@ -304,11 +303,11 @@ describe Team do
         team2 = Fabricate(:team)
         Fabricate(:user, team: team2, user_id: available_member.id, enabled: true)
         available_user = Fabricate(:user, team:, user_id: available_member.id, enabled: true)
-        to_be_disabled_users = [deleted_member, restricted_member, ultra_restricted_member, ooo_member].map do |member|
+        to_be_disabled_users = [deleted_member, restricted_member].map do |member|
           Fabricate(:user, team:, user_id: member.id, enabled: true)
         end
         expect { team.sync! }.not_to change(User, :count)
-        expect(to_be_disabled_users.map(&:reload).map(&:enabled)).to eq [false] * 4
+        expect(to_be_disabled_users.map(&:reload).map(&:enabled)).to eq [false] * 2
         expect(available_user.reload.enabled).to be true
       end
 
@@ -316,6 +315,31 @@ describe Team do
         disabled_user = Fabricate(:user, team:, enabled: false, user_id: available_member.id)
         expect { team.sync! }.not_to change(User, :count)
         expect(disabled_user.reload.enabled).to be true
+      end
+
+      context 'with an ooo member' do
+        let!(:ooo_member) do
+          double(
+            member_default_attr.merge(
+              id: 'ooo-user',
+              name: 'member-name-on-ooo',
+              profile: double(email: nil, status_emoji: ':palm_tree:')
+            )
+          )
+        end
+
+        let(:members) do
+          [bot_member, deleted_member, restricted_member, ultra_restricted_member, available_member, ooo_member]
+        end
+
+        it 'adds the member and marks them ooo' do
+          expect { team.sync! }.to change(User, :count).by(2)
+          new_user = User.asc(:_id).last
+          expect(new_user.user_id).to eq 'ooo-user'
+          expect(new_user.enabled).to be true
+          expect(new_user.opted_in).to be true
+          expect(new_user.vacation).to be true
+        end
       end
 
       pending 'fetches user custom team information'

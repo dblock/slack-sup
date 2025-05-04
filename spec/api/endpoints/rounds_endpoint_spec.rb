@@ -29,6 +29,8 @@ describe Api::Endpoints::RoundsEndpoint do
       expect(round.paired_users.length).to eq 3
       expect(round.missed_users_count).to eq 1
       expect(round.missed_users.length).to eq 1
+      expect(round.vacation_users_count).to eq 0
+      expect(round.vacation_users.length).to eq 0
       expect(round._links.self._url).to eq "http://example.org/api/rounds/#{last_round.id}"
     end
   end

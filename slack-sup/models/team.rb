@@ -439,6 +439,7 @@ class Team
     existing_user.user_name = member.name
     existing_user.real_name = member.real_name
     existing_user.email = member.profile.email if member.profile
+    existing_user.vacation = member.profile&.status_emoji == ':palm_tree:'
     begin
       existing_user.update_custom_profile
     rescue StandardError => e
@@ -452,12 +453,7 @@ class Team
       !member.deleted &&
       !member.is_restricted &&
       !member.is_ultra_restricted &&
-      !on_vacation?(member) &&
       member.id != 'USLACKBOT'
-  end
-
-  def on_vacation?(member)
-    [member.name, member.real_name, member&.profile&.status_text].compact.join =~ /(ooo|vacationing)/i
   end
 
   def validate_team_field_label

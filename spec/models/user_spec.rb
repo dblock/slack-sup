@@ -101,6 +101,30 @@ describe User do
           expect(user.reload.is_admin).to be true
         end
       end
+
+      context 'vacationing' do
+        it 'sets vacation status' do
+          user.update_attributes!(vacation: false)
+          allow_any_instance_of(Slack::Web::Client).to receive(:users_info)
+            .and_return(
+              Hashie::Mash.new(
+                user: {
+                  profile: {
+                    status_emoji: ':palm_tree:'
+                  }
+                }
+              )
+            )
+          User.find_create_or_update_by_slack_id!(client, user.user_id)
+          expect(user.reload.vacation).to be true
+        end
+
+        it 'resets vacation status' do
+          user.update_attributes!(vacation: true)
+          User.find_create_or_update_by_slack_id!(client, user.user_id)
+          expect(user.reload.vacation).to be false
+        end
+      end
     end
   end
 

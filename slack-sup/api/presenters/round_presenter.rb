@@ -12,6 +12,7 @@ module Api
       property :opted_out_users_count, desc: 'Total users opted out'
       property :paired_users_count, desc: 'Total users paired.'
       property :missed_users_count, desc: 'Total users not paired.'
+      property :vacation_users_count, desc: 'Total users on vacation.'
       property :ran_at, type: DateTime, desc: 'Date/time when the round was run.'
       property :asked_at, type: DateTime, desc: 'Date/time when outcomes were collected.'
       property :created_at, type: DateTime, desc: 'Date/time when the round was created.'
@@ -19,6 +20,7 @@ module Api
 
       collection :paired_users, extend: UserPresenter, embedded: true
       collection :missed_users, extend: UserPresenter, embedded: true
+      collection :vacation_users, extend: UserPresenter, embedded: true
 
       link :team do |opts|
         "#{base_url(opts)}/api/teams/#{team_id}"

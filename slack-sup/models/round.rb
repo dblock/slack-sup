@@ -15,11 +15,15 @@ class Round
   validates_presence_of :team
   has_many :sups, dependent: :destroy
 
+  has_and_belongs_to_many :missed_users, class_name: 'User'
+  has_and_belongs_to_many :vacation_users, class_name: 'User'
+
   field :total_users_count
   field :opted_in_users_count
   field :opted_out_users_count
   field :paired_users_count
   field :missed_users_count
+  field :vacation_users_count
 
   after_create :run!
 
@@ -94,10 +98,6 @@ class Round
     User.find(sups.distinct(:user_ids))
   end
 
-  def missed_users
-    team.users - paired_users
-  end
-
   def export!(root, options = {})
     super
     super(root, options.merge(name: 'sups', presenter: Api::Presenters::SupPresenter, coll: sups))
@@ -126,10 +126,13 @@ class Round
         total_users_count: team.users.enabled.count,
         opted_in_users_count: team.users.opted_in.count,
         opted_out_users_count: team.users.opted_out.count,
+        vacation_users_count: team.users.vacation.count,
         paired_users_count: paired_count,
-        missed_users_count: all_users.count - paired_count
+        missed_users_count: all_users.count - paired_count,
+        missed_users: all_users.count - paired_count > 25 ? [] : all_users - paired_users,
+        vacation_users: team.users.vacation.count > 25 ? [] : team.users.vacation
       )
-      logger.info "Finished round for team #{team}, users=#{total_users_count}, opted out=#{opted_out_users_count}, paired=#{paired_users_count}, missed=#{missed_users_count}."
+      logger.info "Finished round for team #{team}, users=#{total_users_count}, opted out=#{opted_out_users_count}, vacation=#{vacation_users_count}, paired=#{paired_users_count}, missed=#{missed_users_count}."
     end
   end
 
