@@ -206,11 +206,11 @@ module SlackSup
         def set_odd(client, team, data, user, v = nil)
           if user.team_admin? && !v.nil?
             team.update_attributes!(sup_odd: v.to_b)
-            client.say(channel: data.channel, text: "Team S'Up now connects groups of #{team.sup_odd ? 'max ' : ''}#{team.sup_size} people.")
+            client.say(channel: data.channel, text: "Team S'Up now connects groups of #{'max ' if team.sup_odd}#{team.sup_size} people.")
           elsif !v.nil?
-            client.say(channel: data.channel, text: "Team S'Up connects groups of #{team.sup_odd ? 'max ' : ''}#{team.sup_size} people. Only #{team.team_admins_slack_mentions.or} can change that, sorry.")
+            client.say(channel: data.channel, text: "Team S'Up connects groups of #{'max ' if team.sup_odd}#{team.sup_size} people. Only #{team.team_admins_slack_mentions.or} can change that, sorry.")
           else
-            client.say(channel: data.channel, text: "Team S'Up connects groups of #{team.sup_odd ? 'max ' : ''}#{team.sup_size} people.")
+            client.say(channel: data.channel, text: "Team S'Up connects groups of #{'max ' if team.sup_odd}#{team.sup_size} people.")
           end
           logger.info "SET: #{team}, user=#{user.user_name}, sup_odd=#{team.sup_odd}."
         end
@@ -372,16 +372,16 @@ module SlackSup
           m['expression']
             .gsub(/^team field/, 'teamfield')
             .gsub(/^api token/, 'apitoken')
-            .split(/[\s]+/, 2)
+            .split(/\s+/, 2)
         end
 
         def team_data_access_message(user, updated_api = false, updated_token = false)
           if user.team.api? && user.team_admin? && user.team.api_token
-            "Team data access via the API is #{updated_api ? 'now ' : nil}on with a#{updated_token ? ' new' : 'n'} access token `#{user.team.api_token}`."
+            "Team data access via the API is #{'now ' if updated_api}on with a#{updated_token ? ' new' : 'n'} access token `#{user.team.api_token}`."
           elsif user.team.api? && !user.team_admin? && user.team.api_token
-            "Team data access via the API is #{updated_api ? 'now ' : nil}on with a#{updated_token ? ' new' : 'n'} access token visible to admins."
+            "Team data access via the API is #{'now ' if updated_api}on with a#{updated_token ? ' new' : 'n'} access token visible to admins."
           else
-            "Team data access via the API is #{updated_api ? 'now ' : nil}#{user.team.api_s}."
+            "Team data access via the API is #{'now ' if updated_api}#{user.team.api_s}."
           end
         end
       end
@@ -394,7 +394,7 @@ module SlackSup
         else
           team = client.owner
           message = [
-            "Team S'Up connects groups of #{team.sup_odd ? 'max ' : ''}#{team.sup_size} people on #{team.sup_day} after #{team.sup_time_of_day_s} every #{team.sup_every_n_weeks_s} in #{team.sup_tzone}, taking special care to not pair the same people more frequently than every #{team.sup_recency_s}.",
+            "Team S'Up connects groups of #{'max ' if team.sup_odd}#{team.sup_size} people on #{team.sup_day} after #{team.sup_time_of_day_s} every #{team.sup_every_n_weeks_s} in #{team.sup_tzone}, taking special care to not pair the same people more frequently than every #{team.sup_recency_s}.",
             "Users are _opted #{team.opt_in_s}_ by default.",
             "Custom profile team field is _#{team.team_field_label || 'not set'}_.",
             team_data_access_message(user),

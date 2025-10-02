@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-ruby '3.3.5'
+ruby '3.4.6'
 
 gem 'ambit'
 gem 'bytesize'
@@ -15,16 +15,16 @@ gem 'mongoid'
 gem 'mongoid-scroll'
 gem 'newrelic_rpm'
 gem 'ostruct'
+gem 'puma'
 gem 'rack', '~> 3.0.16'
 gem 'rack-robotz'
 gem 'rack-server-pages'
 gem 'rubyzip'
 gem 'slack-ruby-bot-server'
 gem 'slack-ruby-bot-server-mailchimp'
-gem 'slack-ruby-bot-server-rtm'
+gem 'slack-ruby-bot-server-rtm', '~> 0.3.0'
 gem 'slack-ruby-client'
 gem 'stripe', '~> 1.58.0'
-gem 'unicorn'
 gem 'wannabe_bool'
 
 group :development, :test do
