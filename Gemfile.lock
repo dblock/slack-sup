@@ -33,7 +33,7 @@ GEM
       websocket-driver (~> 0.7.0)
     base64 (0.3.0)
     benchmark (0.4.1)
-    bigdecimal (3.2.3)
+    bigdecimal (3.3.1)
     bson (5.1.1)
     byebug (12.0.0)
     bytesize (0.1.2)
@@ -87,7 +87,7 @@ GEM
       dry-inflector (~> 1.0)
       dry-logic (~> 1.4)
       zeitwerk (~> 2.6)
-    erb (5.0.2)
+    erb (5.0.3)
     fabrication (3.0.0)
     faker (3.5.2)
       i18n (>= 1.8.11, < 2)
@@ -147,7 +147,7 @@ GEM
       pp (>= 0.6.0)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
-    json (2.15.0)
+    json (2.15.1)
     jwt (3.1.2)
       base64
     kaminari-core (1.2.2)
@@ -167,7 +167,7 @@ GEM
     mime-types-data (3.2025.0924)
     mini_mime (1.1.5)
     mini_portile2 (2.8.9)
-    minitest (5.25.5)
+    minitest (5.26.0)
     mongo (2.21.3)
       base64
       bson (>= 4.14.1, < 6.0.0)
@@ -194,7 +194,7 @@ GEM
     net-http (0.6.0)
       uri
     netrc (0.11.0)
-    newrelic_rpm (9.21.0)
+    newrelic_rpm (9.22.0)
     nio4r (2.7.4)
     nokogiri (1.18.10)
       mini_portile2 (~> 2.8.2)
@@ -204,10 +204,10 @@ GEM
     parser (3.3.9.0)
       ast (~> 2.4.1)
       racc
-    pp (0.6.2)
+    pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
-    prism (1.5.1)
+    prism (1.5.2)
     psych (5.2.6)
       date
       stringio
@@ -215,7 +215,7 @@ GEM
     puma (7.0.4)
       nio4r (~> 2.0)
     racc (1.8.1)
-    rack (3.0.18)
+    rack (3.2.3)
     rack-cors (3.0.0)
       logger
       rack (>= 3.0.14)
@@ -230,9 +230,10 @@ GEM
       rack (>= 3)
     rainbow (3.1.1)
     rake (12.3.3)
-    rdoc (6.14.2)
+    rdoc (6.15.0)
       erb
       psych (>= 4.0.0)
+      tsort
     regexp_parser (2.11.3)
     reline (0.6.2)
       io-console (~> 0.5)
@@ -337,13 +338,14 @@ GEM
     timecop (0.9.10)
     traces (0.18.2)
     trailblazer-option (0.1.2)
+    tsort (0.2.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     uber (0.1.0)
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.1.0)
-    uri (1.0.3)
+    uri (1.0.4)
     vcr (6.3.1)
       base64
     wannabe_bool (0.7.1)
@@ -387,7 +389,7 @@ DEPENDENCIES
   newrelic_rpm
   ostruct
   puma
-  rack (~> 3.0.16)
+  rack
   rack-robotz
   rack-server-pages
   rack-test
@@ -402,7 +404,7 @@ DEPENDENCIES
   selenium-webdriver
   slack-ruby-bot-server
   slack-ruby-bot-server-mailchimp
-  slack-ruby-bot-server-rtm (~> 0.3.0)
+  slack-ruby-bot-server-rtm
   slack-ruby-client
   stripe (~> 1.58.0)
   stripe-ruby-mock (~> 2.4.1)
