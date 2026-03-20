@@ -30,10 +30,11 @@ describe SlackSup::Commands::Rounds do
 
     it 'reports counts' do
       Timecop.travel(Time.now + 731.days)
+      previous_round = team.rounds.asc(:_id).first
       expect(message: "#{SlackRubyBot.config.user} rounds 2").to respond_with_slack_message(
         "Team S'Up facilitated 2 rounds.\n" \
         "* in progress: 1 S'Up paired 3 users and no outcomes reported.\n" \
-        "* 1 year ago: 1 S'Up paired 3 users, 100% positive outcomes and 100% outcomes reported."
+        "* #{previous_round.ran_at.to_time.ago_in_words(highest_measure_only: true)}: 1 S'Up paired 3 users, 100% positive outcomes and 100% outcomes reported."
       )
     end
   end
