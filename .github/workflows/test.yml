@@ -10,7 +10,7 @@ jobs:
       - uses: browser-actions/setup-firefox@v1
         with:
           firefox-version: '143.0.3'
-      - uses: browser-actions/setup-geckodriver@v1
+      - uses: browser-actions/setup-geckodriver@latest
         with:
           geckodriver-version: "0.36.0"
       - uses: supercharge/mongodb-github-action@v1
