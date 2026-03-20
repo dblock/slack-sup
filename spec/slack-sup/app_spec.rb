@@ -22,7 +22,7 @@ describe SlackSup::App do
   describe '#deactivate_asleep_teams!' do
     let!(:active_team) { Fabricate(:team, created_at: Time.now.utc) }
     let!(:active_team_one_week_ago) { Fabricate(:team, created_at: 1.week.ago) }
-    let!(:active_team_three_weeks_ago) { Fabricate(:team, created_at: 3.weeks.ago) }
+    let!(:active_team_three_weeks_ago) { Fabricate(:team, created_at: 3.weeks.ago - 1.day) }
     let!(:subscribed_team_a_month_ago) { Fabricate(:team, created_at: 1.month.ago, subscribed: true) }
 
     it 'destroys teams inactive for two weeks' do

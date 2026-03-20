@@ -132,8 +132,8 @@ describe Team do
       end
     end
 
-    context 'team created three weeks ago' do
-      let(:team) { Fabricate(:team, created_at: 3.weeks.ago) }
+    context 'team created over three weeks ago' do
+      let(:team) { Fabricate(:team, created_at: 3.weeks.ago - 1.day) }
 
       it 'is asleep' do
         expect(team.asleep?).to be true
@@ -150,14 +150,6 @@ describe Team do
 
       it 'is not asleep' do
         expect(team.asleep?).to be false
-      end
-    end
-
-    context 'team created over three weeks ago' do
-      let(:team) { Fabricate(:team, created_at: 3.weeks.ago - 1.day) }
-
-      it 'is asleep' do
-        expect(team.asleep?).to be true
       end
     end
 

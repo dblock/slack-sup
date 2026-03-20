@@ -23,13 +23,17 @@ describe Export do
       expect(export.team.slack_client).to receive(:chat_postMessage).with(
         hash_including(
           attachments: [
-            actions: [
-              text: 'Download',
-              type: 'button',
-              url: "#{SlackRubyBotServer::Service.url}/api/data/#{export.id}?access_token=token"
-            ],
-            attachment_type: 'default',
-            text: ''
+            {
+              actions: [
+                {
+                  text: 'Download',
+                  type: 'button',
+                  url: "#{SlackRubyBotServer::Service.url}/api/data/#{export.id}?access_token=token"
+                }
+              ],
+              attachment_type: 'default',
+              text: ''
+            }
           ],
           channel: 'dm',
           text: 'Click here to download your team data.'
