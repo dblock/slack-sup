@@ -531,7 +531,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
         team.update_attributes!(last_sync_at: Time.now.utc)
         Fabricate(:user, team:)
         expect(message: "#{SlackRubyBot.config.user} set sync").to respond_with_slack_message(
-          "Last users sync was less than 1 second ago. 1 user updated. Users will sync before the next round. #{team.next_sup_at_text}"
+          team.last_sync_at_text
         )
       end
 
@@ -540,7 +540,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
         Timecop.travel(Time.now.utc + 1.minute)
         team.update_attributes!(last_sync_at: Time.now.utc)
         expect(message: "#{SlackRubyBot.config.user} set sync").to respond_with_slack_message(
-          "Last users sync was less than 1 second ago. No users updated. Users will sync before the next round. #{team.next_sup_at_text}"
+          team.last_sync_at_text
         )
       end
 
@@ -549,7 +549,7 @@ describe SlackSup::Commands::Set, vcr: { cassette_name: 'user_info' } do
         team.update_attributes!(last_sync_at: Time.now.utc)
         2.times { Fabricate(:user, team:) }
         expect(message: "#{SlackRubyBot.config.user} set sync").to respond_with_slack_message(
-          "Last users sync was less than 1 second ago. 2 users updated. Users will sync before the next round. #{team.next_sup_at_text}"
+          team.last_sync_at_text
         )
       end
 
