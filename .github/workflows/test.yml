@@ -6,14 +6,14 @@ jobs:
   RSpec:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: browser-actions/setup-firefox@latest
+      - uses: actions/checkout@v6
+      - uses: browser-actions/setup-firefox@v1
         with:
           firefox-version: '143.0.3'
-      - uses: browser-actions/setup-geckodriver@latest
+      - uses: browser-actions/setup-geckodriver@v1
         with:
           geckodriver-version: "0.36.0"
-      - uses: supercharge/mongodb-github-action@1.7.0
+      - uses: supercharge/mongodb-github-action@v1
         with:
           mongodb-version: "8.0"
       - uses: ruby/setup-ruby@v1
