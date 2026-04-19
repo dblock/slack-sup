@@ -1,5 +1,6 @@
 ### Changelog
 
+* 2026/04/19: Added `check_stripe_subscribers!` cron to reconcile Stripe subscriptions with teams - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
 * 2025/10/02: Upgraded to Ruby 3.4.6 - [@dblock](https://github.com/dblock).
 * 2025/05/04: Visibly handle vacationing users - [@dblock](https://github.com/dblock).
 * 2025/02/22: Added `data [n|all]` and only export the last round by default - [@dblock](https://github.com/dblock).
