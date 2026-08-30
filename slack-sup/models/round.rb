@@ -11,7 +11,7 @@ class Round
   field :asked_again_at, type: DateTime
   field :reminded_at, type: DateTime
 
-  belongs_to :team
+  belongs_to :team, index: true
   validates_presence_of :team
   has_many :sups, dependent: :destroy
 

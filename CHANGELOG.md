@@ -1,5 +1,6 @@
 ### Changelog
 
+* 2026/08/30: Add missing `team_id` indexes on `Sup` and `Round` to speed up per-team stats queries used by `/api/stats` - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
 * 2026/06/27: Bumped concurrent-ruby to 1.3.7, faraday to 2.14.3, nokogiri to 1.19.4 - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
 * 2026/04/19: Added `check_stripe_subscribers!` cron to reconcile Stripe subscriptions with teams - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
 * 2025/10/02: Upgraded to Ruby 3.4.6 - [@dblock](https://github.com/dblock).

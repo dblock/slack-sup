@@ -7,7 +7,7 @@ class Sup
   field :outcome, type: String
   field :channel_id, type: String
   field :gcal_html_link, type: String
-  belongs_to :team
+  belongs_to :team, index: true
   belongs_to :round
   has_and_belongs_to_many :users
 
