@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-ruby '4.0.2'
+ruby '4.0.9'
 
 gem 'ambit'
 gem 'bytesize'
@@ -22,15 +22,15 @@ gem 'rack-server-pages'
 gem 'rubyzip'
 gem 'slack-ruby-bot-server'
 gem 'slack-ruby-bot-server-mailchimp'
-gem 'slack-ruby-bot-server-rtm'
-gem 'slack-ruby-client'
+gem 'slack-ruby-bot-server-rtm', '>= 0.3.0'
+gem 'slack-ruby-client', '< 3'
 gem 'stripe', '~> 1.58.0'
 gem 'wannabe_bool'
 
 group :development, :test do
   gem 'byebug'
   gem 'foreman'
-  gem 'rake', '~> 12.3'
+  gem 'rake', '~> 13.0'
   gem 'rubocop'
   gem 'rubocop-capybara'
   gem 'rubocop-rake'
