@@ -177,6 +177,11 @@ class Team
     now.tomorrow
   end
 
+  def sup_time_on(date)
+    time = Time.at(sup_time_of_day).utc
+    sup_tzone.local(date.year, date.month, date.day, time.hour, time.min, time.sec)
+  end
+
   # is it time to sup?
   def sup?
     # only sup on a certain day of the week
@@ -184,7 +189,7 @@ class Team
     return false unless now_in_tz.wday == sup_wday
 
     # sup after sup_time_of_day, 9am by default
-    return false if now_in_tz < now_in_tz.beginning_of_day + sup_time_of_day
+    return false if now_in_tz < sup_time_on(now_in_tz)
 
     # don't sup more than sup_every_n_weeks, once a week by default
     time_limit = now_in_tz.end_of_day - sup_every_n_weeks.weeks
@@ -196,8 +201,8 @@ class Team
     loop do
       time_limit = now_in_tz.end_of_day - sup_every_n_weeks.weeks
 
-      return now_in_tz.beginning_of_day + sup_time_of_day if (now_in_tz.wday == sup_wday) &&
-                                                             ((last_round_at || time_limit) <= time_limit)
+      return sup_time_on(now_in_tz) if (now_in_tz.wday == sup_wday) &&
+                                       ((last_round_at || time_limit) <= time_limit)
 
       now_in_tz = now_in_tz.beginning_of_day + 1.day
     end

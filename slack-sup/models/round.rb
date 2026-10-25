@@ -61,7 +61,7 @@ class Round
     return false unless now_in_tz.wday == team.sup_followup_wday
 
     # do not bother people before S'Up time
-    return false if now_in_tz < now_in_tz.beginning_of_day + team.sup_time_of_day
+    return false if now_in_tz < team.sup_time_on(now_in_tz)
 
     true
   end
@@ -82,7 +82,7 @@ class Round
 
     # do not bother people before S'Up time
     now_in_tz = Time.now.utc.in_time_zone(team.sup_tzone)
-    return false if now_in_tz < now_in_tz.beginning_of_day + team.sup_time_of_day
+    return false if now_in_tz < team.sup_time_on(now_in_tz)
 
     true
   end

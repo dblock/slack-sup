@@ -29,6 +29,30 @@ describe Team do
     end
   end
 
+  [
+    ['spring forward', '2026/3/8 8:30:15 AM EDT'],
+    ['fall back', '2026/11/1 8:30:15 AM EST']
+  ].each do |transition, scheduled_time|
+    context "scheduling during #{transition}" do
+      let(:scheduled_at) { DateTime.parse(scheduled_time).utc }
+      let(:team) do
+        Fabricate(:team, sup_wday: Date::SUNDAY, sup_tz: 'Eastern Time (US & Canada)',
+                         sup_time_of_day: (8 * 60 * 60) + (30 * 60) + 15)
+      end
+
+      it 'runs at the configured local time, not a second earlier' do
+        Timecop.freeze(scheduled_at - 1.second) { expect(team.sup?).to be false }
+        Timecop.freeze(scheduled_at) { expect(team.sup?).to be true }
+      end
+
+      it 'keeps the next round at the configured local time' do
+        Timecop.freeze(scheduled_at - 1.day) do
+          expect(team.next_sup_at).to eq scheduled_at
+        end
+      end
+    end
+  end
+
   context 'team_admins' do
     let(:team) { Fabricate(:team) }
 
@@ -236,9 +260,8 @@ describe Team do
     let(:t_in_time_zone) { Time.now.utc.in_time_zone(tz) }
     let(:eight_am) { 8 * 60 * 60 }
     let(:wday) { t_in_time_zone.wday }
-    let(:beginning_of_day) { t_in_time_zone.beginning_of_day }
     let(:team) { Fabricate(:team, sup_wday: wday, sup_time_of_day: eight_am, sup_tz: tz) }
-    let(:on_time_sup) { beginning_of_day + team.sup_time_of_day }
+    let(:on_time_sup) { t_in_time_zone.change(hour: 8, min: 0, sec: 0) }
 
     describe '#sync!' do
       let(:member_default_attr) do

@@ -8,6 +8,30 @@ describe Round do
     allow_any_instance_of(Sup).to receive(:dm!)
   end
 
+  [
+    ['spring forward', '2026/3/8 8:30:15 AM EDT'],
+    ['fall back', '2026/11/1 8:30:15 AM EST']
+  ].each do |transition, scheduled_time|
+    context "scheduling during #{transition}" do
+      let(:scheduled_at) { DateTime.parse(scheduled_time).utc }
+      let(:team) do
+        Fabricate(:team, sup_followup_wday: Date::SUNDAY, sup_tz: 'Eastern Time (US & Canada)',
+                         sup_time_of_day: (8 * 60 * 60) + (30 * 60) + 15)
+      end
+      let(:round) { Fabricate(:round, team:, ran_at: scheduled_at - 2.days) }
+
+      it 'asks at the configured local time, not a second earlier' do
+        Timecop.freeze(scheduled_at - 1.second) { expect(round.ask?).to be false }
+        Timecop.freeze(scheduled_at) { expect(round.ask?).to be true }
+      end
+
+      it 'reminds at the configured local time, not a second earlier' do
+        Timecop.freeze(scheduled_at - 1.second) { expect(round.remind?).to be false }
+        Timecop.freeze(scheduled_at) { expect(round.remind?).to be true }
+      end
+    end
+  end
+
   describe '#run' do
     pending 'times out after Round::TIMEOUT'
 
