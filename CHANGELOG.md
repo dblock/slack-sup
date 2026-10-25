@@ -1,5 +1,6 @@
 ### Changelog
 
+* 2026/10/25: Upgrade framework and content-version local website assets with revalidating pages and stylesheets - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
 * 2026/10/25: Keep rounds, reminders and follow-ups at the configured local time across daylight saving changes - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
 * 2026/10/23: Upgrade Ruby to 4.0.9 and refresh dependencies, leaving Stripe dependencies unchanged - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
 * 2026/08/30: Add missing `team_id` indexes on `Sup` and `Round` to speed up per-team stats queries used by `/api/stats` - [@dblock](https://github.com/dblock), [@Copilot](https://github.com/apps/copilot-swe-agent).
